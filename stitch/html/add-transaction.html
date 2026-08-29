@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Add Transaction - Neo-Brutalist</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&amp;family=JetBrains+Mono:wght@400;700;800&amp;family=Hanken+Grotesk:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "on-secondary-fixed": "#23005c",
+                "inverse-on-surface": "#f4eeff",
+                "surface-bright": "#fdf8ff",
+                "surface-variant": "#e5e0f3",
+                "on-tertiary-fixed": "#1e0e4e",
+                "surface-tint": "#3f50ce",
+                "surface-container-lowest": "#ffffff",
+                "error": "#ba1a1a",
+                "on-tertiary-fixed-variant": "#4a3d7c",
+                "on-tertiary": "#ffffff",
+                "on-primary-fixed-variant": "#2335b5",
+                "on-error": "#ffffff",
+                "surface-dim": "#ddd7ea",
+                "error-container": "#ffdad6",
+                "on-primary": "#ffffff",
+                "surface-container-high": "#ebe5f9",
+                "surface-container-highest": "#e5e0f3",
+                "secondary-container": "#8455ef",
+                "tertiary-fixed-dim": "#ccbeff",
+                "on-primary-container": "#ccd0ff",
+                "on-tertiary-container": "#d7ccff",
+                "outline-variant": "#c5c5d6",
+                "primary-container": "#3b4cca",
+                "secondary-fixed-dim": "#d0bcff",
+                "primary-fixed-dim": "#bcc2ff",
+                "background": "#fdf8ff",
+                "outline": "#757685",
+                "on-background": "#1c1a27",
+                "secondary-fixed": "#e9ddff",
+                "primary-fixed": "#dfe0ff",
+                "on-primary-fixed": "#000b62",
+                "on-error-container": "#93000a",
+                "primary": "#1e30b2",
+                "surface-container-low": "#f7f1ff",
+                "on-surface-variant": "#454654",
+                "tertiary": "#463978",
+                "secondary": "#6b38d4",
+                "on-secondary-container": "#fffbff",
+                "on-surface": "#1c1a27",
+                "tertiary-fixed": "#e7deff",
+                "tertiary-container": "#5e5191",
+                "on-secondary": "#ffffff",
+                "surface-container": "#f1ebfe",
+                "on-secondary-fixed-variant": "#5516be",
+                "inverse-primary": "#bcc2ff",
+                "inverse-surface": "#312f3d",
+                "surface": "#fdf8ff",
+                "neo-green": "#4ade80",
+                "neo-red": "#f87171"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.125rem",
+                "lg": "0.25rem",
+                "xl": "0.5rem",
+                "full": "0.75rem"
+        },
+        "spacing": {
+                "border-width": "4px",
+                "shadow-offset": "6px",
+                "margin-mobile": "16px",
+                "gutter": "24px",
+                "margin-desktop": "48px",
+                "stack-gap": "12px"
+        },
+        "fontFamily": {
+                "headline-lg-mobile": [
+                        "Space Grotesk"
+                ],
+                "body-lg": [
+                        "Hanken Grotesk"
+                ],
+                "body-md": [
+                        "Hanken Grotesk"
+                ],
+                "headline-md": [
+                        "Space Grotesk"
+                ],
+                "label-mono": [
+                        "JetBrains Mono"
+                ],
+                "number-xl": [
+                        "JetBrains Mono"
+                ],
+                "headline-lg": [
+                        "Space Grotesk"
+                ],
+                "display-xl": [
+                        "Space Grotesk"
+                ]
+        },
+        "fontSize": {
+                "headline-lg-mobile": [
+                        "32px",
+                        {
+                                "lineHeight": "1.2",
+                                "fontWeight": "700"
+                        }
+                ],
+                "body-lg": [
+                        "18px",
+                        {
+                                "lineHeight": "1.5",
+                                "fontWeight": "500"
+                        }
+                ],
+                "body-md": [
+                        "16px",
+                        {
+                                "lineHeight": "1.5",
+                                "fontWeight": "500"
+                        }
+                ],
+                "headline-md": [
+                        "32px",
+                        {
+                                "lineHeight": "1.2",
+                                "fontWeight": "700"
+                        }
+                ],
+                "label-mono": [
+                        "14px",
+                        {
+                                "lineHeight": "1",
+                                "fontWeight": "700"
+                        }
+                ],
+                "number-xl": [
+                        "40px",
+                        {
+                                "lineHeight": "1",
+                                "fontWeight": "800"
+                        }
+                ],
+                "headline-lg": [
+                        "48px",
+                        {
+                                "lineHeight": "1.1",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "display-xl": [
+                        "72px",
+                        {
+                                "lineHeight": "1.1",
+                                "letterSpacing": "-0.04em",
+                                "fontWeight": "700"
+                        }
+                ]
+        }
+},
+    },
+  }
+</script>
+<style>
+        .neo-shadow {
+            box-shadow: 6px 6px 0px 0px #1c1a27;
+        }
+        .neo-shadow-hover:hover {
+            box-shadow: 8px 8px 0px 0px #1c1a27;
+        }
+        .neo-shadow-active:active {
+            box-shadow: none;
+            transform: translate(6px, 6px);
+        }
+        .neo-border {
+            border: 4px solid #1c1a27;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen">
+<!-- TopNavBar -->
+<nav class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop h-20 bg-surface dark:bg-inverse-surface border-b-border-width border-on-background dark:border-outline-variant sticky top-0 z-50">
+<div class="flex items-center gap-4">
+<span class="text-headline-md font-headline-md font-black text-on-surface uppercase tracking-tighter">RAW LOGIC</span>
+</div>
+<div class="flex-1 max-w-xl hidden md:flex items-center px-8">
+<div class="w-full relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant z-10">search</span>
+<input class="w-full bg-surface-container neo-border py-3 pl-12 pr-4 font-body-md text-on-surface focus:outline-none focus:ring-0 focus:bg-surface-lowest neo-shadow transition-all" placeholder="Search transactions, wallets, or reports..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="w-12 h-12 flex items-center justify-center neo-border bg-tertiary-fixed neo-shadow neo-shadow-active hover:translate-x-1 hover:translate-y-1 transition-all duration-100">
+<span class="material-symbols-outlined text-primary">notifications</span>
+</button>
+<button class="w-12 h-12 flex items-center justify-center neo-border bg-tertiary-fixed neo-shadow neo-shadow-active hover:translate-x-1 hover:translate-y-1 transition-all duration-100">
+<span class="material-symbols-outlined text-primary">account_balance_wallet</span>
+</button>
+<div class="w-12 h-12 neo-border bg-primary overflow-hidden neo-shadow hidden md:block">
+<img alt="User profile photo" class="w-full h-full object-cover" data-alt="A stylized digital illustration of a user avatar in a neo-brutalist style, featuring sharp geometric shapes, bold primary colors, and high contrast against a plain white background. The character has a confident expression and a minimalist aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCpploxwjllFelb71f70jPYQc4kh3n-u447tkU8G22M7VfdBEp_JMFLXytVa7Su2fCJJdXtUHoNXu274x41e90o83uDjKPh4Jti0ydsFbqIiL8IHFi9hLfd2Xoxrzp1VCTiT2LoHljA6qr51Ol0ewn3KUacQxQY1zEO8tfwkySAhaEa-Arz0S_lE82QU-rdW-b4mXqDmb-OnE6cXKf4Ip2A5xk6-eWSPgzrAdMqiXfbRQaB70B8huc"/>
+</div>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="p-margin-mobile md:p-margin-desktop space-y-gutter pb-24 md:ml-80">
+<header class="mb-8">
+<h1 class="font-display-xl text-display-xl mb-4 uppercase tracking-tighter">New Transaction</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Log your cashflow manually.</p>
+</header>
+<form class="space-y-8 bg-surface-container p-6 md:p-12 neo-border neo-shadow transform rotate-[0.5deg]">
+<!-- Type Toggle -->
+<div class="flex gap-4 mb-8 mb-12">
+<button class="flex-1 py-4 neo-border bg-surface text-on-background font-label-mono text-label-mono uppercase neo-shadow neo-shadow-active transition-all focus:bg-neo-green focus:text-on-background group" type="button">
+<span class="material-symbols-outlined align-middle mr-2 group-focus:rotate-180 transition-transform">arrow_downward</span>
+                    Pemasukan
+                </button>
+<button class="flex-1 py-4 neo-border bg-error-container text-on-error-container font-label-mono text-label-mono uppercase neo-shadow neo-shadow-active transition-all focus:bg-neo-red focus:text-on-background group" type="button">
+<span class="material-symbols-outlined align-middle mr-2 group-focus:rotate-180 transition-transform">arrow_upward</span>
+                    Pengeluaran
+                </button>
+</div>
+<!-- Amount Input -->
+<div class="bg-surface p-6 neo-border neo-shadow text-center transform rotate-[-0.5deg]">
+<label class="block font-headline-md text-headline-md mb-2 text-on-surface-variant">Jumlah</label>
+<div class="flex items-center justify-center gap-2">
+<span class="font-number-xl text-number-xl text-primary">Rp</span>
+<input class="w-full max-w-[300px] text-center font-number-xl text-number-xl bg-transparent border-none focus:ring-0 p-0 placeholder-outline-variant text-on-background" placeholder="0" required="" type="number"/>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+<!-- Select Wallet -->
+<div class="bg-surface p-4 neo-border neo-shadow">
+<label class="block font-label-mono text-label-mono mb-3 uppercase text-secondary">Pilih Wallet</label>
+<select class="w-full neo-border p-3 font-body-md text-body-md bg-surface-container focus:outline-none focus:ring-0 cursor-pointer appearance-none">
+<option>BCA Utama</option>
+<option>OVO</option>
+<option>Cash (Dompet)</option>
+<option>Kartu Kredit</option>
+</select>
+</div>
+<!-- Date Picker -->
+<div class="bg-surface p-4 neo-border neo-shadow">
+<label class="block font-label-mono text-label-mono mb-3 uppercase text-secondary">Tanggal</label>
+<input class="w-full neo-border p-3 font-body-md text-body-md bg-surface-container focus:outline-none focus:ring-0 cursor-pointer" type="date"/>
+</div>
+</div>
+<!-- Select Category (Chips) -->
+<div class="bg-surface p-6 neo-border neo-shadow">
+<label class="block font-label-mono text-label-mono mb-4 uppercase text-secondary">Pilih Kategori</label>
+<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+<label class="cursor-pointer">
+<input checked="" class="peer sr-only" name="category" type="radio"/>
+<span class="inline-block w-full text-center px-4 py-2 border-[4px] border-on-background bg-surface peer-checked:bg-secondary-fixed peer-checked:text-on-secondary-fixed font-label-mono text-label-mono uppercase transition-colors">Jajan</span>
+</label>
+<label class="cursor-pointer">
+<input class="peer sr-only" name="category" type="radio"/>
+<span class="inline-block w-full text-center px-4 py-2 border-[4px] border-on-background bg-surface peer-checked:bg-secondary-fixed peer-checked:text-on-secondary-fixed font-label-mono text-label-mono uppercase transition-colors">Beli Kuota</span>
+</label>
+<label class="cursor-pointer">
+<input class="peer sr-only" name="category" type="radio"/>
+<span class="inline-block w-full text-center px-4 py-2 border-[4px] border-on-background bg-surface peer-checked:bg-secondary-fixed peer-checked:text-on-secondary-fixed font-label-mono text-label-mono uppercase transition-colors">Transportasi</span>
+</label>
+<label class="cursor-pointer">
+<input class="peer sr-only" name="category" type="radio"/>
+<span class="inline-block w-full text-center px-4 py-2 border-[4px] border-on-background bg-surface peer-checked:bg-secondary-fixed peer-checked:text-on-secondary-fixed font-label-mono text-label-mono uppercase transition-colors">Tagihan</span>
+</label>
+<label class="cursor-pointer">
+<input class="peer sr-only" name="category" type="radio"/>
+<span class="inline-block w-full text-center px-4 py-2 border-[4px] border-on-background bg-surface peer-checked:bg-secondary-fixed peer-checked:text-on-secondary-fixed font-label-mono text-label-mono uppercase transition-colors">Lainnya</span>
+</label>
+</div>
+</div>
+<!-- Description -->
+<div class="bg-surface p-4 neo-border neo-shadow">
+<label class="block font-label-mono text-label-mono mb-3 uppercase text-secondary">Catatan / Deskripsi</label>
+<textarea class="w-full neo-border p-3 font-body-md text-body-md bg-surface-container focus:outline-none focus:ring-0 resize-none" placeholder="Buat beli kopi sama donat..." rows="3"></textarea>
+</div>
+<!-- Submit Button -->
+<button class="w-full py-5 bg-primary text-on-primary neo-border neo-shadow neo-shadow-active font-label-mono text-label-mono text-lg uppercase tracking-wider mt-8 hover:bg-primary-container transition-all mt-12" type="submit">
+                SIMPAN TRANSAKSI
+            </button>
+</form>
+</main>
+<!-- SideNavBar (Hidden on Mobile) -->
+<div class="hidden md:flex fixed left-0 top-20 h-[calc(100vh-80px)] w-80 flex-col p-stack-gap border-r-border-width border-on-background bg-surface-container dark:bg-surface-container-highest z-40">
+<div class="flex-1 mt-8 space-y-2">
+<a class="text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high px-4 py-3 flex items-center gap-stack-gap font-label-mono text-label-mono uppercase neo-border border-transparent hover:border-on-background transition-all" href="#">
+<span class="material-symbols-outlined">grid_view</span>
+                Dashboard
+            </a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high px-4 py-3 flex items-center gap-stack-gap font-label-mono text-label-mono uppercase neo-border border-transparent hover:border-on-background transition-all" href="#">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+                Wallets
+            </a>
+<!-- Active State -->
+<a class="bg-primary text-on-primary border-border-width border-on-background shadow-[6px_6px_0px_0px_rgba(28,26,39,1)] transform rotate-[-0.5deg] px-4 py-3 flex items-center gap-stack-gap font-label-mono text-label-mono uppercase transition-all" href="#">
+<span class="material-symbols-outlined">bar_chart</span>
+                Reports
+            </a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high px-4 py-3 flex items-center gap-stack-gap font-label-mono text-label-mono uppercase neo-border border-transparent hover:border-on-background transition-all" href="#">
+<span class="material-symbols-outlined">target</span>
+                Goals
+            </a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high px-4 py-3 flex items-center gap-stack-gap font-label-mono text-label-mono uppercase neo-border border-transparent hover:border-on-background transition-all" href="#">
+<span class="material-symbols-outlined">settings</span>
+                Settings
+            </a>
+</div>
+<div class="mt-auto pt-8 border-t-[4px] border-on-background space-y-2">
+<button class="w-full py-4 bg-secondary text-on-secondary neo-border neo-shadow neo-shadow-active font-label-mono text-label-mono uppercase mb-6 hover:bg-secondary-container transition-all">
+                NEW TRANSACTION
+            </button>
+<a class="text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high px-4 py-3 flex items-center gap-stack-gap font-label-mono text-label-mono uppercase" href="#">
+<span class="material-symbols-outlined">help</span>
+                Help Center
+            </a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high px-4 py-3 flex items-center gap-stack-gap font-label-mono text-label-mono uppercase" href="#">
+<span class="material-symbols-outlined">logout</span>
+                Sign Out
+            </a>
+</div>
+</div>
+</body></html>

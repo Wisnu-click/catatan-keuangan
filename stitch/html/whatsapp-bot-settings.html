@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Hubungkan WhatsApp - RAW LOGIC</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500&amp;family=JetBrains+Mono:wght@700;800&amp;family=Space+Grotesk:wght@700;900&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config injected from Design System -->
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                "on-surface-variant": "#454654",
+                "tertiary-container": "#5e5191",
+                "on-primary-fixed": "#000b62",
+                "surface-container": "#f1ebfe",
+                "on-secondary-fixed": "#23005c",
+                "surface-variant": "#e5e0f3",
+                "on-primary-fixed-variant": "#2335b5",
+                "background": "#fdf8ff",
+                "on-error-container": "#93000a",
+                "surface-container-low": "#f7f1ff",
+                "primary-fixed-dim": "#bcc2ff",
+                "inverse-surface": "#312f3d",
+                "tertiary-fixed-dim": "#ccbeff",
+                "surface-container-lowest": "#ffffff",
+                "secondary-container": "#8B5CF6", // Primary Purple/Lilac
+                "outline": "#757685",
+                "on-surface": "#1c1a27",
+                "tertiary": "#463978",
+                "on-tertiary-container": "#d7ccff",
+                "on-error": "#ffffff",
+                "on-tertiary": "#ffffff",
+                "surface-dim": "#ddd7ea",
+                "on-primary-container": "#ffffff",
+                "on-secondary": "#ffffff",
+                "surface-container-highest": "#e5e0f3",
+                "surface-container-high": "#ebe5f9",
+                "secondary": "#6b38d4",
+                "error-container": "#ffdad6",
+                "on-tertiary-fixed-variant": "#4a3d7c",
+                "tertiary-fixed": "#e7deff",
+                "primary-fixed": "#dfe0ff",
+                "on-background": "#1c1a27",
+                "outline-variant": "#c5c5d6",
+                "surface": "#fdf8ff",
+                "secondary-fixed": "#e9ddff",
+                "error": "#ba1a1a",
+                "on-secondary-fixed-variant": "#5516be",
+                "surface-tint": "#3f50ce",
+                "surface-bright": "#fdf8ff",
+                "inverse-on-surface": "#f4eeff",
+                "primary-container": "#3B4CCA", // Primary Blue
+                "on-primary": "#ffffff",
+                "primary": "#3B4CCA",
+                "inverse-primary": "#bcc2ff",
+                "on-secondary-container": "#ffffff",
+                "secondary-fixed-dim": "#d0bcff",
+                "on-tertiary-fixed": "#1e0e4e",
+                // Custom Colors for Neo-Brutalist
+                "neo-yellow": "#FDE047", // Yellow 300 for 'Belum Terhubung'
+                "neo-green": "#86EFAC",   // Green 300 for 'Terhubung'
+                "neo-border": "#14121F"
+              },
+              "borderRadius": {
+                "DEFAULT": "0px", // Forced sharp corners for Neo-Brutalism
+                "lg": "0px",
+                "xl": "0px",
+                "full": "0px"
+              },
+              "spacing": {
+                "stack-gap": "12px",
+                "border-width": "4px",
+                "margin-desktop": "48px",
+                "margin-mobile": "16px",
+                "shadow-offset": "6px",
+                "gutter": "24px"
+              },
+              "fontFamily": {
+                "label-mono": [
+                        "JetBrains Mono"
+                ],
+                "headline-lg": [
+                        "Space Grotesk"
+                ],
+                "number-xl": [
+                        "JetBrains Mono"
+                ],
+                "display-xl": [
+                        "Space Grotesk"
+                ],
+                "headline-md": [
+                        "Space Grotesk"
+                ],
+                "body-lg": [
+                        "Space Grotesk" // Changed to Space Grotesk per request
+                ],
+                "headline-lg-mobile": [
+                        "Space Grotesk"
+                ],
+                "body-md": [
+                        "Space Grotesk" // Changed to Space Grotesk per request
+                ]
+              },
+              "fontSize": {
+                "label-mono": [
+                        "14px",
+                        {
+                                "lineHeight": "1",
+                                "fontWeight": "700"
+                        }
+                ],
+                "headline-lg": [
+                        "48px",
+                        {
+                                "lineHeight": "1.1",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "900"
+                        }
+                ],
+                "number-xl": [
+                        "40px",
+                        {
+                                "lineHeight": "1",
+                                "fontWeight": "800"
+                        }
+                ],
+                "display-xl": [
+                        "72px",
+                        {
+                                "lineHeight": "1.1",
+                                "letterSpacing": "-0.04em",
+                                "fontWeight": "900"
+                        }
+                ],
+                "headline-md": [
+                        "32px",
+                        {
+                                "lineHeight": "1.2",
+                                "fontWeight": "900"
+                        }
+                ],
+                "body-lg": [
+                        "18px",
+                        {
+                                "lineHeight": "1.5",
+                                "fontWeight": "700"
+                        }
+                ],
+                "headline-lg-mobile": [
+                        "32px",
+                        {
+                                "lineHeight": "1.2",
+                                "fontWeight": "900"
+                        }
+                ],
+                "body-md": [
+                        "16px",
+                        {
+                                "lineHeight": "1.5",
+                                "fontWeight": "700"
+                        }
+                ]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        /* Neo-Brutalist Hard Shadows & Interactions */
+        .neo-shadow {
+            box-shadow: 6px 6px 0px 0px #14121F;
+        }
+        .neo-hover:hover {
+            box-shadow: 8px 8px 0px 0px #14121F;
+            transform: translate(-2px, -2px);
+        }
+        .neo-active:active {
+            box-shadow: 0px 0px 0px 0px #14121F;
+            transform: translate(6px, 6px);
+        }
+        .neo-input:focus {
+            box-shadow: 6px 6px 0px 0px #3b4cca; /* Primary container color shadow */
+            outline: none;
+        }
+        
+        /* Slight rotation utilities */
+        .rotate-1 { transform: rotate(1deg); }
+        .rotate-n1 { transform: rotate(-1deg); }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col md:flex-row">
+<!-- SideNavBar (Web/Desktop) -->
+<nav class="hidden md:flex fixed left-0 top-0 h-screen flex-col p-stack-gap border-r-[4px] border-neo-border bg-surface-container w-80 z-50">
+<!-- Brand -->
+<div class="mb-12">
+<h1 class="text-headline-md font-headline-md font-black text-on-surface uppercase tracking-tighter">RAW LOGIC</h1>
+<p class="text-label-mono font-label-mono text-on-surface-variant uppercase mt-2">FINANCIAL CORE</p>
+</div>
+<!-- CTA -->
+<button class="bg-primary text-on-primary border-[4px] border-neo-border neo-shadow font-label-mono text-label-mono uppercase py-4 px-6 mb-8 neo-active transition-transform">
+            NEW TRANSACTION
+        </button>
+<!-- Navigation Links -->
+<ul class="flex-1 space-y-2 flex flex-col">
+<li>
+<a class="text-on-surface-variant hover:bg-secondary-container hover:text-on-secondary-container px-4 py-3 flex items-center gap-stack-gap border-[4px] border-transparent transition-all" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">grid_view</span>
+<span class="font-label-mono text-label-mono uppercase">Dashboard</span>
+</a>
+</li>
+<li>
+<a class="text-on-surface-variant hover:bg-secondary-container hover:text-on-secondary-container px-4 py-3 flex items-center gap-stack-gap border-[4px] border-transparent transition-all" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">account_balance_wallet</span>
+<span class="font-label-mono text-label-mono uppercase">Wallets</span>
+</a>
+</li>
+<li>
+<a class="text-on-surface-variant hover:bg-secondary-container hover:text-on-secondary-container px-4 py-3 flex items-center gap-stack-gap border-[4px] border-transparent transition-all" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">bar_chart</span>
+<span class="font-label-mono text-label-mono uppercase">Reports</span>
+</a>
+</li>
+<li>
+<a class="text-on-surface-variant hover:bg-secondary-container hover:text-on-secondary-container px-4 py-3 flex items-center gap-stack-gap border-[4px] border-transparent transition-all" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">target</span>
+<span class="font-label-mono text-label-mono uppercase">Goals</span>
+</a>
+</li>
+<!-- Active State -->
+<li>
+<a class="bg-primary text-on-primary border-[4px] border-neo-border shadow-[4px_4px_0px_0px_rgba(20,18,31,1)] transform rotate-[-0.5deg] px-4 py-3 flex items-center gap-stack-gap active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-transform" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">settings</span>
+<span class="font-label-mono text-label-mono uppercase">Settings</span>
+</a>
+</li>
+</ul>
+<!-- Footer Links -->
+<ul class="space-y-2 mt-auto">
+<li>
+<a class="text-on-surface-variant hover:bg-secondary-container hover:text-on-secondary-container px-4 py-3 flex items-center gap-stack-gap border-[4px] border-transparent transition-all" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">help</span>
+<span class="font-label-mono text-label-mono uppercase">Help Center</span>
+</a>
+</li>
+<li>
+<a class="text-on-surface-variant hover:bg-secondary-container hover:text-on-secondary-container px-4 py-3 flex items-center gap-stack-gap border-[4px] border-transparent transition-all" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">logout</span>
+<span class="font-label-mono text-label-mono uppercase">Sign Out</span>
+</a>
+</li>
+</ul>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 md:ml-80 flex flex-col min-h-screen w-full">
+<!-- Top Navbar -->
+<nav class="sticky top-0 z-40 bg-surface border-b-[4px] border-neo-border px-4 md:px-8 h-20 flex items-center justify-between w-full">
+<div class="flex items-center gap-4">
+<!-- Mobile Menu Toggle -->
+<button class="md:hidden w-12 h-12 border-[4px] border-neo-border neo-shadow flex items-center justify-center bg-secondary-fixed neo-active">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<!-- Brand -->
+<h1 class="text-headline-md-mobile md:text-headline-md font-headline-lg-mobile md:font-headline-md font-black text-on-surface uppercase tracking-tighter md:hidden">RAW LOGIC</h1>
+</div>
+<!-- Desktop Search -->
+<div class="hidden md:flex relative flex-1 max-w-2xl mx-8">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full bg-surface border-[4px] border-neo-border pl-12 pr-4 py-3 font-body-lg text-body-lg neo-input neo-shadow transition-shadow hover:translate-x-1 hover:translate-y-1 hover:shadow-none duration-100" placeholder="Search settings, commands, or documentation..." type="text"/>
+</div>
+<!-- Profile / Actions -->
+<div class="flex items-center gap-4 ml-auto">
+<button class="hidden sm:flex w-12 h-12 border-[4px] border-neo-border neo-shadow items-center justify-center bg-surface-container-high neo-active hover:-translate-y-1 transition-transform text-on-surface">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="w-12 h-12 border-[4px] border-neo-border neo-shadow flex items-center justify-center bg-secondary-container text-on-secondary-container neo-active hover:-translate-y-1 transition-transform cursor-pointer">
+<span class="material-symbols-outlined font-bold">person</span>
+</div>
+</div>
+</nav>
+<!-- Canvas -->
+<div class="flex-1 p-margin-mobile md:p-margin-desktop bg-[radial-gradient(#c5c5d6_1px,transparent_1px)] [background-size:24px_24px] w-full">
+<!-- Header -->
+<header class="mb-12 md:mb-16">
+<h2 class="text-display-xl font-display-xl text-on-background mb-4">Hubungkan WhatsApp</h2>
+<p class="text-body-lg font-body-lg text-on-surface-variant max-w-2xl">
+                    Integrasikan asisten keuangan bot langsung ke nomor WhatsApp Anda untuk mencatat pengeluaran secara real-time.
+                </p>
+</header>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter w-full">
+<!-- Main Connection Card (Span 8) -->
+<div class="lg:col-span-8 bg-surface-container border-[4px] border-neo-border neo-shadow p-8 flex flex-col md:flex-row gap-8 relative z-10 w-full">
+<!-- Illustration Side -->
+<div class="w-full md:w-1/3 flex flex-col items-center justify-center bg-primary-fixed-dim border-[4px] border-neo-border p-6 transform rotate-n1">
+<div class="w-32 h-32 bg-primary-container border-[4px] border-neo-border flex items-center justify-center neo-shadow mb-6">
+<span class="material-symbols-outlined text-[64px] text-on-primary" style="font-variation-settings: 'FILL' 1;">chat_bubble</span>
+</div>
+<!-- Status Pill (Belum Terhubung - Yellow) -->
+<div class="bg-neo-yellow border-[3px] border-neo-border px-4 py-2 flex items-center gap-2 neo-shadow">
+<span class="w-3 h-3 bg-neo-border rounded-full animate-pulse"></span>
+<span class="font-label-mono text-label-mono text-on-background uppercase">Belum Terhubung</span>
+</div>
+</div>
+<!-- Form Side -->
+<div class="w-full md:w-2/3 flex flex-col justify-center">
+<h3 class="text-headline-md font-headline-md mb-6">Setup Nomor Handphone</h3>
+<form class="flex flex-col gap-6 w-full">
+<div class="flex flex-col gap-2 w-full">
+<label class="font-label-mono text-label-mono uppercase tracking-wide">Nomor WhatsApp Aktif</label>
+<div class="flex w-full">
+<div class="bg-secondary-fixed border-[4px] border-r-0 border-neo-border px-4 py-4 flex items-center justify-center">
+<span class="font-label-mono text-body-lg font-bold">+62</span>
+</div>
+<input class="flex-1 bg-surface border-[4px] border-neo-border px-4 py-4 font-body-lg text-body-lg neo-input transition-shadow" placeholder="812 3456 7890" type="tel"/>
+</div>
+<p class="text-body-md font-body-md text-outline">Pastikan nomor ini aktif di WhatsApp.</p>
+</div>
+<button class="bg-secondary-container text-on-secondary-container border-[4px] border-neo-border neo-shadow font-label-mono text-label-mono uppercase py-5 px-8 mt-4 neo-hover neo-active transition-all self-start" type="button">
+                                Kirim Kode Verifikasi
+                            </button>
+</form>
+</div>
+</div>
+<!-- Preview Card (Span 4) -->
+<div class="lg:col-span-4 bg-tertiary-fixed-dim border-[4px] border-neo-border neo-shadow p-6 flex flex-col relative transform rotate-1 z-0 w-full">
+<div class="flex items-center gap-3 mb-6 border-b-[4px] border-neo-border pb-4">
+<span class="material-symbols-outlined text-3xl">smart_toy</span>
+<h4 class="font-headline-md text-headline-md-mobile">Preview Chat</h4>
+</div>
+<!-- Mockup Chat Bubbles -->
+<div class="flex flex-col gap-4 flex-1">
+<!-- Bot Msg -->
+<div class="bg-surface border-[4px] border-neo-border p-4 self-start max-w-[85%] relative">
+<p class="font-body-md text-body-md">Halo! Saya bot Raw Logic. Silakan masukkan kode verifikasi Anda.</p>
+<!-- Triangle pointer -->
+<div class="absolute -left-[14px] top-4 w-0 h-0 border-t-[8px] border-t-transparent border-r-[12px] border-r-neo-border border-b-[8px] border-b-transparent"></div>
+<div class="absolute -left-[7px] top-[18px] w-0 h-0 border-t-[6px] border-t-transparent border-r-[10px] border-r-surface border-b-[6px] border-b-transparent"></div>
+</div>
+<!-- User Msg -->
+<div class="bg-primary-container text-on-primary border-[4px] border-neo-border p-4 self-end max-w-[85%] relative">
+<p class="font-body-md text-body-md font-bold text-white">123456</p>
+<!-- Triangle pointer -->
+<div class="absolute -right-[14px] top-4 w-0 h-0 border-t-[8px] border-t-transparent border-l-[12px] border-l-neo-border border-b-[8px] border-b-transparent"></div>
+<div class="absolute -right-[7px] top-[18px] w-0 h-0 border-t-[6px] border-t-transparent border-l-[10px] border-l-primary-container border-b-[6px] border-b-transparent"></div>
+</div>
+</div>
+</div>
+<!-- Instructions (Span 12) -->
+<div class="lg:col-span-12 mt-8 w-full">
+<h3 class="text-headline-md font-headline-md mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined">integration_instructions</span>
+                        Cara Kerja Integrasi
+                    </h3>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+<!-- Step 1 -->
+<div class="bg-surface border-[4px] border-neo-border neo-shadow p-6 flex gap-4 hover:-translate-y-2 transition-transform duration-200">
+<div class="w-12 h-12 bg-secondary-container border-[4px] border-neo-border flex items-center justify-center shrink-0">
+<span class="font-number-xl text-headline-md-mobile text-on-secondary-container">1</span>
+</div>
+<div>
+<h4 class="font-label-mono text-label-mono uppercase mb-2">Input Nomor</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">Masukkan nomor WhatsApp aktif Anda dengan kode negara +62.</p>
+</div>
+</div>
+<!-- Step 2 -->
+<div class="bg-surface border-[4px] border-neo-border neo-shadow p-6 flex gap-4 hover:-translate-y-2 transition-transform duration-200">
+<div class="w-12 h-12 bg-primary-container border-[4px] border-neo-border flex items-center justify-center shrink-0">
+<span class="font-number-xl text-headline-md-mobile text-on-primary">2</span>
+</div>
+<div>
+<h4 class="font-label-mono text-label-mono uppercase mb-2">Terima Kode</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">Bot kami akan mengirimkan pesan berisi 6 digit kode OTP.</p>
+</div>
+</div>
+<!-- Step 3 -->
+<div class="bg-surface border-[4px] border-neo-border neo-shadow p-6 flex gap-4 hover:-translate-y-2 transition-transform duration-200">
+<div class="w-12 h-12 bg-secondary-container border-[4px] border-neo-border flex items-center justify-center shrink-0">
+<span class="font-number-xl text-headline-md-mobile text-on-secondary-container">3</span>
+</div>
+<div>
+<h4 class="font-label-mono text-label-mono uppercase mb-2">Catat Transaksi</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">Kirim format singkat via WA, sistem akan otomatis mencatatnya.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

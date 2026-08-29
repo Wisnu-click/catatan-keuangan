@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Usaha Servis Teknisi - Wallet Detail</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&amp;family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&amp;family=Space+Grotesk:wght@300..700&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "on-secondary-fixed": "#23005c",
+                "inverse-on-surface": "#f4eeff",
+                "surface-bright": "#fdf8ff",
+                "surface-variant": "#e5e0f3",
+                "on-tertiary-fixed": "#1e0e4e",
+                "surface-tint": "#3f50ce",
+                "surface-container-lowest": "#ffffff",
+                "error": "#ba1a1a",
+                "on-tertiary-fixed-variant": "#4a3d7c",
+                "on-tertiary": "#ffffff",
+                "on-primary-fixed-variant": "#2335b5",
+                "on-error": "#ffffff",
+                "surface-dim": "#ddd7ea",
+                "error-container": "#ffdad6",
+                "on-primary": "#ffffff",
+                "surface-container-high": "#ebe5f9",
+                "surface-container-highest": "#e5e0f3",
+                "secondary-container": "#8455ef",
+                "tertiary-fixed-dim": "#ccbeff",
+                "on-primary-container": "#ccd0ff",
+                "on-tertiary-container": "#d7ccff",
+                "outline-variant": "#c5c5d6",
+                "primary-container": "#3b4cca",
+                "secondary-fixed-dim": "#d0bcff",
+                "primary-fixed-dim": "#bcc2ff",
+                "background": "#fdf8ff",
+                "outline": "#757685",
+                "on-background": "#14121F",
+                "secondary-fixed": "#e9ddff",
+                "primary-fixed": "#dfe0ff",
+                "on-primary-fixed": "#000b62",
+                "on-error-container": "#93000a",
+                "primary": "#3B4CCA",
+                "surface-container-low": "#f7f1ff",
+                "on-surface-variant": "#454654",
+                "tertiary": "#463978",
+                "secondary": "#8B5CF6",
+                "on-secondary-container": "#fffbff",
+                "on-surface": "#14121F",
+                "tertiary-fixed": "#e7deff",
+                "tertiary-container": "#5e5191",
+                "on-secondary": "#ffffff",
+                "surface-container": "#f1ebfe",
+                "on-secondary-fixed-variant": "#5516be",
+                "inverse-primary": "#bcc2ff",
+                "inverse-surface": "#312f3d",
+                "surface": "#fdf8ff"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.125rem",
+                "lg": "0.25rem",
+                "xl": "0.5rem",
+                "full": "0.75rem"
+        },
+        "spacing": {
+                "border-width": "4px",
+                "shadow-offset": "6px",
+                "margin-mobile": "16px",
+                "gutter": "24px",
+                "margin-desktop": "48px",
+                "stack-gap": "12px"
+        },
+        "fontFamily": {
+                "headline-lg-mobile": [
+                        "Space Grotesk"
+                ],
+                "body-lg": [
+                        "Space Grotesk"
+                ],
+                "body-md": [
+                        "Space Grotesk"
+                ],
+                "headline-md": [
+                        "Space Grotesk"
+                ],
+                "label-mono": [
+                        "JetBrains Mono"
+                ],
+                "number-xl": [
+                        "JetBrains Mono"
+                ],
+                "headline-lg": [
+                        "Space Grotesk"
+                ],
+                "display-xl": [
+                        "Space Grotesk"
+                ]
+        },
+        "fontSize": {
+                "headline-lg-mobile": [
+                        "32px",
+                        {
+                                "lineHeight": "1.2",
+                                "fontWeight": "700"
+                        }
+                ],
+                "body-lg": [
+                        "18px",
+                        {
+                                "lineHeight": "1.5",
+                                "fontWeight": "700"
+                        }
+                ],
+                "body-md": [
+                        "16px",
+                        {
+                                "lineHeight": "1.5",
+                                "fontWeight": "700"
+                        }
+                ],
+                "headline-md": [
+                        "32px",
+                        {
+                                "lineHeight": "1.2",
+                                "fontWeight": "700"
+                        }
+                ],
+                "label-mono": [
+                        "14px",
+                        {
+                                "lineHeight": "1",
+                                "fontWeight": "700"
+                        }
+                ],
+                "number-xl": [
+                        "40px",
+                        {
+                                "lineHeight": "1",
+                                "fontWeight": "800"
+                        }
+                ],
+                "headline-lg": [
+                        "48px",
+                        {
+                                "lineHeight": "1.1",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "display-xl": [
+                        "72px",
+                        {
+                                "lineHeight": "1.1",
+                                "letterSpacing": "-0.04em",
+                                "fontWeight": "700"
+                        }
+                ]
+        }
+},
+    },
+  }
+</script>
+<style>
+        .neo-shadow { box-shadow: 6px 6px 0px 0px rgba(20,18,31,1); }
+        .neo-shadow-sm { box-shadow: 6px 6px 0px 0px rgba(20,18,31,1); }
+        .neo-shadow-hover:hover { box-shadow: none; transform: translate(6px, 6px); }
+        .neo-shadow-active:active { box-shadow: none; transform: translate(6px, 6px); }
+        .neo-border { border: 4px solid #14121F; }
+        .neo-border-b { border-bottom: 4px solid #14121F; }
+        .neo-border-r { border-right: 4px solid #14121F; }
+        
+        /* Hide scrollbar for clean neo-brutalist look on chips */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col overflow-x-hidden">
+<!-- TopNavBar -->
+<header class="flex justify-between items-center w-full px-margin-desktop h-20 bg-surface neo-border-b z-40 sticky top-0">
+<div class="flex items-center gap-4">
+<button class="md:hidden p-2 neo-border bg-surface-container neo-shadow-sm neo-shadow-active">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<div class="hidden md:flex items-center gap-2">
+<div class="w-10 h-10 bg-primary neo-border flex items-center justify-center shrink-0">
+<img class="w-6 h-6 object-contain" data-alt="A bold, stylized geometric logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7rRbEabWSPO2pdvcAidGa-94fmtoAWRtuZL8w2az_mcRYB84sXIzie_N_g4IoI_y6RV3OHcnAzycPSPqeBWouLlYjQZ1Qgq2R5hH1jthnkAiiqbjM-nl4gTTIXFpmD-gPgq7Nn-Q2m1o68GEo4PwOmT2XRz660BJAuYhJdW6TDGIyfkzROKuAK-Qy3GnQUqQnZucHurwn-m70LQJRvFy8cPfEe67qBNnFsozh3fpaDY1wBd3e4ew"/>
+</div>
+<h1 class="text-headline-md font-headline-md font-black text-on-surface uppercase tracking-tighter">RAW LOGIC</h1>
+</div>
+<h1 class="md:hidden text-headline-lg-mobile font-headline-lg-mobile font-black text-on-surface uppercase tracking-tighter">RAW LOGIC</h1>
+</div>
+<div class="hidden md:flex items-center gap-4 flex-grow max-w-xl mx-8">
+<div class="relative w-full">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full bg-surface-container neo-border py-3 pl-12 pr-4 text-label-mono font-label-mono uppercase placeholder:text-on-surface-variant focus:outline-none focus:ring-0" placeholder="SEARCH TRANSACTIONS, WALLETS..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="hidden md:flex p-2 neo-border bg-surface-container neo-shadow-sm hover:neo-shadow transition-shadow hover:translate-x-1 hover:translate-y-1 hover:shadow-none active:translate-x-[6px] active:translate-y-[6px]">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 neo-border bg-surface-container neo-shadow-sm hover:neo-shadow transition-shadow hover:translate-x-1 hover:translate-y-1 hover:shadow-none active:translate-x-[6px] active:translate-y-[6px]">
+<img class="w-8 h-8 object-cover rounded-none" data-alt="User profile avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD01u5raemGIl3whF4zBsWDTcn0OMIG8LwwBjtINftRWJkvgD02Yk71q5yjBwIVYW7NOrRyeCp4TfI462Rd1ofsLfhhDqvinjUKYrq00nP_PvqKwUxP6kJt7c4GniCd5wl2aBgi45p-jnctbsDPjDpn4ke3vdd_a3PbL-Aq5_1v-MsvzY5GuXSlR5rJbFVDM_zxk-kZWGKEKmGNR5XGjRRqR-gWzIcQfX3IgBVUyDqlClgG6QrhUaM"/>
+</button>
+</div>
+</header>
+<div class="flex flex-1 w-full">
+<!-- SideNavBar (Desktop) -->
+<nav class="hidden md:flex flex-col p-stack-gap border-r-border-width border-on-background bg-surface-container w-80 shrink-0 h-[calc(100vh-5rem)] sticky top-20">
+<button class="bg-primary text-on-primary neo-border neo-shadow neo-shadow-hover neo-shadow-active text-label-mono font-label-mono uppercase py-4 px-4 mb-gutter transition-all w-full flex items-center justify-center gap-2 hover:bg-secondary-container hover:text-on-secondary-container">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">add</span>
+            NEW TRANSACTION
+        </button>
+<ul class="flex flex-col gap-2 flex-grow">
+<li>
+<a class="text-on-surface-variant hover:bg-surface-container-high px-4 py-3 flex items-center gap-stack-gap text-headline-md font-headline-md neo-border border-transparent hover:border-on-background transition-colors hover:bg-secondary-container hover:text-on-secondary-container" href="#">
+<span class="material-symbols-outlined">grid_view</span>
+                    Dashboard
+                </a>
+</li>
+<li>
+<a class="bg-primary text-on-primary neo-border neo-shadow-sm px-4 py-3 flex items-center gap-stack-gap text-headline-md font-headline-md transform rotate-[-0.5deg]" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">account_balance_wallet</span>
+                    Wallets
+                </a>
+</li>
+<li>
+<a class="text-on-surface-variant hover:bg-surface-container-high px-4 py-3 flex items-center gap-stack-gap text-headline-md font-headline-md neo-border border-transparent hover:border-on-background transition-colors hover:bg-secondary-container hover:text-on-secondary-container" href="#">
+<span class="material-symbols-outlined">bar_chart</span>
+                    Reports
+                </a>
+</li>
+<li>
+<a class="text-on-surface-variant hover:bg-surface-container-high px-4 py-3 flex items-center gap-stack-gap text-headline-md font-headline-md neo-border border-transparent hover:border-on-background transition-colors hover:bg-secondary-container hover:text-on-secondary-container" href="#">
+<span class="material-symbols-outlined">target</span>
+                    Goals
+                </a>
+</li>
+<li>
+<a class="text-on-surface-variant hover:bg-surface-container-high px-4 py-3 flex items-center gap-stack-gap text-headline-md font-headline-md neo-border border-transparent hover:border-on-background transition-colors hover:bg-secondary-container hover:text-on-secondary-container" href="#">
+<span class="material-symbols-outlined">settings</span>
+                    Settings
+                </a>
+</li>
+</ul>
+<div class="mt-auto pt-gutter border-t-4 border-on-background flex flex-col gap-2">
+<a class="text-on-surface-variant hover:bg-surface-container-high px-4 py-3 flex items-center gap-stack-gap text-headline-md font-headline-md hover:bg-secondary-container hover:text-on-secondary-container" href="#">
+<span class="material-symbols-outlined">help</span>
+                Help Center
+            </a>
+<a class="text-on-surface-variant hover:bg-surface-container-high px-4 py-3 flex items-center gap-stack-gap text-headline-md font-headline-md hover:bg-secondary-container hover:text-on-secondary-container" href="#">
+<span class="material-symbols-outlined">logout</span>
+                Sign Out
+            </a>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-grow w-full p-margin-mobile md:p-margin-desktop bg-surface-bright relative">
+<!-- Header Section -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-gutter mb-12">
+<div>
+<a class="inline-flex items-center gap-2 text-label-mono font-label-mono text-on-surface-variant mb-4 hover:text-primary transition-colors uppercase" href="#">
+<span class="material-symbols-outlined text-xl">arrow_back</span>
+                    Back to Wallets
+                </a>
+<h1 class="text-display-xl font-display-xl text-on-surface uppercase break-words max-w-3xl transform rotate-[-1deg] inline-block bg-tertiary-fixed px-4 py-2 neo-border neo-shadow">
+                    Usaha Servis Teknisi
+                </h1>
+</div>
+<button class="bg-surface text-on-surface neo-border neo-shadow neo-shadow-hover neo-shadow-active text-label-mono font-label-mono uppercase py-4 px-6 transition-all shrink-0 self-start md:self-end mt-6 md:mt-0">
+                Transfer ke Wallet Lain
+            </button>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter mb-12 w-full">
+<!-- Balance Card (Large) -->
+<div class="lg:col-span-8 bg-primary text-on-primary neo-border neo-shadow p-6 md:p-10 transform rotate-[0.5deg] relative overflow-hidden group">
+<div class="absolute -right-10 -top-10 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-[200px]" style="font-variation-settings: 'FILL' 1;">account_balance_wallet</span>
+</div>
+<p class="text-label-mono font-label-mono uppercase mb-2 opacity-80">Total Balance</p>
+<h2 class="text-number-xl md:text-[64px] md:leading-none font-number-xl tracking-tight mb-8">Rp 45.250.000</h2>
+<div class="flex flex-col sm:flex-row gap-stack-gap">
+<div class="bg-surface text-on-surface p-4 neo-border neo-shadow flex-1">
+<p class="text-label-mono font-label-mono text-on-surface-variant uppercase mb-1">Pemasukan (Bulan ini)</p>
+<p class="text-body-lg font-body-lg font-bold text-primary">+Rp 12.500.000</p>
+</div>
+<div class="bg-surface text-on-surface p-4 neo-border neo-shadow flex-1">
+<p class="text-label-mono font-label-mono text-on-surface-variant uppercase mb-1">Pengeluaran (Bulan ini)</p>
+<p class="text-body-lg font-body-lg font-bold text-error">-Rp 3.200.000</p>
+</div>
+</div>
+</div>
+<!-- Quick Actions / Mini Stats -->
+<div class="lg:col-span-4 flex flex-col gap-gutter">
+<div class="bg-secondary text-on-secondary neo-border neo-shadow p-6 transform rotate-[-1deg] flex-1 flex flex-col justify-center">
+<p class="text-label-mono font-label-mono uppercase mb-2">Target Bulanan</p>
+<div class="w-full bg-surface-container h-8 neo-border mb-2 relative overflow-hidden">
+<div class="absolute left-0 top-0 h-full bg-surface w-[75%] border-r-4 border-on-background"></div>
+</div>
+<p class="text-body-md font-body-md text-right font-bold">75% Tercapai</p>
+</div>
+<div class="bg-surface-container-highest text-on-surface neo-border neo-shadow p-6 flex-1 flex items-center justify-between group cursor-pointer hover:bg-secondary-fixed transition-colors">
+<div>
+<p class="text-label-mono font-label-mono uppercase">Laporan Detail</p>
+<p class="text-body-md font-body-md text-on-surface-variant mt-1">Unduh PDF</p>
+</div>
+<span class="material-symbols-outlined text-4xl group-hover:translate-x-2 transition-transform">arrow_forward</span>
+</div>
+</div>
+</div>
+<!-- Filters -->
+<div class="flex items-center gap-stack-gap overflow-x-auto no-scrollbar pb-4 mb-6 w-full">
+<button class="bg-on-surface text-surface neo-border px-6 py-2 text-label-mono font-label-mono uppercase shrink-0 neo-shadow">Semua</button>
+<button class="bg-surface text-on-surface neo-border px-6 py-2 text-label-mono font-label-mono uppercase shrink-0 hover:bg-surface-container transition-colors neo-shadow-hover">Masuk</button>
+<button class="bg-surface text-on-surface neo-border px-6 py-2 text-label-mono font-label-mono uppercase shrink-0 hover:bg-surface-container transition-colors neo-shadow-hover">Keluar</button>
+<div class="h-8 w-1 bg-on-background mx-2 shrink-0"></div>
+<button class="bg-surface-container text-on-surface border-4 border-on-background border-dashed px-4 py-2 text-label-mono font-label-mono uppercase shrink-0 flex items-center gap-2 hover:bg-surface-container-high transition-colors neo-shadow-hover">
+<span class="material-symbols-outlined text-sm">filter_list</span>
+                Filter Lanjut
+            </button>
+</div>
+<!-- Mutasi List Section -->
+<div class="flex flex-col gap-gutter w-full">
+<!-- Date Group -->
+<div>
+<h3 class="text-headline-md font-headline-md text-on-surface bg-surface-container inline-block px-4 py-1 neo-border neo-shadow mb-stack-gap transform rotate-[0.5deg]">29 Agustus 2026</h3>
+<div class="flex flex-col gap-4">
+<!-- Transaction Item -->
+<div class="bg-surface neo-border neo-shadow p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:translate-x-1 hover:-translate-y-1 hover:shadow-none transition-all cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-tertiary-fixed neo-border flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">build</span>
+</div>
+<div>
+<p class="text-body-lg font-body-lg font-bold text-on-surface">Servis AC Bapak Budi</p>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-[12px] font-label-mono bg-surface-container border-4 border-on-background px-2 py-0.5 uppercase">Jasa</span>
+<span class="text-body-md font-body-md text-on-surface-variant">14:30 WIB</span>
+</div>
+</div>
+</div>
+<p class="text-body-lg font-body-lg font-bold text-primary self-end sm:self-auto">+Rp 350.000</p>
+</div>
+<!-- Transaction Item -->
+<div class="bg-surface neo-border neo-shadow p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:translate-x-1 hover:-translate-y-1 hover:shadow-none transition-all cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-error-container neo-border flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-error" style="font-variation-settings: 'FILL' 1;">shopping_cart</span>
+</div>
+<div>
+<p class="text-body-lg font-body-lg font-bold text-on-surface">Beli Sparepart Kipas</p>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-[12px] font-label-mono bg-surface-container border-4 border-on-background px-2 py-0.5 uppercase">Material</span>
+<span class="text-body-md font-body-md text-on-surface-variant">10:15 WIB</span>
+</div>
+</div>
+</div>
+<p class="text-body-lg font-body-lg font-bold text-error self-end sm:self-auto">-Rp 125.000</p>
+</div>
+</div>
+</div>
+<!-- Date Group -->
+<div>
+<h3 class="text-headline-md font-headline-md text-on-surface bg-surface-container inline-block px-4 py-1 neo-border neo-shadow mb-stack-gap transform rotate-[-0.5deg]">28 Agustus 2026</h3>
+<div class="flex flex-col gap-4">
+<!-- Transaction Item -->
+<div class="bg-surface neo-border neo-shadow p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:translate-x-1 hover:-translate-y-1 hover:shadow-none transition-all cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-tertiary-fixed neo-border flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">electrical_services</span>
+</div>
+<div>
+<p class="text-body-lg font-body-lg font-bold text-on-surface">Instalasi Listrik Ruko</p>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-[12px] font-label-mono bg-surface-container border-4 border-on-background px-2 py-0.5 uppercase">Proyek</span>
+<span class="text-body-md font-body-md text-on-surface-variant">16:00 WIB</span>
+</div>
+</div>
+</div>
+<p class="text-body-lg font-body-lg font-bold text-primary self-end sm:self-auto">+Rp 1.200.000</p>
+</div>
+</div>
+</div>
+<button class="mt-4 bg-surface-container text-on-surface neo-border neo-shadow neo-shadow-hover neo-shadow-active py-4 text-label-mono font-label-mono uppercase hover:bg-surface-container-highest transition-colors w-full">
+                Muat Lebih Banyak
+            </button>
+</div>
+</main>
+</div>
+<!-- Floating Action Button -->
+<button class="fixed bottom-8 right-8 w-16 h-16 bg-secondary text-on-secondary neo-border neo-shadow neo-shadow-hover neo-shadow-active rounded-none flex items-center justify-center z-50 transform rotate-[2deg] hover:rotate-0 transition-all group md:hidden">
+<span class="material-symbols-outlined text-3xl group-active:scale-90 transition-transform">add</span>
+</button>
+</body></html>

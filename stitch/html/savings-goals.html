@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Target Tabungan - RAW LOGIC</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700;800&amp;family=Space+Grotesk:wght@700;900&amp;family=Hanken+Grotesk:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "on-secondary-fixed": "#23005c",
+                "inverse-on-surface": "#f4eeff",
+                "surface-bright": "#fdf8ff",
+                "surface-variant": "#e5e0f3",
+                "on-tertiary-fixed": "#1e0e4e",
+                "surface-tint": "#3f50ce",
+                "surface-container-lowest": "#ffffff",
+                "error": "#ba1a1a",
+                "on-tertiary-fixed-variant": "#4a3d7c",
+                "on-tertiary": "#ffffff",
+                "on-primary-fixed-variant": "#2335b5",
+                "on-error": "#ffffff",
+                "surface-dim": "#ddd7ea",
+                "error-container": "#ffdad6",
+                "on-primary": "#ffffff",
+                "surface-container-high": "#ebe5f9",
+                "surface-container-highest": "#e5e0f3",
+                "secondary-container": "#8455ef",
+                "tertiary-fixed-dim": "#ccbeff",
+                "on-primary-container": "#ccd0ff",
+                "on-tertiary-container": "#d7ccff",
+                "outline-variant": "#c5c5d6",
+                "primary-container": "#3b4cca",
+                "secondary-fixed-dim": "#d0bcff",
+                "primary-fixed-dim": "#bcc2ff",
+                "background": "#fdf8ff",
+                "outline": "#757685",
+                "on-background": "#1c1a27",
+                "secondary-fixed": "#e9ddff",
+                "primary-fixed": "#dfe0ff",
+                "on-primary-fixed": "#000b62",
+                "on-error-container": "#93000a",
+                "primary": "#1e30b2",
+                "surface-container-low": "#f7f1ff",
+                "on-surface-variant": "#454654",
+                "tertiary": "#463978",
+                "secondary": "#6b38d4",
+                "on-secondary-container": "#fffbff",
+                "on-surface": "#1c1a27",
+                "tertiary-fixed": "#e7deff",
+                "tertiary-container": "#5e5191",
+                "on-secondary": "#ffffff",
+                "surface-container": "#f1ebfe",
+                "on-secondary-fixed-variant": "#5516be",
+                "inverse-primary": "#bcc2ff",
+                "inverse-surface": "#312f3d",
+                "surface": "#fdf8ff"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.125rem",
+                "lg": "0.25rem",
+                "xl": "0.5rem",
+                "full": "0.75rem"
+        },
+        "spacing": {
+                "border-width": "4px",
+                "shadow-offset": "6px",
+                "margin-mobile": "16px",
+                "gutter": "24px",
+                "margin-desktop": "48px",
+                "stack-gap": "12px"
+        },
+        "fontFamily": {
+                "headline-lg-mobile": [
+                        "Space Grotesk"
+                ],
+                "body-lg": [
+                        "Hanken Grotesk"
+                ],
+                "body-md": [
+                        "Hanken Grotesk"
+                ],
+                "headline-md": [
+                        "Space Grotesk"
+                ],
+                "label-mono": [
+                        "JetBrains Mono"
+                ],
+                "number-xl": [
+                        "JetBrains Mono"
+                ],
+                "headline-lg": [
+                        "Space Grotesk"
+                ],
+                "display-xl": [
+                        "Space Grotesk"
+                ]
+        },
+        "fontSize": {
+                "headline-lg-mobile": [
+                        "32px",
+                        {
+                                "lineHeight": "1.2",
+                                "fontWeight": "700"
+                        }
+                ],
+                "body-lg": [
+                        "18px",
+                        {
+                                "lineHeight": "1.5",
+                                "fontWeight": "500"
+                        }
+                ],
+                "body-md": [
+                        "16px",
+                        {
+                                "lineHeight": "1.5",
+                                "fontWeight": "500"
+                        }
+                ],
+                "headline-md": [
+                        "32px",
+                        {
+                                "lineHeight": "1.2",
+                                "fontWeight": "700"
+                        }
+                ],
+                "label-mono": [
+                        "14px",
+                        {
+                                "lineHeight": "1",
+                                "fontWeight": "700"
+                        }
+                ],
+                "number-xl": [
+                        "40px",
+                        {
+                                "lineHeight": "1",
+                                "fontWeight": "800"
+                        }
+                ],
+                "headline-lg": [
+                        "48px",
+                        {
+                                "lineHeight": "1.1",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "display-xl": [
+                        "72px",
+                        {
+                                "lineHeight": "1.1",
+                                "letterSpacing": "-0.04em",
+                                "fontWeight": "700"
+                        }
+                ]
+        }
+},
+    },
+  }
+</script>
+<style>
+        .neo-shadow {
+            box-shadow: 6px 6px 0px 0px #1c1a27;
+        }
+        .neo-shadow-sm {
+            box-shadow: 4px 4px 0px 0px #1c1a27;
+        }
+        .neo-shadow-hover:hover {
+            box-shadow: 8px 8px 0px 0px #1c1a27;
+            transform: translate(-2px, -2px);
+        }
+        .neo-shadow-active:active {
+            box-shadow: none !important;
+            transform: translate(6px, 6px) !important;
+        }
+        .rotate-slight { transform: rotate(-0.5deg); }
+        .rotate-slight-right { transform: rotate(1deg); }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body-md min-h-screen flex selection:bg-primary selection:text-on-primary">
+<!-- Shared Sidebar Navigation -->
+<nav class="hidden md:flex fixed left-0 top-0 h-screen flex-col p-stack-gap border-r-[4px] border-on-surface bg-surface-container w-80 z-50">
+<button class="mb-8 w-full bg-primary-container text-white border-[4px] border-on-surface neo-shadow py-4 px-6 text-label-mono font-label-mono uppercase flex items-center justify-center gap-2 hover:bg-secondary transition-colors neo-shadow-active">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">add</span>
+            NEW TRANSACTION
+        </button>
+<div class="flex-1 flex flex-col gap-2">
+<a class="text-on-surface-variant hover:bg-surface-container-high px-4 py-3 flex items-center gap-stack-gap font-body-lg text-body-lg border-[4px] border-transparent transition-all hover:border-on-surface font-bold" href="#">
+<span class="material-symbols-outlined">grid_view</span>
+                Dashboard
+            </a>
+<a class="text-on-surface-variant hover:bg-surface-container-high px-4 py-3 flex items-center gap-stack-gap font-body-lg text-body-lg border-[4px] border-transparent transition-all hover:border-on-surface font-bold" href="#">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+                Wallets
+            </a>
+<a class="text-on-surface-variant hover:bg-surface-container-high px-4 py-3 flex items-center gap-stack-gap font-body-lg text-body-lg border-[4px] border-transparent transition-all hover:border-on-surface font-bold" href="#">
+<span class="material-symbols-outlined">bar_chart</span>
+                Reports
+            </a>
+<a class="bg-primary text-on-primary border-[4px] border-on-surface neo-shadow transform rotate-[-0.5deg] px-4 py-3 flex items-center gap-stack-gap font-body-lg text-body-lg font-bold" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">target</span>
+                Goals
+            </a>
+<a class="text-on-surface-variant hover:bg-surface-container-high px-4 py-3 flex items-center gap-stack-gap font-body-lg text-body-lg border-[4px] border-transparent transition-all hover:border-on-surface font-bold" href="#">
+<span class="material-symbols-outlined">settings</span>
+                Settings
+            </a>
+</div>
+<div class="mt-auto border-t-[4px] border-on-surface pt-6 flex flex-col gap-2">
+<a class="text-on-surface-variant hover:bg-surface-container-high px-4 py-3 flex items-center gap-stack-gap font-body-md text-body-md font-bold border-[4px] border-transparent hover:border-on-surface transition-all" href="#">
+<span class="material-symbols-outlined">help</span>
+                Help Center
+            </a>
+<a class="text-on-surface-variant hover:bg-surface-container-high px-4 py-3 flex items-center gap-stack-gap font-body-md text-body-md font-bold border-[4px] border-transparent hover:border-on-surface transition-all" href="#">
+<span class="material-symbols-outlined">logout</span>
+                Sign Out
+            </a>
+</div>
+</nav>
+<!-- Main Wrapper -->
+<div class="flex-1 md:ml-80 flex flex-col min-h-screen">
+<!-- Consistent Top Navbar -->
+<header class="h-20 border-b-[4px] border-on-surface bg-surface flex items-center justify-between px-margin-desktop sticky top-0 z-40">
+<div class="flex items-center gap-4">
+<h1 class="text-headline-md font-headline-md font-black text-on-surface tracking-tighter uppercase">RAW LOGIC</h1>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative hidden lg:block">
+<input class="w-64 border-[4px] border-on-surface bg-tertiary-fixed px-4 py-2 font-label-mono text-sm placeholder-on-surface focus:outline-none neo-shadow-sm transition-all focus:translate-x-[4px] focus:translate-y-[4px] focus:shadow-none text-on-surface font-bold" placeholder="Search targets..." type="text"/>
+<span class="material-symbols-outlined absolute right-3 top-2 font-bold">search</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="w-12 h-12 border-[4px] border-on-surface bg-secondary-container text-white flex items-center justify-center neo-shadow-sm hover:bg-primary transition-colors neo-shadow-active">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="w-12 h-12 bg-primary-container border-[4px] border-on-surface neo-shadow-sm flex items-center justify-center overflow-hidden cursor-pointer hover:scale-105 transition-transform">
+<img class="w-full h-full object-cover" data-alt="User avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBi6Y8bKkef9Vsvlgor5SnZ7e2F9dA4jo4sw3FGo5zc4ShGEZybpd3XRQ60WgLa8fIQD3HgxkMaTivd6AxCl97qzkoTRHIf7qLypg7rCT7lPg-Bq7wLOzAORZbL03Jymu4ZQ-NwnsoWF9RrN9Iqbf3OLr5FyeVhGNYLQd1MDdfonei4GzZLQPkRg58EBlrsvJ4aGFS3Vce5BmsqF8UxspmWOuJLUcgVMblvj3qnZdDgyY9sVdySAYc"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 p-6 lg:p-margin-desktop overflow-x-hidden">
+<!-- Header Section -->
+<div class="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6 border-b-[4px] border-on-surface pb-6">
+<div>
+<h2 class="text-display-xl font-display-xl text-on-surface uppercase tracking-tighter mb-2">Target Tabungan</h2>
+<p class="text-body-lg font-body-lg text-on-surface opacity-80 max-w-2xl font-bold">Pantau dan kelola tujuan finansial Anda dengan presisi struktural. Brutal namun efektif.</p>
+</div>
+</div>
+<!-- Goals Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+<!-- Goal Card 1: Active -->
+<article class="bg-surface border-[4px] border-on-surface neo-shadow p-6 flex flex-col gap-6 rotate-slight transition-transform hover:rotate-0">
+<div class="flex justify-between items-start">
+<div class="flex items-center gap-4">
+<div class="w-16 h-16 bg-tertiary-fixed border-[4px] border-on-surface flex items-center justify-center">
+<span class="material-symbols-outlined text-[32px] text-on-surface">flight_takeoff</span>
+</div>
+<div>
+<h3 class="text-headline-md font-headline-md text-on-surface leading-tight">Liburan Jepang</h3>
+<p class="text-label-mono font-label-mono text-on-surface opacity-70 uppercase mt-1">Due: Dec 2024</p>
+</div>
+</div>
+<span class="bg-secondary text-white px-3 py-1 border-[4px] border-on-surface text-label-mono font-label-mono shadow-[4px_4px_0px_0px_#1c1a27]">
+                                65%
+                            </span>
+</div>
+<div class="flex flex-col gap-2">
+<div class="flex justify-between text-body-md font-body-md font-bold text-on-surface">
+<span>Rp 13.000.000</span>
+<span class="opacity-70">/ Rp 20.000.000</span>
+</div>
+<div class="w-full h-8 bg-tertiary-fixed border-[4px] border-on-surface relative overflow-hidden">
+<div class="absolute top-0 left-0 h-full bg-secondary border-r-[4px] border-on-surface" style="width: 65%;">
+<!-- Striped pattern for brutalist feel -->
+<div class="absolute inset-0 opacity-30" style="background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, #1c1a27 10px, #1c1a27 20px);"></div>
+</div>
+</div>
+</div>
+<div class="flex gap-4 mt-auto pt-4 border-t-[4px] border-on-surface border-dashed">
+<button class="flex-1 bg-primary-container text-white border-[4px] border-on-surface neo-shadow py-3 px-4 text-label-mono font-label-mono uppercase transition-all neo-shadow-active">
+                                Nabung
+                            </button>
+<button class="flex-1 bg-surface text-on-surface border-[4px] border-on-surface neo-shadow py-3 px-4 text-label-mono font-label-mono uppercase transition-all neo-shadow-active hover:bg-tertiary-fixed font-bold">
+                                Tarik
+                            </button>
+</div>
+</article>
+<!-- Goal Card 2: Completed -->
+<article class="bg-surface-dim border-[4px] border-on-surface neo-shadow p-6 flex flex-col gap-6 rotate-slight-right transition-transform hover:rotate-0">
+<div class="flex justify-between items-start">
+<div class="flex items-center gap-4">
+<div class="w-16 h-16 bg-surface border-[4px] border-on-surface flex items-center justify-center">
+<span class="material-symbols-outlined text-[32px] text-on-surface">laptop_mac</span>
+</div>
+<div>
+<h3 class="text-headline-md font-headline-md text-on-surface leading-tight">MacBook Pro</h3>
+<p class="text-label-mono font-label-mono text-on-surface opacity-70 uppercase mt-1">Selesai</p>
+</div>
+</div>
+<span class="bg-[#a3e635] text-on-surface px-3 py-1 border-[4px] border-on-surface text-label-mono font-label-mono uppercase flex items-center gap-1 shadow-[4px_4px_0px_0px_#1c1a27]">
+<span class="material-symbols-outlined text-[16px]">check_circle</span>
+                                Tercapai
+                            </span>
+</div>
+<div class="flex flex-col gap-2">
+<div class="flex justify-between text-body-md font-body-md font-bold text-on-surface">
+<span>Rp 35.000.000</span>
+<span class="opacity-70">/ Rp 35.000.000</span>
+</div>
+<div class="w-full h-8 bg-tertiary-fixed border-[4px] border-on-surface relative overflow-hidden">
+<div class="absolute top-0 left-0 h-full bg-on-surface border-r-[4px] border-on-surface" style="width: 100%;">
+<div class="absolute inset-0 opacity-20" style="background-image: repeating-linear-gradient(-45deg, transparent, transparent 10px, #ffffff 10px, #ffffff 20px);"></div>
+</div>
+</div>
+</div>
+<div class="flex gap-4 mt-auto pt-4 border-t-[4px] border-on-surface border-dashed opacity-50 pointer-events-none">
+<button class="flex-1 bg-surface text-on-surface border-[4px] border-on-surface py-3 px-4 text-label-mono font-label-mono uppercase font-bold">
+                                Selesai
+                            </button>
+</div>
+</article>
+<!-- Goal Card 3: Just Started -->
+<article class="bg-surface border-[4px] border-on-surface neo-shadow p-6 flex flex-col gap-6 transition-transform hover:rotate-1">
+<div class="flex justify-between items-start">
+<div class="flex items-center gap-4">
+<div class="w-16 h-16 bg-tertiary-fixed border-[4px] border-on-surface flex items-center justify-center">
+<span class="material-symbols-outlined text-[32px] text-primary">directions_car</span>
+</div>
+<div>
+<h3 class="text-headline-md font-headline-md text-on-surface leading-tight">DP Mobil</h3>
+<p class="text-label-mono font-label-mono text-on-surface opacity-70 uppercase mt-1">Due: Jan 2026</p>
+</div>
+</div>
+<span class="bg-surface text-on-surface px-3 py-1 border-[4px] border-on-surface text-label-mono font-label-mono shadow-[4px_4px_0px_0px_#1c1a27]">
+                                15%
+                            </span>
+</div>
+<div class="flex flex-col gap-2">
+<div class="flex justify-between text-body-md font-body-md font-bold text-on-surface">
+<span>Rp 7.500.000</span>
+<span class="opacity-70">/ Rp 50.000.000</span>
+</div>
+<div class="w-full h-8 bg-tertiary-fixed border-[4px] border-on-surface relative overflow-hidden">
+<div class="absolute top-0 left-0 h-full bg-primary-container border-r-[4px] border-on-surface" style="width: 15%;">
+<div class="absolute inset-0 opacity-30" style="background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, #1c1a27 10px, #1c1a27 20px);"></div>
+</div>
+</div>
+</div>
+<div class="flex gap-4 mt-auto pt-4 border-t-[4px] border-on-surface border-dashed">
+<button class="flex-1 bg-primary-container text-white border-[4px] border-on-surface neo-shadow py-3 px-4 text-label-mono font-label-mono uppercase transition-all neo-shadow-active">
+                                Nabung
+                            </button>
+<button class="flex-1 bg-surface text-on-surface border-[4px] border-on-surface neo-shadow py-3 px-4 text-label-mono font-label-mono uppercase transition-all neo-shadow-active hover:bg-tertiary-fixed font-bold">
+                                Tarik
+                            </button>
+</div>
+</article>
+<!-- Quick Add Card -->
+<article class="bg-secondary-container border-[4px] border-on-surface p-6 flex flex-col justify-center items-center text-center gap-4 cursor-pointer hover:bg-primary-container transition-colors group neo-shadow rotate-slight min-h-[300px]">
+<div class="w-20 h-20 bg-surface border-[4px] border-on-surface flex items-center justify-center group-hover:scale-110 transition-transform neo-shadow-sm">
+<span class="material-symbols-outlined text-[40px] text-on-surface font-bold">add</span>
+</div>
+<div>
+<h3 class="text-headline-md font-headline-md text-white">Target Baru</h3>
+<p class="text-body-md font-body-md text-white opacity-90 font-bold mt-2">Mulai rencana finansial berikutnya.</p>
+</div>
+</article>
+</div>
+</main>
+</div>
+<!-- Floating Action Button (Mobile Contextual) -->
+<button class="md:hidden fixed bottom-24 right-6 w-16 h-16 bg-primary-container text-white border-[4px] border-on-surface rounded-full neo-shadow flex items-center justify-center z-50 transition-all neo-shadow-active hover:scale-105">
+<span class="material-symbols-outlined text-[32px]" style="font-variation-settings: 'FILL' 1;">add</span>
+</button>
+<!-- Script for active states and interactions -->
+<script>
+        document.querySelectorAll('button, .neo-shadow-active').forEach(btn => {
+            btn.addEventListener('mousedown', function() {
+                if(this.classList.contains('neo-shadow-active') || this.classList.contains('neo-shadow')) {
+                    this.style.transform = 'translate(6px, 6px)';
+                    this.style.boxShadow = 'none';
+                }
+            });
+            btn.addEventListener('mouseup', function() {
+                if(this.classList.contains('neo-shadow-active') || this.classList.contains('neo-shadow')) {
+                    this.style.transform = '';
+                    this.style.boxShadow = '';
+                }
+            });
+            btn.addEventListener('mouseleave', function() {
+                if(this.classList.contains('neo-shadow-active') || this.classList.contains('neo-shadow')) {
+                    this.style.transform = '';
+                    this.style.boxShadow = '';
+                }
+            });
+        });
+    </script>
+</body></html>

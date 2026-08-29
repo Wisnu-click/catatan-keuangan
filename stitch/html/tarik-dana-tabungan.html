@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Tarik Dana Tabungan - Raw Logic</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&amp;family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&amp;family=Space+Grotesk:wght@300..700&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "primary-fixed-dim": "#bcc2ff",
+                      "primary-fixed": "#dfe0ff",
+                      "error-container": "#ffdad6",
+                      "surface": "#fdf8ff",
+                      "tertiary-fixed": "#e7deff",
+                      "surface-container-high": "#ebe5f9",
+                      "error": "#ba1a1a",
+                      "surface-container-highest": "#e5e0f3",
+                      "on-primary-fixed": "#000b62",
+                      "tertiary-fixed-dim": "#ccbeff",
+                      "surface-container-lowest": "#ffffff",
+                      "secondary-container": "#8455ef",
+                      "surface-container-low": "#f7f1ff",
+                      "surface-dim": "#ddd7ea",
+                      "on-error": "#ffffff",
+                      "inverse-primary": "#bcc2ff",
+                      "tertiary-container": "#5e5191",
+                      "on-secondary-fixed-variant": "#5516be",
+                      "on-primary-container": "#ccd0ff",
+                      "outline": "#757685",
+                      "secondary": "#6b38d4",
+                      "secondary-fixed": "#e9ddff",
+                      "tertiary": "#463978",
+                      "outline-variant": "#c5c5d6",
+                      "primary-container": "#3b4cca",
+                      "secondary-fixed-dim": "#d0bcff",
+                      "on-primary": "#ffffff",
+                      "on-tertiary": "#ffffff",
+                      "on-error-container": "#93000a",
+                      "surface-bright": "#fdf8ff",
+                      "on-secondary-fixed": "#23005c",
+                      "surface-tint": "#3f50ce",
+                      "primary": "#1e30b2",
+                      "on-tertiary-fixed-variant": "#4a3d7c",
+                      "inverse-surface": "#312f3d",
+                      "surface-container": "#f1ebfe",
+                      "background": "#fdf8ff",
+                      "surface-variant": "#e5e0f3",
+                      "on-secondary": "#ffffff",
+                      "on-background": "#1c1a27",
+                      "on-primary-fixed-variant": "#2335b5",
+                      "on-surface-variant": "#454654",
+                      "inverse-on-surface": "#f4eeff",
+                      "on-tertiary-container": "#d7ccff",
+                      "on-tertiary-fixed": "#1e0e4e",
+                      "on-surface": "#1c1a27",
+                      "on-secondary-container": "#fffbff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "gutter": "24px",
+                      "margin-mobile": "16px",
+                      "shadow-offset": "6px",
+                      "stack-gap": "12px",
+                      "border-width": "4px",
+                      "margin-desktop": "48px"
+              },
+              "fontFamily": {
+                      "display-xl": [
+                              "Space Grotesk"
+                      ],
+                      "number-xl": [
+                              "JetBrains Mono"
+                      ],
+                      "body-lg": [
+                              "Hanken Grotesk"
+                      ],
+                      "headline-lg": [
+                              "Space Grotesk"
+                      ],
+                      "headline-lg-mobile": [
+                              "Space Grotesk"
+                      ],
+                      "label-mono": [
+                              "JetBrains Mono"
+                      ],
+                      "headline-md": [
+                              "Space Grotesk"
+                      ],
+                      "body-md": [
+                              "Hanken Grotesk"
+                      ]
+              },
+              "fontSize": {
+                      "display-xl": [
+                              "72px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "-0.04em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "number-xl": [
+                              "40px",
+                              {
+                                      "lineHeight": "1",
+                                      "fontWeight": "800"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-mono": [
+                              "14px",
+                              {
+                                      "lineHeight": "1",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-md": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "500"
+                              }
+                      ]
+              }
+            },
+          },
+        }
+    </script>
+<style type="text/tailwindcss">
+        @layer utilities {
+            .brutal-shadow {
+                box-shadow: 6px 6px 0px 0px rgba(28,26,39,1);
+            }
+            .brutal-shadow-hover:hover {
+                box-shadow: 8px 8px 0px 0px rgba(28,26,39,1);
+                transform: translate(-2px, -2px);
+            }
+            .brutal-shadow-active:active {
+                box-shadow: 0px 0px 0px 0px rgba(28,26,39,1);
+                transform: translate(6px, 6px);
+            }
+            .brutal-border {
+                border: 4px solid rgba(28,26,39,1);
+            }
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md h-screen overflow-hidden flex">
+<!-- Sidebar Navigation -->
+<aside class="hidden md:flex flex-col w-80 border-r-border-width border-on-background bg-surface-container dark:bg-surface-container-highest flex-shrink-0 z-20">
+<div class="flex items-center gap-4 p-6 border-b-border-width border-on-background bg-surface">
+<img alt="Raw Logic Logo" class="w-12 h-12 brutal-border object-cover bg-primary" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBydPn4cpBKeRcwntomossaAl_YleGQd2f6P6xG_TDEO66168kTqazaWCknqae6eklCqe5Y_pe5TxyOsTvoxYg_eiN5KWjgYMPnXoQYnB-4F3SDz1BQzApdBH2hIOHTiTUNEUIbTB815On4ZybhohYY25d5gSRGTlASIF9--X4L2aCcYPEa49auCJZkWqotO9biZBIZ0k7dPlvl-eglc-zWxLyuRH3xkNzZ8nIccW4ERDLAAund5_8"/>
+<div>
+<h1 class="text-headline-md font-headline-md font-black text-on-surface leading-none uppercase">Raw Logic</h1>
+<p class="text-label-mono font-label-mono text-on-surface-variant uppercase mt-1">Financial Core</p>
+</div>
+</div>
+<nav class="flex-1 flex flex-col gap-2 p-4 overflow-y-auto">
+<a class="text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high px-4 py-3 flex items-center gap-stack-gap text-label-mono font-label-mono uppercase hover:translate-x-1 hover:translate-y-1 transition-all" href="#">
+<span class="material-symbols-outlined">grid_view</span>
+                Dashboard
+            </a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high px-4 py-3 flex items-center gap-stack-gap text-label-mono font-label-mono uppercase hover:translate-x-1 hover:translate-y-1 transition-all" href="#">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+                Wallets
+            </a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high px-4 py-3 flex items-center gap-stack-gap text-label-mono font-label-mono uppercase hover:translate-x-1 hover:translate-y-1 transition-all" href="#">
+<span class="material-symbols-outlined">bar_chart</span>
+                Reports
+            </a>
+<a class="bg-primary text-on-primary border-border-width border-on-background shadow-[4px_4px_0px_0px_rgba(20,18,31,1)] transform rotate-[-0.5deg] px-4 py-3 flex items-center gap-stack-gap text-label-mono font-label-mono uppercase" href="#">
+<span class="material-symbols-outlined">target</span>
+                Goals
+            </a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high px-4 py-3 flex items-center gap-stack-gap text-label-mono font-label-mono uppercase hover:translate-x-1 hover:translate-y-1 transition-all" href="#">
+<span class="material-symbols-outlined">settings</span>
+                Settings
+            </a>
+</nav>
+<div class="p-4 border-t-border-width border-on-background bg-surface-container">
+<button class="w-full bg-secondary text-on-secondary brutal-border brutal-shadow brutal-shadow-hover brutal-shadow-active px-4 py-3 mb-4 text-label-mono font-label-mono uppercase flex justify-center items-center gap-2 transition-all">
+<span class="material-symbols-outlined">add</span>
+                NEW TRANSACTION
+            </button>
+<div class="flex flex-col gap-2">
+<a class="text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high px-4 py-3 flex items-center gap-stack-gap text-label-mono font-label-mono uppercase hover:translate-x-1 hover:translate-y-1 transition-all" href="#">
+<span class="material-symbols-outlined">help</span>
+                    Help Center
+                </a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high px-4 py-3 flex items-center gap-stack-gap text-label-mono font-label-mono uppercase hover:translate-x-1 hover:translate-y-1 transition-all text-error" href="#">
+<span class="material-symbols-outlined">logout</span>
+                    Sign Out
+                </a>
+</div>
+</div>
+</aside>
+<!-- Main Workspace -->
+<div class="flex-1 flex flex-col min-w-0 bg-background">
+<!-- Top Navbar -->
+<header class="h-20 border-b-border-width border-on-background bg-surface flex items-center justify-between px-6 z-10 flex-shrink-0">
+<div class="flex items-center md:hidden gap-4">
+<button class="p-2 brutal-border bg-surface-container hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined block">menu</span>
+</button>
+<span class="text-headline-md font-headline-md font-black uppercase">Raw Logic</span>
+</div>
+<div class="hidden md:flex items-center max-w-md w-full relative">
+<span class="material-symbols-outlined absolute left-4 text-on-surface-variant">search</span>
+<input class="w-full h-12 pl-12 pr-4 bg-surface-container-lowest brutal-border text-body-md font-body-md text-on-surface focus:outline-none focus:ring-0 focus:shadow-[4px_4px_0px_0px_#1e30b2] transition-shadow" placeholder="Search transactions, goals..." type="text"/>
+</div>
+<div class="flex items-center gap-6">
+<button class="relative hover:translate-x-1 hover:translate-y-1 transition-all active:translate-x-[4px] active:translate-y-[4px]">
+<span class="material-symbols-outlined text-3xl">notifications</span>
+<span class="absolute top-0 right-0 w-3 h-3 bg-error brutal-border rounded-full"></span>
+</button>
+<div class="flex items-center gap-3 pl-6 border-l-border-width border-on-background h-12">
+<div class="hidden md:block text-right">
+<p class="text-label-mono font-label-mono font-bold uppercase">Alex Mercer</p>
+<p class="text-xs font-label-mono text-on-surface-variant">PRO MEMBER</p>
+</div>
+<img alt="User avatar" class="w-12 h-12 brutal-border object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBsOhE3Rc8q00HXsWU6zMCDSNj_czG7FJipkcS_uR273Q9o5_gEWSMxm0rChzg97WLXzKKkAYiAFyMGCAMkFcEu6hFAE8p4zgI9VOClJv7R95of7uVFDRBxefkic2lAEe02HESBFsuwnCmpqScqvKPSQ8R11m_maiKFtejyvC37JpY4TagOWiZSCJYxR2aAm4VUpWlMQ7gGY9T83dgCRUcAns_N7jzVbQobksEtGqnafTA5i5HM8pc"/>
+</div>
+</div>
+</header>
+<!-- Page Content -->
+<main class="flex-1 overflow-y-auto p-6 md:p-12">
+<div class="max-w-7xl mx-auto">
+<!-- Page Header -->
+<header class="flex items-center gap-stack-gap mb-12 border-b-border-width border-on-background pb-6">
+<button class="w-12 h-12 bg-surface brutal-border brutal-shadow brutal-shadow-hover brutal-shadow-active flex items-center justify-center transition-all bg-surface-container-highest">
+<span class="material-symbols-outlined text-on-surface font-bold">arrow_back</span>
+</button>
+<div>
+<h2 class="text-headline-md md:text-headline-lg font-headline-md md:font-headline-lg text-on-background tracking-tighter uppercase">Tarik Dana Tabungan</h2>
+<p class="text-body-lg font-body-lg text-on-surface-variant mt-1">Target: <span class="font-bold text-primary">MacBook Pro</span></p>
+</div>
+</header>
+<!-- Form Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Main Input Column -->
+<div class="lg:col-span-8 space-y-gutter">
+<!-- Amount Input Card -->
+<div class="bg-surface p-6 md:p-8 brutal-border brutal-shadow relative overflow-hidden transform rotate-[0.5deg]">
+<div class="absolute -right-10 -top-10 w-32 h-32 bg-error-container rounded-full opacity-50 blur-3xl mix-blend-multiply"></div>
+<label class="block text-label-mono font-label-mono uppercase text-on-surface mb-2" for="amount">Jumlah Penarikan (IDR)</label>
+<div class="relative flex items-center">
+<span class="absolute left-4 text-headline-md font-headline-md text-on-surface-variant">Rp</span>
+<input class="w-full h-24 pl-16 pr-4 bg-surface-container-lowest brutal-border text-number-xl font-number-xl text-on-surface focus:outline-none focus:ring-0 focus:shadow-[6px_6px_0px_0px_#ba1a1a] transition-shadow" id="amount" placeholder="0" type="text" value="5,000,000"/>
+</div>
+<div class="mt-4 flex justify-between items-center text-body-md font-body-md">
+<span class="text-on-surface-variant">Saldo Tersedia: <span class="font-bold text-on-surface">Rp 15.000.000</span></span>
+<button class="text-label-mono font-label-mono uppercase text-error hover:underline decoration-border-width underline-offset-4">Tarik Semua</button>
+</div>
+</div>
+<!-- Destination & Reason Card -->
+<div class="bg-tertiary-fixed p-6 md:p-8 brutal-border brutal-shadow transform rotate-[-0.5deg]">
+<div class="mb-6">
+<label class="block text-label-mono font-label-mono uppercase text-on-surface mb-2" for="destination">Pilih Tujuan Dana</label>
+<div class="relative">
+<select class="w-full appearance-none h-14 px-4 bg-surface-container-lowest brutal-border text-body-lg font-body-lg text-on-surface focus:outline-none focus:ring-0 focus:shadow-[4px_4px_0px_0px_#1e30b2] transition-shadow cursor-pointer" id="destination">
+<option value="main">Main Wallet (BCA)</option>
+<option value="cash">Cash Reserve</option>
+<option value="invest">Investment Account</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-on-surface">
+<span class="material-symbols-outlined">expand_more</span>
+</div>
+</div>
+</div>
+<div>
+<label class="block text-label-mono font-label-mono uppercase text-on-surface mb-2" for="reason">Alasan Penarikan (Opsional)</label>
+<textarea class="w-full p-4 bg-surface-container-lowest brutal-border text-body-lg font-body-lg text-on-surface focus:outline-none focus:ring-0 focus:shadow-[4px_4px_0px_0px_#1e30b2] transition-shadow resize-none" id="reason" placeholder="Tulis catatan penarikan..." rows="3"></textarea>
+</div>
+</div>
+</div>
+<!-- Action Sidebar Column -->
+<div class="lg:col-span-4 space-y-gutter flex flex-col">
+<!-- Summary Card -->
+<div class="bg-surface-container-low p-6 brutal-border brutal-shadow">
+<h3 class="text-headline-md-mobile font-headline-lg-mobile uppercase text-on-surface mb-6 border-b-border-width border-on-background pb-4">Ringkasan</h3>
+<div class="space-y-4 text-body-lg font-body-lg">
+<div class="flex justify-between">
+<span class="text-on-surface-variant">Target Saat Ini</span>
+<span class="font-bold">Rp 30.000.000</span>
+</div>
+<div class="flex justify-between">
+<span class="text-on-surface-variant">Terkumpul</span>
+<span class="font-bold text-primary">Rp 15.000.000</span>
+</div>
+<div class="flex justify-between text-error font-bold">
+<span>Penarikan</span>
+<span>- Rp 5.000.000</span>
+</div>
+<div class="pt-4 border-t-border-width border-on-background flex justify-between mt-4">
+<span class="font-bold text-on-surface">Sisa Saldo</span>
+<span class="font-bold text-on-surface text-xl">Rp 10.000.000</span>
+</div>
+</div>
+</div>
+<!-- Confirm Button (DANGER) -->
+<button class="w-full h-20 bg-error text-on-error brutal-border brutal-shadow brutal-shadow-hover brutal-shadow-active text-headline-md-mobile font-headline-lg-mobile uppercase flex justify-center items-center gap-2 transition-all group relative overflow-hidden">
+<div class="absolute inset-0 bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,rgba(255,255,255,0.1)_10px,rgba(255,255,255,0.1)_20px)] pointer-events-none"></div>
+<span class="material-symbols-outlined group-hover:animate-pulse">warning</span>
+                            KONFIRMASI TARIK
+                        </button>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

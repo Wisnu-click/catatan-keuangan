@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Nabung ke Target - Raw Logic</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500&amp;family=JetBrains+Mono:wght@700;800&amp;family=Space+Grotesk:wght@700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary-fixed-dim": "#bcc2ff",
+                        "primary-fixed": "#dfe0ff",
+                        "error-container": "#ffdad6",
+                        "surface": "#fdf8ff",
+                        "tertiary-fixed": "#e7deff",
+                        "surface-container-high": "#ebe5f9",
+                        "error": "#ba1a1a",
+                        "surface-container-highest": "#e5e0f3",
+                        "on-primary-fixed": "#000b62",
+                        "tertiary-fixed-dim": "#ccbeff",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-container": "#8455ef",
+                        "surface-container-low": "#f7f1ff",
+                        "surface-dim": "#ddd7ea",
+                        "on-error": "#ffffff",
+                        "inverse-primary": "#bcc2ff",
+                        "tertiary-container": "#5e5191",
+                        "on-secondary-fixed-variant": "#5516be",
+                        "on-primary-container": "#ccd0ff",
+                        "outline": "#757685",
+                        "secondary": "#6b38d4",
+                        "secondary-fixed": "#e9ddff",
+                        "tertiary": "#463978",
+                        "outline-variant": "#c5c5d6",
+                        "primary-container": "#3b4cca",
+                        "secondary-fixed-dim": "#d0bcff",
+                        "on-primary": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "surface-bright": "#fdf8ff",
+                        "on-secondary-fixed": "#23005c",
+                        "surface-tint": "#3f50ce",
+                        "primary": "#1e30b2",
+                        "on-tertiary-fixed-variant": "#4a3d7c",
+                        "inverse-surface": "#312f3d",
+                        "surface-container": "#f1ebfe",
+                        "background": "#fdf8ff",
+                        "surface-variant": "#e5e0f3",
+                        "on-secondary": "#ffffff",
+                        "on-background": "#1c1a27",
+                        "on-primary-fixed-variant": "#2335b5",
+                        "on-surface-variant": "#454654",
+                        "inverse-on-surface": "#f4eeff",
+                        "on-tertiary-container": "#d7ccff",
+                        "on-tertiary-fixed": "#1e0e4e",
+                        "on-surface": "#1c1a27",
+                        "on-secondary-container": "#fffbff"
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.125rem",
+                        lg: "0.25rem",
+                        xl: "0.5rem",
+                        full: "0.75rem"
+                    },
+                    spacing: {
+                        "gutter": "24px",
+                        "margin-mobile": "16px",
+                        "shadow-offset": "6px",
+                        "stack-gap": "12px",
+                        "border-width": "4px",
+                        "margin-desktop": "48px"
+                    },
+                    fontFamily: {
+                        "display-xl": ["Space Grotesk"],
+                        "number-xl": ["JetBrains Mono"],
+                        "body-lg": ["Hanken Grotesk"],
+                        "headline-lg": ["Space Grotesk"],
+                        "headline-lg-mobile": ["Space Grotesk"],
+                        "label-mono": ["JetBrains Mono"],
+                        "headline-md": ["Space Grotesk"],
+                        "body-md": ["Hanken Grotesk"]
+                    },
+                    fontSize: {
+                        "display-xl": ["72px", { lineHeight: "1.1", letterSpacing: "-0.04em", fontWeight: "700" }],
+                        "number-xl": ["40px", { lineHeight: "1", fontWeight: "800" }],
+                        "body-lg": ["18px", { lineHeight: "1.5", fontWeight: "500" }],
+                        "headline-lg": ["48px", { lineHeight: "1.1", letterSpacing: "-0.02em", fontWeight: "700" }],
+                        "headline-lg-mobile": ["32px", { lineHeight: "1.2", fontWeight: "700" }],
+                        "label-mono": ["14px", { lineHeight: "1", fontWeight: "700" }],
+                        "headline-md": ["32px", { lineHeight: "1.2", fontWeight: "700" }],
+                        "body-md": ["16px", { lineHeight: "1.5", fontWeight: "500" }]
+                    }
+                }
+            }
+        };
+    </script>
+<style>
+        .neo-shadow {
+            box-shadow: 6px 6px 0px 0px rgba(28, 26, 39, 1);
+        }
+        .neo-shadow-hover:hover {
+            box-shadow: 8px 8px 0px 0px rgba(28, 26, 39, 1);
+            transform: translate(-2px, -2px);
+        }
+        .neo-shadow-active:active {
+            box-shadow: 0px 0px 0px 0px rgba(28, 26, 39, 1);
+            transform: translate(6px, 6px);
+        }
+        .neo-border {
+            border: 4px solid rgba(28, 26, 39, 1);
+        }
+        .neo-input:focus {
+            box-shadow: 4px 4px 0px 0px var(--color-primary, #1e30b2);
+            outline: none;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col md:flex-row">
+<!-- TopNavBar (Mobile) / Desktop Top Nav -->
+<nav class="hidden md:flex flex justify-between items-center w-full px-margin-desktop h-20 bg-surface dark:bg-inverse-surface border-b-border-width border-on-background dark:border-outline-variant shadow-[6px_6px_0px_0px_rgba(20,18,31,1)] docked full-width top-0 z-50 fixed">
+<div class="text-headline-md font-headline-md font-black text-on-surface uppercase tracking-tighter">RAW LOGIC</div>
+<div class="flex-1 max-w-xl mx-8 hidden lg:block">
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-4 text-on-surface-variant">search</span>
+<input class="w-full h-12 pl-12 pr-4 bg-surface-container-low neo-border text-body-md font-body-md text-on-background neo-input transition-shadow placeholder-on-surface-variant" placeholder="Search transactions, goals..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-stack-gap">
+<button class="w-10 h-10 flex items-center justify-center neo-border bg-surface-container neo-shadow hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all duration-100 active:translate-x-[6px] active:translate-y-[6px] active:shadow-none">
+<span class="material-symbols-outlined text-primary dark:text-inverse-primary">notifications</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center neo-border bg-surface-container neo-shadow hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all duration-100 active:translate-x-[6px] active:translate-y-[6px] active:shadow-none">
+<span class="material-symbols-outlined text-primary dark:text-inverse-primary">account_balance_wallet</span>
+</button>
+<img alt="User profile photo" class="w-10 h-10 rounded-none neo-border object-cover" data-alt="A highly detailed close-up portrait of a young professional in a brightly lit, minimalist neo-brutalist office space. The lighting is harsh and direct, creating strong contrasting shadows that emphasize structural honesty. The subject has a confident expression, dressed in modern, slightly avant-garde attire in shades of deep blue and crisp white, perfectly complementing the light-mode UI aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAI8njQGm2IvdhpAu2YzqOvwPRiFrIgctnqCvNSbPzyeTh7BmRpXt8FjUZQiOMQw54UDsBQgb1T7mn69iL8ilgsC9oqzS65Wup_u-HROIspDyGoEgSm0KxD3AEfXBjrLf_Ehc9p4VImjLqL1jpgmaQ9zHtK1qSa9Vhq1itUYwAtVYX0WajXHEK0sjvNHn4FivreiGLhU01rECVPnkYU-QjOHwLHbL_FBunauTPiEzOpt6iRRQAcpr8"/>
+</div>
+</nav>
+<!-- SideNavBar (Desktop) -->
+<aside class="hidden md:flex fixed left-0 top-0 h-screen flex flex-col p-stack-gap border-r-border-width border-on-background bg-surface-container dark:bg-surface-container-highest w-80 z-40 pt-24">
+<div class="mb-gutter flex items-center gap-stack-gap">
+<img alt="Raw Logic User Avatar" class="w-12 h-12 neo-border object-cover" data-alt="A highly detailed, stylized avatar illustration for a financial app in a neo-brutalist style. The image features bold, thick black outlines, flat geometric shapes, and vibrant accents of deep purple and stark white. The character exudes a sense of tactical clarity and high energy, fitting for a modern, unpolished aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCQPaSzvVQFIK-rOvIZzZG8PJ0s8TRWitQHHYfSsqcwegxq0ubWG88vY7ccq7cGRR5Q0uPiNdrBP1pQH05jDRQlEMQeaMmLme_Lo7pL1tpqnLooK4TV8QcLlpw_I9YHoFvmL2LqBWr1g73dMX-kSXarZ2Vc8jN-czMV6JjtjuOV-1ekRfbN6TDmI2h6BNRwhSEk_wyYR4_k-qn2M0c8-klesPgCgzRA1ukJYt0EOZMAaNoZWlb953Q"/>
+<div>
+<h2 class="text-headline-md font-headline-md font-black text-on-surface leading-none">RAW LOGIC</h2>
+<span class="text-label-mono font-label-mono uppercase text-on-surface-variant">FINANCIAL CORE</span>
+</div>
+</div>
+<nav class="flex-1 flex flex-col gap-2">
+<a class="text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high px-4 py-3 flex items-center gap-stack-gap text-headline-md font-headline-md hover:bg-secondary-container hover:text-on-secondary-container transition-all active:translate-x-[4px] active:translate-y-[4px] active:shadow-none" href="#">
+<span class="material-symbols-outlined">grid_view</span> Dashboard
+            </a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high px-4 py-3 flex items-center gap-stack-gap text-headline-md font-headline-md hover:bg-secondary-container hover:text-on-secondary-container transition-all active:translate-x-[4px] active:translate-y-[4px] active:shadow-none" href="#">
+<span class="material-symbols-outlined">account_balance_wallet</span> Wallets
+            </a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high px-4 py-3 flex items-center gap-stack-gap text-headline-md font-headline-md hover:bg-secondary-container hover:text-on-secondary-container transition-all active:translate-x-[4px] active:translate-y-[4px] active:shadow-none" href="#">
+<span class="material-symbols-outlined">bar_chart</span> Reports
+            </a>
+<a class="bg-primary text-on-primary border-border-width border-on-background shadow-[4px_4px_0px_0px_rgba(20,18,31,1)] transform rotate-[-0.5deg] px-4 py-3 flex items-center gap-stack-gap text-headline-md font-headline-md transition-all active:translate-x-[4px] active:translate-y-[4px] active:shadow-none" href="#">
+<span class="material-symbols-outlined">target</span> Goals
+            </a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high px-4 py-3 flex items-center gap-stack-gap text-headline-md font-headline-md hover:bg-secondary-container hover:text-on-secondary-container transition-all active:translate-x-[4px] active:translate-y-[4px] active:shadow-none" href="#">
+<span class="material-symbols-outlined">settings</span> Settings
+            </a>
+</nav>
+<div class="mt-auto flex flex-col gap-2">
+<button class="w-full bg-secondary text-on-secondary neo-border neo-shadow py-3 text-label-mono font-label-mono uppercase transition-all neo-shadow-hover neo-shadow-active mb-4">
+                NEW TRANSACTION
+            </button>
+<a class="text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high px-4 py-2 flex items-center gap-stack-gap text-body-md font-body-md hover:bg-secondary-container hover:text-on-secondary-container transition-all" href="#">
+<span class="material-symbols-outlined">help</span> Help Center
+            </a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high px-4 py-2 flex items-center gap-stack-gap text-body-md font-body-md hover:bg-secondary-container hover:text-on-secondary-container transition-all" href="#">
+<span class="material-symbols-outlined">logout</span> Sign Out
+            </a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 md:ml-80 pt-20 p-margin-mobile md:p-margin-desktop min-h-screen">
+<!-- Header Section -->
+<header class="mb-gutter flex items-center gap-stack-gap">
+<button class="w-12 h-12 flex items-center justify-center bg-surface neo-border neo-shadow neo-shadow-hover neo-shadow-active transition-all">
+<span class="material-symbols-outlined text-on-surface" style="font-variation-settings: 'FILL' 1;">arrow_back</span>
+</button>
+<div>
+<h1 class="text-headline-lg-mobile md:text-headline-lg font-headline-lg-mobile md:font-headline-lg text-on-background">Nabung ke Target</h1>
+<p class="text-body-lg font-body-lg text-on-surface-variant">Liburan Jepang</p>
+</div>
+</header>
+<!-- Main Form Container -->
+<div class="max-w-4xl bg-surface-container-low neo-border neo-shadow p-gutter md:p-margin-desktop transform rotate-[0.5deg]">
+<form class="flex flex-col gap-margin-desktop transform rotate-[-0.5deg]">
+<!-- Amount Input -->
+<div class="flex flex-col gap-stack-gap">
+<label class="text-headline-md font-headline-md text-on-background">Jumlah Tabungan</label>
+<div class="relative flex items-center">
+<span class="absolute left-4 text-number-xl font-number-xl text-on-surface-variant">Rp</span>
+<input class="w-full h-24 pl-20 pr-4 bg-surface neo-border text-number-xl font-number-xl text-on-background neo-input transition-shadow shadow-[4px_4px_0px_0px_rgba(28,26,39,1)]" placeholder="0" type="text"/>
+</div>
+</div>
+<!-- Source Wallet Dropdown -->
+<div class="flex flex-col gap-stack-gap">
+<label class="text-headline-md font-headline-md text-on-background">Pilih Sumber Dana</label>
+<div class="relative">
+<select class="w-full appearance-none h-16 px-4 bg-tertiary-fixed text-on-tertiary-fixed neo-border text-body-lg font-body-lg shadow-[4px_4px_0px_0px_rgba(28,26,39,1)] focus:outline-none focus:shadow-[4px_4px_0px_0px_#1e30b2] cursor-pointer">
+<option>Dompet Utama (Rp 5.000.000)</option>
+<option>Gaji Bulan Ini (Rp 8.500.000)</option>
+<option>Dana Darurat (Rp 1.200.000)</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-tertiary-fixed">expand_more</span>
+</div>
+</div>
+<!-- Notes Text Area -->
+<div class="flex flex-col gap-stack-gap">
+<label class="text-headline-md font-headline-md text-on-background">Catatan</label>
+<textarea class="w-full p-4 bg-surface neo-border text-body-lg font-body-lg shadow-[4px_4px_0px_0px_rgba(28,26,39,1)] neo-input resize-none" placeholder="Opsional: Tambahkan catatan..." rows="3"></textarea>
+</div>
+<!-- Action Button -->
+<button class="w-full bg-primary text-on-primary neo-border py-6 mt-gutter text-headline-md font-headline-md uppercase tracking-wide neo-shadow neo-shadow-hover neo-shadow-active transition-all" type="button">
+                    SIMPAN TABUNGAN
+                </button>
+</form>
+</div>
+</main>
+</body></html>

@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>RAW LOGIC - Reports</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&amp;family=Hanken+Grotesk:wght@500&amp;family=JetBrains+Mono:wght@700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "on-secondary-fixed": "#23005c",
+                "inverse-on-surface": "#f4eeff",
+                "surface-bright": "#fdf8ff",
+                "surface-variant": "#e5e0f3",
+                "on-tertiary-fixed": "#1e0e4e",
+                "surface-tint": "#3f50ce",
+                "surface-container-lowest": "#ffffff",
+                "error": "#ba1a1a",
+                "on-tertiary-fixed-variant": "#4a3d7c",
+                "on-tertiary": "#ffffff",
+                "on-primary-fixed-variant": "#2335b5",
+                "on-error": "#ffffff",
+                "surface-dim": "#ddd7ea",
+                "error-container": "#ffdad6",
+                "on-primary": "#ffffff",
+                "surface-container-high": "#ebe5f9",
+                "surface-container-highest": "#e5e0f3",
+                "secondary-container": "#8455ef",
+                "tertiary-fixed-dim": "#ccbeff",
+                "on-primary-container": "#ccd0ff",
+                "on-tertiary-container": "#d7ccff",
+                "outline-variant": "#c5c5d6",
+                "primary-container": "#3b4cca",
+                "secondary-fixed-dim": "#d0bcff",
+                "primary-fixed-dim": "#bcc2ff",
+                "background": "#fdf8ff",
+                "outline": "#757685",
+                "on-background": "#1c1a27",
+                "secondary-fixed": "#e9ddff",
+                "primary-fixed": "#dfe0ff",
+                "on-primary-fixed": "#000b62",
+                "on-error-container": "#93000a",
+                "primary": "#1e30b2",
+                "surface-container-low": "#f7f1ff",
+                "on-surface-variant": "#454654",
+                "tertiary": "#463978",
+                "secondary": "#6b38d4",
+                "on-secondary-container": "#fffbff",
+                "on-surface": "#1c1a27",
+                "tertiary-fixed": "#e7deff",
+                "tertiary-container": "#5e5191",
+                "on-secondary": "#ffffff",
+                "surface-container": "#f1ebfe",
+                "on-secondary-fixed-variant": "#5516be",
+                "inverse-primary": "#bcc2ff",
+                "inverse-surface": "#312f3d",
+                "surface": "#fdf8ff"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.125rem",
+                "lg": "0.25rem",
+                "xl": "0.5rem",
+                "full": "0.75rem"
+        },
+        "spacing": {
+                "border-width": "4px",
+                "shadow-offset": "6px",
+                "margin-mobile": "16px",
+                "gutter": "24px",
+                "margin-desktop": "48px",
+                "stack-gap": "12px"
+        },
+        "fontFamily": {
+                "headline-lg-mobile": [
+                        "Space Grotesk"
+                ],
+                "body-lg": [
+                        "Hanken Grotesk"
+                ],
+                "body-md": [
+                        "Hanken Grotesk"
+                ],
+                "headline-md": [
+                        "Space Grotesk"
+                ],
+                "label-mono": [
+                        "JetBrains Mono"
+                ],
+                "number-xl": [
+                        "JetBrains Mono"
+                ],
+                "headline-lg": [
+                        "Space Grotesk"
+                ],
+                "display-xl": [
+                        "Space Grotesk"
+                ]
+        },
+        "fontSize": {
+                "headline-lg-mobile": [
+                        "32px",
+                        {
+                                "lineHeight": "1.2",
+                                "fontWeight": "700"
+                        }
+                ],
+                "body-lg": [
+                        "18px",
+                        {
+                                "lineHeight": "1.5",
+                                "fontWeight": "500"
+                        }
+                ],
+                "body-md": [
+                        "16px",
+                        {
+                                "lineHeight": "1.5",
+                                "fontWeight": "500"
+                        }
+                ],
+                "headline-md": [
+                        "32px",
+                        {
+                                "lineHeight": "1.2",
+                                "fontWeight": "700"
+                        }
+                ],
+                "label-mono": [
+                        "14px",
+                        {
+                                "lineHeight": "1",
+                                "fontWeight": "700"
+                        }
+                ],
+                "number-xl": [
+                        "40px",
+                        {
+                                "lineHeight": "1",
+                                "fontWeight": "800"
+                        }
+                ],
+                "headline-lg": [
+                        "48px",
+                        {
+                                "lineHeight": "1.1",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "display-xl": [
+                        "72px",
+                        {
+                                "lineHeight": "1.1",
+                                "letterSpacing": "-0.04em",
+                                "fontWeight": "700"
+                        }
+                ]
+        }
+},
+    },
+  }
+</script>
+<style>
+        .hard-shadow {
+            box-shadow: 6px 6px 0px 0px rgba(28,26,39,1);
+        }
+        .hard-shadow-sm {
+            box-shadow: 4px 4px 0px 0px rgba(28,26,39,1);
+        }
+        .hover-hard-shadow:hover {
+            box-shadow: 8px 8px 0px 0px rgba(28,26,39,1);
+            transform: translate(-2px, -2px);
+        }
+        .active-press:active {
+            box-shadow: none !important;
+            transform: translate(6px, 6px) !important;
+        }
+        .neo-border {
+            border: 4px solid #14121F;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col selection:bg-primary selection:text-on-primary">
+<!-- Global Top Navbar -->
+<nav class="flex justify-between items-center w-full px-margin-desktop h-20 bg-surface dark:bg-inverse-surface border-b-border-width border-on-background dark:border-outline-variant z-50 fixed top-0 left-0">
+<div class="text-headline-md font-headline-md font-black text-on-surface uppercase tracking-tighter md:w-72 flex-shrink-0">
+        RAW LOGIC
+    </div>
+<!-- Search Bar (Desktop) -->
+<div class="hidden md:flex flex-1 max-w-2xl mx-8">
+<div class="w-full relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface">search</span>
+<input class="w-full bg-surface-container border-border-width border-on-background py-3 pl-12 pr-4 font-body-md focus:outline-none focus:ring-0 hard-shadow-sm transition-all focus:translate-x-[-2px] focus:translate-y-[-2px] focus:shadow-[6px_6px_0px_0px_rgba(28,26,39,1)] neo-border" placeholder="Search transactions, reports..." type="text"/>
+</div>
+</div>
+<!-- Actions & Profile -->
+<div class="flex items-center gap-6">
+<button class="bg-primary text-on-primary neo-border hard-shadow-sm active-press hover-hard-shadow hidden md:block font-label-mono text-label-mono uppercase px-6 py-3 transition-all">
+            NEW TRANSACTION
+        </button>
+<div class="flex gap-4 items-center">
+<span class="material-symbols-outlined text-primary hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all duration-100 active:translate-x-[6px] active:translate-y-[6px] active:shadow-none cursor-pointer text-3xl" data-icon="notifications" style="font-variation-settings: 'FILL' 1;">notifications</span>
+<span class="material-symbols-outlined text-primary hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all duration-100 active:translate-x-[6px] active:translate-y-[6px] active:shadow-none cursor-pointer text-3xl" data-icon="account_balance_wallet" style="font-variation-settings: 'FILL' 1;">account_balance_wallet</span>
+<div class="w-10 h-10 bg-secondary neo-border hard-shadow-sm rounded-full overflow-hidden cursor-pointer hover:-translate-y-1 transition-transform">
+<img alt="User profile photo" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDRH_FX1WSxnHbU3KMcsK7NWNoiFbrlTYtpFa2yPZbXX-gVYyYjomgugx0sPwVDtGOwlr0y1UDq2B9IMjOTg4EUXmoLoElRoJxMbMuWOd10NgW7-GFHBxM-t4_f97HCqIVmsqGmihkjdNsp0PIc4lmQAd8ZCBctG9olRwLbno6QPi1AtpLqRyv5JHj9VepJBgvs3Qeh7mLtDJF-phHCd_F1XTRTiLvn6ZoEap6q9EUjfWaT-kxytIE"/>
+</div>
+</div>
+</div>
+</nav>
+<div class="flex flex-1 pt-20">
+<!-- SideNavBar (Desktop) -->
+<nav class="hidden md:flex fixed left-0 top-0 h-screen flex-col p-stack-gap border-r-border-width border-on-background bg-surface-container dark:bg-surface-container-highest w-80 z-40 pt-24">
+<div class="mb-8 mt-4 px-4">
+<p class="font-label-mono text-label-mono text-on-surface-variant">FINANCIAL CORE</p>
+</div>
+<ul class="flex-1 flex flex-col gap-2">
+<li>
+<a class="text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high px-4 py-3 flex items-center gap-stack-gap text-body-lg font-body-lg font-bold hover:bg-secondary-container hover:text-on-secondary-container transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="grid_view">grid_view</span> Dashboard
+                </a>
+</li>
+<li>
+<a class="text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high px-4 py-3 flex items-center gap-stack-gap text-body-lg font-body-lg font-bold hover:bg-secondary-container hover:text-on-secondary-container transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span> Wallets
+                </a>
+</li>
+<li>
+<a class="bg-primary text-on-primary border-border-width border-on-background shadow-[4px_4px_0px_0px_rgba(20,18,31,1)] transform rotate-[-0.5deg] px-4 py-3 flex items-center gap-stack-gap text-body-lg font-body-lg font-bold active:translate-x-[4px] active:translate-y-[4px] active:shadow-none" href="#">
+<span class="material-symbols-outlined" data-icon="bar_chart" style="font-variation-settings: 'FILL' 1;">bar_chart</span> Reports
+                </a>
+</li>
+<li>
+<a class="text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high px-4 py-3 flex items-center gap-stack-gap text-body-lg font-body-lg font-bold hover:bg-secondary-container hover:text-on-secondary-container transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="target">target</span> Goals
+                </a>
+</li>
+<li>
+<a class="text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high px-4 py-3 flex items-center gap-stack-gap text-body-lg font-body-lg font-bold hover:bg-secondary-container hover:text-on-secondary-container transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span> Settings
+                </a>
+</li>
+</ul>
+<div class="mt-auto border-t-4 border-on-background pt-4 flex flex-col gap-2">
+<a class="text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high px-4 py-3 flex items-center gap-stack-gap text-body-lg font-body-lg font-bold hover:bg-secondary-container hover:text-on-secondary-container transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span> Help Center
+            </a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high px-4 py-3 flex items-center gap-stack-gap text-body-lg font-body-lg font-bold hover:bg-secondary-container hover:text-on-secondary-container transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span> Sign Out
+            </a>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-1 md:ml-80 p-margin-mobile md:p-margin-desktop min-h-screen w-full">
+<header class="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-stack-gap">
+<div>
+<h2 class="font-display-xl text-display-xl text-on-background mb-2 font-bold">Reports</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Analyze your financial trajectory.</p>
+</div>
+<button class="bg-surface text-on-surface neo-border hard-shadow hover-hard-shadow active-press font-label-mono text-label-mono uppercase px-6 py-3 flex items-center gap-2 transition-all">
+<span class="material-symbols-outlined" data-icon="download">download</span> Export Laporan
+            </button>
+</header>
+<!-- Filters (Pill Chips) -->
+<div class="flex flex-wrap gap-4 mb-12">
+<button class="bg-[#8B5CF6] text-white neo-border hard-shadow-sm px-6 py-2 font-label-mono text-label-mono uppercase active-press transition-all rounded-none">All</button>
+<button class="bg-surface text-on-surface neo-border hard-shadow-sm px-6 py-2 font-label-mono text-label-mono uppercase active-press transition-all rounded-none">Pribadi</button>
+<button class="bg-surface text-on-surface neo-border hard-shadow-sm px-6 py-2 font-label-mono text-label-mono uppercase active-press transition-all rounded-none">Bisnis</button>
+<button class="bg-surface text-on-surface neo-border hard-shadow-sm px-6 py-2 font-label-mono text-label-mono uppercase active-press transition-all rounded-none">Investasi</button>
+</div>
+<div class="grid grid-cols-1 xl:grid-cols-3 gap-gutter">
+<!-- Income vs Expense Bar Chart Card -->
+<div class="xl:col-span-2 bg-surface neo-border hard-shadow p-6 md:p-8 transform rotate-[0.5deg]">
+<h3 class="font-headline-md text-headline-md mb-8 font-bold">Cashflow Overview</h3>
+<!-- Faux Bar Chart -->
+<div class="flex items-end h-64 gap-4 md:gap-8 border-b-border-width border-l-border-width border-on-background pb-2 pl-2">
+<!-- Month 1 -->
+<div class="flex-1 flex flex-col justify-end gap-1 group relative h-full">
+<div class="w-full bg-[#8B5CF6] neo-border h-[80%] hover:opacity-90 transition-colors"></div>
+<div class="w-full bg-error neo-border h-[40%] hover:opacity-80 transition-opacity"></div>
+<span class="absolute -bottom-8 left-1/2 -translate-x-1/2 font-label-mono text-label-mono">JAN</span>
+</div>
+<!-- Month 2 -->
+<div class="flex-1 flex flex-col justify-end gap-1 group relative h-full">
+<div class="w-full bg-[#8B5CF6] neo-border h-[65%] hover:opacity-90 transition-colors"></div>
+<div class="w-full bg-error neo-border h-[50%] hover:opacity-80 transition-opacity"></div>
+<span class="absolute -bottom-8 left-1/2 -translate-x-1/2 font-label-mono text-label-mono">FEB</span>
+</div>
+<!-- Month 3 -->
+<div class="flex-1 flex flex-col justify-end gap-1 group relative h-full">
+<div class="w-full bg-[#8B5CF6] neo-border h-[90%] hover:opacity-90 transition-colors"></div>
+<div class="w-full bg-error neo-border h-[30%] hover:opacity-80 transition-opacity"></div>
+<span class="absolute -bottom-8 left-1/2 -translate-x-1/2 font-label-mono text-label-mono">MAR</span>
+</div>
+<!-- Month 4 -->
+<div class="flex-1 flex flex-col justify-end gap-1 group relative h-full">
+<div class="w-full bg-[#8B5CF6] neo-border h-[75%] hover:opacity-90 transition-colors"></div>
+<div class="w-full bg-error neo-border h-[45%] hover:opacity-80 transition-opacity"></div>
+<span class="absolute -bottom-8 left-1/2 -translate-x-1/2 font-label-mono text-label-mono">APR</span>
+</div>
+</div>
+<div class="flex gap-8 mt-12 justify-center">
+<div class="flex items-center gap-2">
+<div class="w-4 h-4 bg-[#8B5CF6] neo-border"></div>
+<span class="font-label-mono text-label-mono">Income</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-4 h-4 bg-error neo-border"></div>
+<span class="font-label-mono text-label-mono">Expense</span>
+</div>
+</div>
+</div>
+<!-- Category Breakdown List -->
+<div class="bg-tertiary-fixed-dim neo-border hard-shadow p-6 md:p-8 transform rotate-[-1deg]">
+<h3 class="font-headline-md text-headline-md mb-8 font-bold">Top Expenses</h3>
+<div class="flex flex-col gap-6">
+<!-- Item 1 -->
+<div>
+<div class="flex justify-between mb-2">
+<span class="font-body-lg text-body-lg font-bold">Housing</span>
+<span class="font-label-mono text-label-mono">45%</span>
+</div>
+<div class="w-full h-6 bg-surface neo-border relative overflow-hidden">
+<div class="absolute left-0 top-0 h-full bg-error border-r-border-width border-on-background w-[45%]"></div>
+</div>
+</div>
+<!-- Item 2 -->
+<div>
+<div class="flex justify-between mb-2">
+<span class="font-body-lg text-body-lg font-bold">Food &amp; Dining</span>
+<span class="font-label-mono text-label-mono">25%</span>
+</div>
+<div class="w-full h-6 bg-surface neo-border relative overflow-hidden">
+<div class="absolute left-0 top-0 h-full bg-error border-r-border-width border-on-background w-[25%] opacity-80"></div>
+</div>
+</div>
+<!-- Item 3 -->
+<div>
+<div class="flex justify-between mb-2">
+<span class="font-body-lg text-body-lg font-bold">Transportation</span>
+<span class="font-label-mono text-label-mono">15%</span>
+</div>
+<div class="w-full h-6 bg-surface neo-border relative overflow-hidden">
+<div class="absolute left-0 top-0 h-full bg-error border-r-border-width border-on-background w-[15%] opacity-60"></div>
+</div>
+</div>
+<!-- Item 4 -->
+<div>
+<div class="flex justify-between mb-2">
+<span class="font-body-lg text-body-lg font-bold">Entertainment</span>
+<span class="font-label-mono text-label-mono">10%</span>
+</div>
+<div class="w-full h-6 bg-surface neo-border relative overflow-hidden">
+<div class="absolute left-0 top-0 h-full bg-error border-r-border-width border-on-background w-[10%] opacity-40"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Raw Logic - Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;700&amp;family=JetBrains+Mono:wght@700;800&amp;family=Space+Grotesk:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-container": "#d7ccff",
+                        "surface-container": "#f1ebfe",
+                        "surface-bright": "#fdf8ff",
+                        "primary": "#3b4cca",
+                        "inverse-surface": "#312f3d",
+                        "surface": "#fdf8ff",
+                        "error-container": "#ffdad6",
+                        "secondary": "#8b5cf6",
+                        "surface-container-highest": "#e5e0f3",
+                        "tertiary-fixed-dim": "#ccbeff",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-container": "#5e5191",
+                        "outline-variant": "#c5c5d6",
+                        "secondary-container": "#8455ef",
+                        "secondary-fixed": "#e9ddff",
+                        "tertiary": "#463978",
+                        "surface-variant": "#e5e0f3",
+                        "surface-container-low": "#f7f1ff",
+                        "error": "#ba1a1a",
+                        "on-secondary": "#ffffff",
+                        "on-secondary-container": "#fffbff",
+                        "secondary-fixed-dim": "#d0bcff",
+                        "on-tertiary-fixed-variant": "#4a3d7c",
+                        "primary-fixed-dim": "#bcc2ff",
+                        "on-secondary-fixed": "#23005c",
+                        "on-surface-variant": "#454654",
+                        "on-error-container": "#93000a",
+                        "on-primary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed-variant": "#2335b5",
+                        "primary-fixed": "#dfe0ff",
+                        "background": "#fdf8ff",
+                        "inverse-on-surface": "#f4eeff",
+                        "surface-tint": "#3f50ce",
+                        "on-secondary-fixed-variant": "#5516be",
+                        "surface-dim": "#ddd7ea",
+                        "on-background": "#14121F",
+                        "primary-container": "#3b4cca",
+                        "on-surface": "#14121F",
+                        "outline": "#757685",
+                        "surface-container-high": "#ebe5f9",
+                        "inverse-primary": "#bcc2ff",
+                        "on-primary-container": "#ccd0ff",
+                        "on-primary-fixed": "#000b62",
+                        "on-tertiary-fixed": "#1e0e4e",
+                        "tertiary-fixed": "#e7deff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "stack-gap": "12px",
+                        "border-width": "4px",
+                        "margin-desktop": "48px",
+                        "margin-mobile": "16px",
+                        "shadow-offset": "6px",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "label-mono": ["JetBrains Mono"],
+                        "headline-lg": ["Space Grotesk"],
+                        "number-xl": ["JetBrains Mono"],
+                        "display-xl": ["Space Grotesk"],
+                        "headline-md": ["Space Grotesk"],
+                        "body-lg": ["Hanken Grotesk"],
+                        "headline-lg-mobile": ["Space Grotesk"],
+                        "body-md": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "label-mono": ["14px", { "lineHeight": "1", "fontWeight": "700" }],
+                        "headline-lg": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "number-xl": ["40px", { "lineHeight": "1", "fontWeight": "800" }],
+                        "display-xl": ["72px", { "lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "700" }],
+                        "headline-md": ["32px", { "lineHeight": "1.2", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "1.5", "fontWeight": "500" }],
+                        "headline-lg-mobile": ["32px", { "lineHeight": "1.2", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "1.5", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .neo-shadow {
+            box-shadow: 6px 6px 0px 0px #14121F;
+        }
+
+        .neo-shadow-hover:hover {
+            box-shadow: 8px 8px 0px 0px #14121F;
+            transform: translate(-2px, -2px);
+        }
+
+        .neo-shadow-active:active {
+            box-shadow: 0px 0px 0px 0px #14121F;
+            transform: translate(6px, 6px);
+        }
+        
+        .neo-border {
+            border: 4px solid #14121F;
+        }
+        
+        /* Custom scrollbar for horizontal scrolling */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex font-body-md">
+<!-- Desktop SideNav -->
+<nav class="hidden md:flex fixed left-0 top-0 h-screen w-80 flex-col p-stack-gap neo-border border-r-4 border-y-0 border-l-0 bg-surface-container dark:bg-surface-container-highest z-50">
+<div class="mb-8 p-4">
+<h1 class="text-headline-md font-headline-md font-black text-on-surface tracking-tighter uppercase">RAW LOGIC</h1>
+<p class="text-label-mono font-label-mono text-on-surface-variant mt-2">FINANCIAL CORE</p>
+</div>
+<div class="flex-1 flex flex-col gap-2">
+<!-- Active Tab -->
+<a class="bg-primary text-white neo-border neo-shadow transform rotate-[-0.5deg] px-4 py-3 flex items-center gap-stack-gap text-label-mono font-label-mono uppercase hover:-translate-y-1 hover:-translate-x-1 hover:neo-shadow transition-all" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">grid_view</span>
+                Dashboard
+            </a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:bg-secondary hover:text-white hover:neo-border transition-all px-4 py-3 flex items-center gap-stack-gap text-label-mono font-label-mono uppercase border-4 border-transparent hover:border-[#14121F]" href="#">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+                Wallets
+            </a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:bg-secondary hover:text-white hover:neo-border transition-all px-4 py-3 flex items-center gap-stack-gap text-label-mono font-label-mono uppercase border-4 border-transparent hover:border-[#14121F]" href="#">
+<span class="material-symbols-outlined">bar_chart</span>
+                Reports
+            </a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:bg-secondary hover:text-white hover:neo-border transition-all px-4 py-3 flex items-center gap-stack-gap text-label-mono font-label-mono uppercase border-4 border-transparent hover:border-[#14121F]" href="#">
+<span class="material-symbols-outlined">target</span>
+                Goals
+            </a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:bg-secondary hover:text-white hover:neo-border transition-all px-4 py-3 flex items-center gap-stack-gap text-label-mono font-label-mono uppercase border-4 border-transparent hover:border-[#14121F]" href="#">
+<span class="material-symbols-outlined">settings</span>
+                Settings
+            </a>
+</div>
+<button class="w-full bg-primary text-white neo-border neo-shadow hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all duration-100 py-4 font-label-mono text-label-mono uppercase flex items-center justify-center gap-2 mt-auto mb-4">
+<span class="material-symbols-outlined">add</span>
+            NEW TRANSACTION
+        </button>
+<div class="mt-auto border-t-4 border-on-background pt-4 flex flex-col gap-2">
+<a class="text-on-surface-variant dark:text-surface-variant hover:bg-secondary hover:text-white hover:neo-border transition-all px-4 py-2 flex items-center gap-stack-gap text-label-mono font-label-mono uppercase border-4 border-transparent hover:border-[#14121F]" href="#">
+<span class="material-symbols-outlined">help</span>
+                Help Center
+            </a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:bg-secondary hover:text-white hover:neo-border transition-all px-4 py-2 flex items-center gap-stack-gap text-label-mono font-label-mono uppercase border-4 border-transparent hover:border-[#14121F]" href="#">
+<span class="material-symbols-outlined">logout</span>
+                Sign Out
+            </a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 md:ml-80 w-full min-h-screen flex flex-col">
+<!-- Top Navbar -->
+<header class="w-full bg-surface dark:bg-inverse-surface border-b-4 border-on-background neo-shadow sticky top-0 z-40 px-gutter py-4 flex justify-between items-center">
+<!-- Mobile Brand -->
+<h1 class="md:hidden text-headline-md font-headline-md font-black text-on-surface uppercase tracking-tighter">RAW LOGIC</h1>
+<!-- Desktop Search -->
+<div class="hidden md:flex flex-1 max-w-xl relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-background">search</span>
+<input class="w-full neo-border py-3 pl-12 pr-4 bg-white font-label-mono text-label-mono uppercase focus:outline-none focus:ring-0 placeholder:text-on-surface-variant/50 neo-shadow-active neo-shadow-hover transition-all" placeholder="SEARCH TRANSACTIONS, WALLETS..." type="text"/>
+</div>
+<div class="flex items-center gap-4 ml-auto">
+<button class="w-12 h-12 neo-border bg-white flex items-center justify-center neo-shadow hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all duration-100">
+<span class="material-symbols-outlined text-2xl">notifications</span>
+</button>
+<div class="w-12 h-12 neo-border bg-primary-container rounded-full flex items-center justify-center neo-shadow hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all duration-100 overflow-hidden cursor-pointer">
+<img alt="User profile photo" class="w-full h-full object-cover" data-alt="A stylized portrait illustration of a young professional in a bold, pop-art inspired color palette featuring vibrant purples and stark whites. The art style is flat, graphic, and energetic, perfectly matching a neo-brutalist digital interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9yZsBGgN8XacufvV-ntEUsK1HwpH1dJ03oKSzqnR7HcQtNjpQjN_lsCuQL6YjX2sj018Ux9YYODKoNtPJKHFBLIOnKFXMLZjf20lPVS_xr5jqWme7QV_uhavuWrIMXABqsT8yKs9eOmBiSBpKKzPWD5RTAhsEC-_sk1OFegpBu1GWPtTVl9OpjEoqWJCqJ_EWf-I9Vig8Zp0pjfqAsitG5AUNhR0odkQ3lCf9DNp2NmI6X-5KUdM"/>
+</div>
+</div>
+</header>
+<!-- Dashboard Content -->
+<div class="p-gutter md:p-margin-desktop w-full space-y-gutter flex-1">
+<!-- Total Balance Card -->
+<div class="bg-secondary text-white neo-border neo-shadow p-8 flex flex-col justify-between min-h-[240px] transform rotate-[0.5deg]">
+<h2 class="text-label-mono font-label-mono uppercase tracking-widest text-white/80">Total Balance</h2>
+<div class="mt-4">
+<span class="text-number-xl font-number-xl md:text-[64px] md:leading-none block font-bold">$124,590.00</span>
+<span class="inline-block mt-4 border-4 border-white px-3 py-1 text-sm font-label-mono uppercase bg-white/10 backdrop-blur-sm shadow-[4px_4px_0px_0px_white]">+14.5% THIS MONTH</span>
+</div>
+</div>
+<!-- Wallet Row -->
+<div>
+<h3 class="text-headline-md font-headline-md font-bold mb-4">Wallets</h3>
+<div class="flex overflow-x-auto pb-6 gap-stack-gap snap-x snap-mandatory hide-scrollbar">
+<div class="min-w-[200px] bg-[#C4B5FD] neo-border neo-shadow p-6 snap-start flex-shrink-0 flex flex-col gap-4">
+<span class="material-symbols-outlined text-4xl">account_balance_wallet</span>
+<div>
+<p class="text-label-mono font-label-mono text-on-background uppercase">E-Wallet</p>
+<p class="text-headline-md font-headline-md font-bold mt-1 text-on-background">$4,250</p>
+</div>
+</div>
+<div class="min-w-[200px] bg-[#C4B5FD] neo-border neo-shadow p-6 snap-start flex-shrink-0 flex flex-col gap-4 transform rotate-[-1.5deg]">
+<span class="material-symbols-outlined text-4xl">build</span>
+<div>
+<p class="text-label-mono font-label-mono text-on-background uppercase">Usaha Servis</p>
+<p class="text-headline-md font-headline-md font-bold mt-1 text-on-background">$12,800</p>
+</div>
+</div>
+<div class="min-w-[200px] bg-white neo-border neo-shadow p-6 snap-start flex-shrink-0 flex flex-col gap-4">
+<span class="material-symbols-outlined text-4xl">savings</span>
+<div>
+<p class="text-label-mono font-label-mono text-on-background uppercase">Tabungan</p>
+<p class="text-headline-md font-headline-md font-bold mt-1 text-on-background">$85,000</p>
+</div>
+</div>
+<div class="min-w-[200px] bg-[#C4B5FD] neo-border neo-shadow p-6 snap-start flex-shrink-0 flex flex-col gap-4">
+<span class="material-symbols-outlined text-4xl">person</span>
+<div>
+<p class="text-label-mono font-label-mono text-on-background uppercase">Pribadi</p>
+<p class="text-headline-md font-headline-md font-bold mt-1 text-on-background">$22,540</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Stats Boxes -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-stack-gap w-full">
+<div class="bg-[#A7F3D0] neo-border neo-shadow p-6 flex flex-col justify-between w-full">
+<div class="flex justify-between items-start">
+<span class="text-label-mono font-label-mono uppercase text-on-background">Pemasukan</span>
+<span class="material-symbols-outlined text-on-background bg-white border-4 border-on-background rounded-full p-1 shadow-[4px_4px_0px_0px_#14121F]">arrow_upward</span>
+</div>
+<p class="text-headline-md-mobile md:text-headline-md font-headline-md font-bold mt-4">+$15,420</p>
+</div>
+<div class="bg-[#FECACA] neo-border neo-shadow p-6 flex flex-col justify-between w-full">
+<div class="flex justify-between items-start">
+<span class="text-label-mono font-label-mono uppercase text-on-background">Pengeluaran</span>
+<span class="material-symbols-outlined text-on-background bg-white border-4 border-on-background rounded-full p-1 shadow-[4px_4px_0px_0px_#14121F]">arrow_downward</span>
+</div>
+<p class="text-headline-md-mobile md:text-headline-md font-headline-md font-bold mt-4">-$3,210</p>
+</div>
+</div>
+<!-- Transactions List -->
+<div class="neo-border bg-surface neo-shadow w-full">
+<div class="border-b-4 border-on-background p-6 flex justify-between items-center bg-surface-container">
+<h3 class="text-headline-md-mobile md:text-headline-md font-headline-md font-bold">Recent Transactions</h3>
+<button class="text-label-mono font-label-mono uppercase border-4 border-on-background px-4 py-2 hover:bg-on-background hover:text-white transition-colors bg-white shadow-[4px_4px_0px_0px_#14121F] active:translate-x-1 active:translate-y-1 active:shadow-none">View All</button>
+</div>
+<div class="divide-y-4 divide-on-background w-full">
+<div class="p-6 flex items-center justify-between hover:bg-secondary hover:text-white transition-colors w-full cursor-pointer group">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-white neo-border flex items-center justify-center transform rotate-3 group-hover:text-on-background">
+<span class="material-symbols-outlined">shopping_cart</span>
+</div>
+<div>
+<p class="font-bold text-body-lg">Supermarket Groceries</p>
+<p class="text-label-mono font-label-mono text-on-surface-variant group-hover:text-white/80">Today, 14:32</p>
+</div>
+</div>
+<span class="font-number-xl text-xl text-error group-hover:text-[#FECACA] font-bold">-$124.50</span>
+</div>
+<div class="p-6 flex items-center justify-between hover:bg-secondary hover:text-white transition-colors w-full cursor-pointer group">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-[#A7F3D0] neo-border flex items-center justify-center transform -rotate-2 group-hover:text-on-background">
+<span class="material-symbols-outlined">work</span>
+</div>
+<div>
+<p class="font-bold text-body-lg">Freelance Project</p>
+<p class="text-label-mono font-label-mono text-on-surface-variant group-hover:text-white/80">Yesterday, 09:15</p>
+</div>
+</div>
+<span class="font-number-xl text-xl text-green-700 group-hover:text-[#A7F3D0] font-bold">+$2,400.00</span>
+</div>
+<div class="p-6 flex items-center justify-between hover:bg-secondary hover:text-white transition-colors w-full cursor-pointer group">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-[#C4B5FD] neo-border flex items-center justify-center transform rotate-1 group-hover:text-on-background">
+<span class="material-symbols-outlined">subscriptions</span>
+</div>
+<div>
+<p class="font-bold text-body-lg">Software Subscription</p>
+<p class="text-label-mono font-label-mono text-on-surface-variant group-hover:text-white/80">Oct 24, 10:00</p>
+</div>
+</div>
+<span class="font-number-xl text-xl text-error group-hover:text-[#FECACA] font-bold">-$49.99</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Mobile FAB -->
+<button class="md:hidden fixed bottom-6 right-6 w-16 h-16 bg-primary text-white neo-border neo-shadow neo-shadow-active flex items-center justify-center rounded-full z-50">
+<span class="material-symbols-outlined text-3xl font-bold">add</span>
+</button>
+</body></html>
