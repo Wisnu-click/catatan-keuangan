@@ -12,6 +12,7 @@ export default function SideNav() {
     { name: 'AI Chat', href: '/chat', icon: 'smart_toy' },
     { name: 'Reports', href: '/reports', icon: 'bar_chart' },
     { name: 'Goals', href: '/goals', icon: 'target' },
+    { name: 'Profile', href: '/profile', icon: 'person' },
     { name: 'Settings', href: '/settings/whatsapp', icon: 'settings' },
   ];
 
@@ -24,9 +25,9 @@ export default function SideNav() {
     <nav className="hidden md:flex fixed left-0 top-0 h-screen w-80 flex-col p-3 neo-border border-r-4 border-y-0 border-l-0 bg-[#F1EBFE] z-50">
       <div className="mb-6 p-4">
         <h1 className="text-3xl font-headline-md font-black text-[#1C1A27] tracking-tighter uppercase">
-          RAW LOGIC
+          VIRA
         </h1>
-        <p className="text-xs font-label-mono text-[#454654] mt-1 font-bold">FINANCIAL CORE</p>
+        <p className="text-xs font-label-mono text-[#454654] mt-1 font-bold">VIRTUAL INCOME & RECORD ASSISTANT</p>
       </div>
 
       <div className="flex-1 flex flex-col gap-2">

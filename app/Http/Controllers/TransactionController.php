@@ -50,7 +50,7 @@ class TransactionController extends Controller
         $validated = $request->validate([
             'wallet_id' => ['required', 'exists:wallets,id'],
             'type' => ['required', 'in:income,expense'],
-            'amount' => ['required', 'numeric', 'min:0.01'],
+            'amount' => ['required', 'numeric', 'min:0.01', 'max:9999999999999'],
             'category_id' => ['nullable', 'exists:categories,id'],
             'description' => ['nullable', 'string', 'max:255'],
             'transaction_date' => ['required', 'date'],
@@ -58,6 +58,7 @@ class TransactionController extends Controller
             'wallet_id.required' => 'Pilih wallet terlebih dahulu.',
             'amount.required' => 'Nominal transaksi wajib diisi.',
             'amount.min' => 'Nominal transaksi minimal Rp 0.01',
+            'amount.max' => 'Nominal transaksi melebihi batas maksimal (Rp 9,99 Triliun).',
         ]);
 
         $user = Auth::user();

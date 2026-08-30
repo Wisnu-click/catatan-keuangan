@@ -67,7 +67,7 @@ export default function Index({ wallets = [], totalCombinedBalance = 'Rp 0' }) {
 
   return (
     <AuthenticatedLayout>
-      <Head title="Wallets - RAW LOGIC" />
+      <Head title="Wallets - VIRA" />
 
       {/* Header Section */}
       <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-6 border-b-4 border-[#1C1A27] pb-6">

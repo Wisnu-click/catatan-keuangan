@@ -15,7 +15,7 @@ class AiService
     {
         $walletNames = collect($userWallets)->pluck('name')->join(', ');
 
-        $systemInstruction = "Anda adalah RAW LOGIC Financial AI Assistant. Tugas Anda adalah membantu mencatat keuangan pengguna.\n" .
+        $systemInstruction = "Anda adalah VIRA Financial AI Assistant. Tugas Anda adalah membantu mencatat keuangan pengguna.\n" .
             "Daftar wallet aktif pengguna saat ini: [{$walletNames}].\n" .
             "Aturan Output:\n" .
             "1. Jika pengguna berniat mencatat transaksi (pemasukan/pengeluaran) atau mengunggah foto struk/nota, Anda MUST merespon dengan format JSON murni bertanda [TRANSACTION_DATA]...\n" .

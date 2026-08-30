@@ -27,16 +27,16 @@ export default function Login() {
 
   return (
     <div className="min-h-screen w-full bg-[#FDF8FF] bg-[radial-gradient(#C5C5D6_1px,transparent_1px)] [background-size:24px_24px] flex flex-col justify-center items-center p-6 selection:bg-[#3B4CCA] selection:text-white">
-      <Head title="Sign In - RAW LOGIC" />
+      <Head title="Sign In - VIRA" />
 
       {/* Brand Header */}
       <div className="mb-8 text-center">
         <Link href="/" className="inline-block">
           <h1 className="text-4xl md:text-5xl font-headline-md font-black text-[#1C1A27] tracking-tighter uppercase">
-            RAW LOGIC
+            VIRA
           </h1>
           <p className="text-xs font-label-mono text-[#454654] uppercase tracking-widest mt-1 font-bold">
-            FINANCIAL CORE
+            VIRTUAL INCOME & RECORD ASSISTANT
           </p>
         </Link>
       </div>

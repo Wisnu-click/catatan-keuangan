@@ -69,17 +69,18 @@ class WalletController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:100'],
             'type' => ['required', 'in:personal,business,savings,other'],
-            'initial_balance' => ['required', 'numeric', 'min:0'],
+            'initial_balance' => ['required', 'numeric', 'min:0', 'max:9999999999999'],
             'icon' => ['nullable', 'string', 'max:50'],
             'color_hex' => ['nullable', 'string', 'max:7'],
         ], [
             'name.required' => 'Nama wallet wajib diisi.',
             'initial_balance.required' => 'Saldo awal wajib diisi.',
+            'initial_balance.max' => 'Saldo awal melebihi batas maksimal yang diizinkan (Rp 9,99 Triliun).',
         ]);
 
         $user = Auth::user();
 
-        Wallet::create([
+        $wallet = Wallet::create([
             'user_id' => $user->id,
             'name' => $validated['name'],
             'type' => $validated['type'],
@@ -89,6 +90,8 @@ class WalletController extends Controller
             'is_active' => true,
             'display_order' => Wallet::where('user_id', $user->id)->count() + 1,
         ]);
+
+        \App\Services\NotificationService::notifyWalletCreated($user->id, $wallet->name, $wallet->id);
 
         return redirect()->back()->with('success', 'Wallet baru berhasil dibuat!');
     }
@@ -190,9 +193,11 @@ class WalletController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:100'],
             'type' => ['required', 'in:personal,business,savings,other'],
-            'initial_balance' => ['required', 'numeric', 'min:0'],
+            'initial_balance' => ['required', 'numeric', 'min:0', 'max:9999999999999'],
             'icon' => ['nullable', 'string', 'max:50'],
             'color_hex' => ['nullable', 'string', 'max:7'],
+        ], [
+            'initial_balance.max' => 'Saldo awal melebihi batas maksimal yang diizinkan (Rp 9,99 Triliun).',
         ]);
 
         $wallet->update($validated);
@@ -209,7 +214,9 @@ class WalletController extends Controller
         $wallet = Wallet::where('user_id', $user->id)->findOrFail($id);
 
         $validated = $request->validate([
-            'limit_amount' => ['required', 'numeric', 'min:0'],
+            'limit_amount' => ['required', 'numeric', 'min:0', 'max:9999999999999'],
+        ], [
+            'limit_amount.max' => 'Limit budget melebihi batas maksimal yang diizinkan (Rp 9,99 Triliun).',
         ]);
 
         Budget::updateOrCreate(

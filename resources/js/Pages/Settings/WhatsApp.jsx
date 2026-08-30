@@ -105,7 +105,7 @@ export default function WhatsApp({ isConnected = false }) {
           <div className="flex flex-col gap-4 flex-1">
             <div className="bg-white neo-border p-4 self-start max-w-[85%] relative">
               <p className="font-body-md text-sm font-bold text-[#1C1A27]">
-                Halo! Saya bot Raw Logic. Silakan masukkan kode verifikasi Anda.
+                Halo! Saya bot VIRA. Silakan masukkan kode verifikasi Anda.
               </p>
             </div>
 

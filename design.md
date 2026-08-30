@@ -1,7 +1,7 @@
 # Design System: Neo-Finance Brutalist Dashboard
 
 ## 1. Overview & Principles
-Design system ini mengusung estetika **Neo-Brutalism** modern untuk aplikasi keuangan "RAW LOGIC".
+Design system ini mengusung estetika **Neo-Brutalism** modern untuk aplikasi keuangan "VIRA".
 
 ### Visual Principles:
 - **High Contrast & Structural Honesty**: Pembatas tebal (`4px solid #1C1A27`), sudut tajam, dan elemen berbercak warna kontras.
@@ -155,7 +155,7 @@ Design system ini mengusung estetika **Neo-Brutalism** modern untuk aplikasi keu
 
 ### 9. Login Screen (`/login`)
 - **Centered NeoCard**: Card form login neo-brutalist dengan background grid dots.
-- **Brand Header**: Header "RAW LOGIC / FINANCIAL CORE".
+- **Brand Header**: Header "VIRA / VIRTUAL INCOME & RECORD ASSISTANT".
 - **Inputs**: Email/Username input dengan icon mail, Password input dengan icon lock, dan Checkbox "INGAT SAYA DI PERANGKAT INI".
 - **Primary Action**: Tombol `MASUK SEKARANG` (Primary Blue `#3B4CCA`).
 - **Social Login**: Quick login via Google & GitHub.

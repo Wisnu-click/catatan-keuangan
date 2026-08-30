@@ -186,7 +186,7 @@ export default function Index({
 
   return (
     <AuthenticatedLayout>
-      <Head title="AI Assistant - RAW LOGIC" />
+      <Head title="AI Assistant - VIRA" />
 
       {/* Hidden File Input for Gallery / File Picker */}
       <input

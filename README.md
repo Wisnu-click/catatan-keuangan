@@ -1,4 +1,4 @@
-# 💸 RAW LOGIC — Financial Core & AI Assistant
+# 💸 VIRA — VIRTUAL INCOME & RECORD ASSISTANT & AI Assistant
 
 [![Laravel](https://img.shields.io/badge/Laravel-11.x-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com)
 [![React](https://img.shields.io/badge/React-18.x-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev)
@@ -7,7 +7,7 @@
 [![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4o-412991?style=for-the-badge&logo=openai&logoColor=white)](https://openai.com)
 [![Google Gemini](https://img.shields.io/badge/Google-Gemini%201.5-8E75FF?style=for-the-badge&logo=google-gemini&logoColor=white)](https://gemini.google.com)
 
-**RAW LOGIC** adalah aplikasi manajemen keuangan pribadi & bisnis modern dengan pendekatan desain **Neo-Brutalism** (thick borders, hard offset shadows, high-contrast palette) dan didukung oleh **AI Multimodal Assistant** yang cerdas untuk pencatatan transaksi otomatis via percakapan maupun pemindaian foto struk (*OCR Receipt Scan*).
+**VIRA** adalah aplikasi manajemen keuangan pribadi & bisnis modern dengan pendekatan desain **Neo-Brutalism** (thick borders, hard offset shadows, high-contrast palette) dan didukung oleh **AI Multimodal Assistant** yang cerdas untuk pencatatan transaksi otomatis via percakapan maupun pemindaian foto struk (*OCR Receipt Scan*).
 
 ---
 
@@ -38,7 +38,7 @@
   - 🔮 **Gemini 1.5 Pro (Google AI)**
   - 🧠 **Claude 3.5 Sonnet (Anthropic)**
   - ⚡ **DeepSeek V3 (DeepSeek)**
-  - 💾 **RAW LOGIC Core AI (Local Engine)**
+  - 💾 **VIRA Core AI (Local Engine)**
 - **Interactive AI Receipt Card**: Respon AI berupa kartu struk interaktif dengan **Dropdown Pemilihan Wallet** dan **Toggle Tipe (Pemasukan / Pengeluaran)** yang bisa disesuaikan sebelum dikonfirmasi ke database.
 - **Modal Edit Struk**: Fitur edit detail nominal, kategori, dan catatan struk sebelum konfirmasi.
 
@@ -143,7 +143,7 @@ catat-keuangan/
 5. **Konfigurasi File `.env`**:
    Buka file `.env` dan atur koneksi database serta API Key yang diperlukan:
    ```env
-   APP_NAME="RAW LOGIC"
+   APP_NAME="VIRA"
    APP_URL=http://localhost:8000
 
    # Database MySQL

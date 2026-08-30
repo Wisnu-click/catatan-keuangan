@@ -86,7 +86,7 @@ class ChatController extends Controller
             ],
             [
                 'id' => 'raw-logic-core',
-                'name' => 'RAW LOGIC Core AI',
+                'name' => 'VIRA Core AI',
                 'provider' => 'Local Database Engine',
                 'has_key' => true,
                 'badge' => 'LOKAL NATIVE',
@@ -238,6 +238,11 @@ class ChatController extends Controller
         }
 
         $amount = $request->has('amount') ? (float) $request->input('amount') : (float) ($data['amount'] ?? 0);
+        
+        if ($amount > 9999999999999) {
+            return redirect()->route('chat.index')->with('error', 'Nominal transaksi melebihi batas maksimal (Rp 9,99 Triliun).');
+        }
+
         $categoryName = $request->input('category') ?? ($data['category'] ?? ($trxType === 'income' ? 'Pemasukan' : 'Pengeluaran'));
         $note = $request->input('note') ?? ($data['note'] ?? ($data['merchant'] ? 'Struk: ' . $data['merchant'] : 'Transaksi AI Assistant'));
 
@@ -281,6 +286,14 @@ class ChatController extends Controller
             'raw_input' => json_encode($data),
             'transaction_date' => now()->toDateString(),
         ]);
+
+        \App\Services\NotificationService::notifyTransaction(
+            $user->id,
+            $trxType,
+            $amount,
+            $wallet->name,
+            $wallet->id
+        );
 
         // 5. Update data structured & status pesan AI menjadi confirmed di DB
         $updatedData = array_merge($data, [

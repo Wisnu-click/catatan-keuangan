@@ -82,7 +82,7 @@ class GoalController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:150'],
             'wallet_id' => ['required', 'exists:wallets,id'],
-            'target_amount' => ['required', 'numeric', 'min:1000'],
+            'target_amount' => ['required', 'numeric', 'min:1000', 'max:9999999999999'],
             'target_date' => ['nullable', 'date', 'after:today'],
             'icon' => ['nullable', 'string', 'max:50'],
         ], [
@@ -90,6 +90,7 @@ class GoalController extends Controller
             'wallet_id.required' => 'Wallet wajib dipilih.',
             'target_amount.required' => 'Jumlah target wajib diisi.',
             'target_amount.min' => 'Target minimal Rp 1.000.',
+            'target_amount.max' => 'Target melebihi batas maksimal (Rp 9,99 Triliun).',
             'target_date.after' => 'Tanggal target harus di masa depan.',
         ]);
 
@@ -127,10 +128,12 @@ class GoalController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:150'],
             'wallet_id' => ['required', 'exists:wallets,id'],
-            'target_amount' => ['required', 'numeric', 'min:1000'],
+            'target_amount' => ['required', 'numeric', 'min:1000', 'max:9999999999999'],
             'target_date' => ['nullable', 'date'],
             'icon' => ['nullable', 'string', 'max:50'],
             'status' => ['nullable', 'in:active,completed,cancelled'],
+        ], [
+            'target_amount.max' => 'Target melebihi batas maksimal (Rp 9,99 Triliun).',
         ]);
 
         // Pastikan wallet milik user
@@ -178,11 +181,12 @@ class GoalController extends Controller
         }
 
         $validated = $request->validate([
-            'amount' => ['required', 'numeric', 'min:1000'],
+            'amount' => ['required', 'numeric', 'min:1000', 'max:9999999999999'],
             'description' => ['nullable', 'string', 'max:255'],
         ], [
             'amount.required' => 'Jumlah nabung wajib diisi.',
             'amount.min' => 'Minimal nabung Rp 1.000.',
+            'amount.max' => 'Jumlah nabung melebihi batas maksimal (Rp 9,99 Triliun).',
         ]);
 
         GoalContribution::create([
@@ -198,6 +202,12 @@ class GoalController extends Controller
         if ($currentAmount >= (float) $goal->target_amount && $goal->status === 'active') {
             $goal->update(['status' => 'completed']);
         }
+
+        $percentage = (float) $goal->target_amount > 0 
+            ? ($currentAmount / (float) $goal->target_amount) * 100 
+            : 0;
+            
+        \App\Services\NotificationService::notifyGoalProgress($user->id, $goal->name, $percentage);
 
         return redirect()->route('goals.index')->with('success', 'Tabungan berhasil ditambahkan!');
     }

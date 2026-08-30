@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
 use Inertia\Middleware;
+use App\Models\Notification;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -35,9 +36,28 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
-        return [
-            ...parent::share($request),
-            //
-        ];
+        $user = $request->user();
+
+        return array_merge(parent::share($request), [
+            'auth' => [
+                'user' => $user ? [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'phone_number' => $user->phone_number,
+                    'avatar_url' => $user->avatar_url ?: 'https://api.dicebear.com/7.x/bottts/svg?seed=' . urlencode($user->name),
+                    'is_active' => $user->is_active,
+                    'created_at' => $user->created_at,
+                ] : null,
+            ],
+            'flash' => [
+                'success' => fn () => $request->session()->get('success'),
+                'error' => fn () => $request->session()->get('error'),
+                'info' => fn () => $request->session()->get('info'),
+            ],
+            'notifications' => fn () => $user ? [
+                'unread_count' => Notification::where('user_id', $user->id)->where('is_read', false)->count(),
+            ] : ['unread_count' => 0],
+        ]);
     }
 }
