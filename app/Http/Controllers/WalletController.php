@@ -3,7 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Budget;
+use App\Models\Category;
+use App\Models\SavingReminder;
+use App\Models\SavingsGoal;
 use App\Models\Wallet;
+use App\Services\SavingReminderService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -55,8 +59,48 @@ class WalletController extends Controller
 
         $totalBalanceSum = $wallets->sum('balanceNum');
 
+        // Fetch income/expense reminders for Wallets
+        $reminders = SavingReminder::where('user_id', $user->id)
+            ->whereIn('type', ['income', 'expense'])
+            ->with(['wallet:id,name', 'category:id,name'])
+            ->orderBy('is_active', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(fn($r) => [
+                'id'               => $r->id,
+                'title'            => $r->title,
+                'wallet_id'        => $r->wallet_id,
+                'category_id'      => $r->category_id,
+                'wallet_name'      => $r->wallet?->name ?? '-',
+                'category_name'    => $r->category?->name ?? '-',
+                'amount'           => (float) $r->amount,
+                'amount_formatted' => 'Rp ' . number_format($r->amount, 0, ',', '.'),
+                'type'             => $r->type,
+                'frequency'        => $r->frequency,
+                'frequency_label'  => $r->frequency_label,
+                'day_of_week'      => $r->day_of_week,
+                'day_of_month'     => $r->day_of_month,
+                'is_active'        => $r->is_active,
+            ]);
+            
+        // Fetch categories for reminder forms
+        $categories = Category::where('user_id', $user->id)
+            ->where('is_active', true)
+            ->orderBy('type')
+            ->get()
+            ->map(fn($c) => [
+                'id' => $c->id,
+                'name' => $c->name,
+                'type' => $c->type,
+            ]);
+
+        // Trigger notification check for due reminders
+        SavingReminderService::checkAndNotifyDueReminders($user);
+
         return Inertia::render('Wallets/Index', [
             'wallets' => $wallets,
+            'reminders' => $reminders,
+            'categories' => $categories,
             'totalCombinedBalance' => 'Rp ' . number_format($totalBalanceSum, 0, ',', '.'),
         ]);
     }
@@ -136,6 +180,18 @@ class WalletController extends Controller
             ? $wallet->transactions()->with('category')->orderBy('transaction_date', 'desc')->orderBy('id', 'desc')->get()
             : collect();
 
+        // Fetch all categories for user
+        $categories = Category::where('user_id', $user->id)
+            ->where('is_active', true)
+            ->get()
+            ->map(fn ($c) => [
+                'id' => $c->id,
+                'name' => $c->name,
+                'type' => $c->type,
+                'icon' => $c->icon,
+                'color_hex' => $c->color_hex,
+            ]);
+
         // Group transactions by date
         $transactionsGrouped = $rawTransactions->groupBy(function ($tx) {
             return \Carbon\Carbon::parse($tx->transaction_date)->translatedFormat('d F Y');
@@ -145,10 +201,16 @@ class WalletController extends Controller
                 'items' => $items->map(function ($tx) {
                     return [
                         'id' => $tx->id,
+                        'wallet_id' => $tx->wallet_id,
                         'title' => $tx->description ?: ($tx->category?->name ?: ($tx->type === 'income' ? 'Pemasukan' : 'Pengeluaran')),
+                        'description' => $tx->description ?? '',
                         'category' => $tx->category?->name ?: ($tx->type === 'income' ? 'Pemasukan' : 'Pengeluaran'),
-                        'subtitle' => $tx->created_at ? $tx->created_at->format('H:i') . ' WIB' : '',
+                        'category_id' => $tx->category_id,
+                        'type' => $tx->type,
+                        'amount_raw' => (float) $tx->amount,
                         'amount' => 'Rp ' . number_format($tx->amount, 0, ',', '.'),
+                        'transaction_date' => $tx->transaction_date ? \Carbon\Carbon::parse($tx->transaction_date)->format('Y-m-d') : '',
+                        'subtitle' => $tx->created_at ? $tx->created_at->format('H:i') . ' WIB' : '',
                         'isIncome' => $tx->type === 'income',
                         'icon' => $tx->category?->icon ?: ($tx->type === 'income' ? 'arrow_downward' : 'shopping_cart'),
                         'iconBg' => $tx->type === 'income' ? 'bg-[#E7DEFF]' : 'bg-[#FFDAD6]',
@@ -169,6 +231,7 @@ class WalletController extends Controller
                 'icon' => $wallet->icon,
             ] : null,
             'allWallets' => $allWallets,
+            'categories' => $categories,
             'walletId' => $wallet?->id ?? 1,
             'walletName' => $wallet?->name ?? 'Wallet Utama',
             'totalBalance' => 'Rp ' . number_format($wallet?->current_balance ?? 0, 0, ',', '.'),

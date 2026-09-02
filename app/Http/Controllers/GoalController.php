@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\GoalContribution;
 use App\Models\SavingsGoal;
+use App\Models\SavingReminder;
 use App\Models\Wallet;
+use App\Services\SavingReminderService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -68,9 +70,39 @@ class GoalController extends Controller
                 'current_balance' => $w->current_balance,
             ]);
 
+        // Fetch saving-type reminders for Goals
+        $reminders = SavingReminder::where('user_id', $user->id)
+            ->where(function ($q) {
+                $q->where('type', 'saving')->orWhereNull('type');
+            })
+            ->with(['goal:id,name', 'wallet:id,name'])
+            ->orderBy('is_active', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(fn($r) => [
+                'id'               => $r->id,
+                'title'            => $r->title,
+                'goal_id'          => $r->goal_id,
+                'wallet_id'        => $r->wallet_id,
+                'goal_name'        => $r->goal?->name ?? 'Tabungan Umum',
+                'wallet_name'      => $r->wallet?->name ?? '-',
+                'amount'           => (float) $r->amount,
+                'amount_formatted' => 'Rp ' . number_format($r->amount, 0, ',', '.'),
+                'type'             => $r->type ?? 'saving',
+                'frequency'        => $r->frequency,
+                'frequency_label'  => $r->frequency_label,
+                'day_of_week'      => $r->day_of_week,
+                'day_of_month'     => $r->day_of_month,
+                'is_active'        => $r->is_active,
+            ]);
+
+        // Trigger notification check for due reminders
+        SavingReminderService::checkAndNotifyDueReminders($user);
+
         return Inertia::render('Goals/Index', [
             'goals' => $goals,
             'wallets' => $wallets,
+            'reminders' => $reminders,
         ]);
     }
 

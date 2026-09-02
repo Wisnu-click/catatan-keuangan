@@ -12,6 +12,7 @@ use App\Http\Controllers\ChatController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\SavingReminderController;
 
 // Auth Routes
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -50,6 +51,8 @@ Route::middleware(['auth'])->group(function () {
     // Transactions Routes
     Route::get('/transactions/create', [TransactionController::class, 'create'])->name('transactions.create');
     Route::post('/transactions', [TransactionController::class, 'store'])->name('transactions.store');
+    Route::put('/transactions/{transaction}', [TransactionController::class, 'update'])->name('transactions.update');
+    Route::delete('/transactions/{transaction}', [TransactionController::class, 'destroy'])->name('transactions.destroy');
 
     // Reports Routes
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
@@ -76,4 +79,12 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
     Route::put('/notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.readAll');
     Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
+
+    // Saving Reminder Routes (Goals & Wallets)
+    Route::post('/saving-reminders', [SavingReminderController::class, 'store'])->name('saving-reminders.store');
+    Route::put('/saving-reminders/{id}', [SavingReminderController::class, 'update'])->name('saving-reminders.update');
+    Route::patch('/saving-reminders/{id}/toggle', [SavingReminderController::class, 'toggle'])->name('saving-reminders.toggle');
+    Route::delete('/saving-reminders/{id}', [SavingReminderController::class, 'destroy'])->name('saving-reminders.destroy');
+    Route::post('/saving-reminders/{id}/deposit', [SavingReminderController::class, 'executeDeposit'])->name('saving-reminders.deposit');
+    Route::post('/saving-reminders/{id}/transaction', [SavingReminderController::class, 'executeTransaction'])->name('saving-reminders.transaction');
 });
