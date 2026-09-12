@@ -143,9 +143,21 @@ export default function TopNav({ pageTitle = '', onMenuToggle = () => {} }) {
 
   return (
     <header className="w-full bg-[#FDF8FF] border-b-4 border-[#1C1A27] neo-shadow sticky top-0 z-40 px-3 sm:px-4 md:px-8 py-3.5 flex justify-between items-center gap-2 relative">
-      {/* Mobile Brand */}
+      {/* Mobile Brand Logo & Name */}
       <div className="flex items-center gap-2 md:hidden shrink-0">
-        <button type="button" onClick={onMenuToggle} className="w-11 h-11 neo-border bg-[#3B4CCA] text-white flex items-center justify-center neo-shadow cursor-pointer" aria-label="Buka menu navigasi"><MaterialIcon name="menu" className="text-2xl" /></button>
+        <Link href="/dashboard" className="flex items-center gap-2">
+          <div className="w-10 h-10 bg-[#3B4CCA] text-white border-2 border-[#1C1A27] shadow-[2px_2px_0px_0px_#1C1A27] flex items-center justify-center font-black text-lg">
+            V
+          </div>
+          <div>
+            <h1 className="text-xl font-headline-md font-black text-[#1C1A27] tracking-tight uppercase leading-none">
+              VIRA
+            </h1>
+            <p className="font-label-mono text-[8px] text-[#454654] font-bold tracking-widest uppercase">
+              CATAT KEUANGAN
+            </p>
+          </div>
+        </Link>
       </div>
 
       {/* DESKTOP SEARCH CONTAINER */}
