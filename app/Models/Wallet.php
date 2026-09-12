@@ -11,18 +11,29 @@ class Wallet extends Model
 
     protected $fillable = [
         'user_id',
+        'wallet_group_id',
+        'parent_wallet_id',
         'name',
         'type',
         'initial_balance',
         'icon',
         'color_hex',
         'is_active',
+        'is_dana_synced',
+        'dana_phone_number',
+        'dana_account_name',
+        'dana_sync_mode',
+        'dana_api_key',
+        'dana_last_synced_at',
+        'dana_sync_status',
         'display_order',
     ];
 
     protected $casts = [
         'initial_balance' => 'decimal:2',
         'is_active' => 'boolean',
+        'is_dana_synced' => 'boolean',
+        'dana_last_synced_at' => 'datetime',
     ];
 
     protected $appends = [
@@ -32,6 +43,21 @@ class Wallet extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function walletGroup()
+    {
+        return $this->belongsTo(WalletGroup::class);
+    }
+
+    public function parentWallet()
+    {
+        return $this->belongsTo(self::class, 'parent_wallet_id');
+    }
+
+    public function childWallets()
+    {
+        return $this->hasMany(self::class, 'parent_wallet_id')->orderBy('display_order');
     }
 
     public function transactions()
@@ -49,9 +75,6 @@ class Wallet extends Model
         return $this->hasMany(Transfer::class, 'from_wallet_id');
     }
 
-    /**
-     * Hitung Saldo Real-Time (Initial Balance + Income - Expense + Transfers In - Transfers Out)
-     */
     public function getCurrentBalanceAttribute(): float
     {
         $income = $this->transactions()->where('type', 'income')->sum('amount');
@@ -59,6 +82,9 @@ class Wallet extends Model
         $transfersIn = $this->transfersIn()->sum('amount');
         $transfersOut = $this->transfersOut()->sum('amount');
 
-        return (float) ($this->initial_balance + $income - $expense + $transfersIn - $transfersOut);
+        $ownBalance = (float) ($this->initial_balance + $income - $expense + $transfersIn - $transfersOut);
+        $childrenBalance = $this->childWallets()->get()->sum(fn (self $child) => $child->current_balance);
+
+        return $ownBalance + $childrenBalance;
     }
 }

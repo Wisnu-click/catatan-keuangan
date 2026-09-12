@@ -7,12 +7,15 @@ import FilterChip from '../../Components/FilterChip';
 import TransactionItem from '../../Components/TransactionItem';
 import MaterialIcon from '../../Components/MaterialIcon';
 import CurrencyInput from '../../Components/CurrencyInput';
+import DanaSyncModal from '../../Components/DanaSyncModal';
 
 export default function Show({
   wallet = null,
   walletId = null,
   walletName = 'Wallet',
   totalBalance = 'Rp 0',
+  ownBalanceFormatted = 'Rp 0',
+  linkedBalanceFormatted = 'Rp 0',
   monthlyIncome = '+Rp 0',
   monthlyExpense = '-Rp 0',
   budgetLimit = 'Rp 5.000.000',
@@ -21,7 +24,74 @@ export default function Show({
   transactionsGrouped = [],
   categories = [],
   allWallets = [],
+  otherWallets = [],
 }) {
+  // Linked E-Wallets State (for live calculation and saving)
+  const initialLinkedIds = useMemo(() => {
+    return otherWallets.filter((w) => w.isLinked).map((w) => w.id);
+  }, [otherWallets]);
+
+  const [selectedLinkedIds, setSelectedLinkedIds] = useState(initialLinkedIds);
+  const [showLinkPanel, setShowLinkPanel] = useState(false);
+  const [isSavingLinks, setIsSavingLinks] = useState(false);
+  const [showDanaSyncModal, setShowDanaSyncModal] = useState(false);
+
+  // Live Combined Calculation
+  const ownBalanceNum = wallet?.ownBalanceNum ?? 0;
+
+  const currentSelectedEWalletsSum = useMemo(() => {
+    return otherWallets
+      .filter((w) => selectedLinkedIds.includes(w.id))
+      .reduce((sum, w) => sum + (w.balanceNum || 0), 0);
+  }, [otherWallets, selectedLinkedIds]);
+
+  const liveTotalCombinedBalanceNum = ownBalanceNum + currentSelectedEWalletsSum;
+
+  const liveTotalCombinedBalanceFormatted = useMemo(() => {
+    return 'Rp ' + Number(liveTotalCombinedBalanceNum).toLocaleString('id-ID');
+  }, [liveTotalCombinedBalanceNum]);
+
+  const liveLinkedBalanceFormatted = useMemo(() => {
+    return 'Rp ' + Number(currentSelectedEWalletsSum).toLocaleString('id-ID');
+  }, [currentSelectedEWalletsSum]);
+
+  const isPureNegative = ownBalanceNum < 0;
+  const isCombinedSafe = liveTotalCombinedBalanceNum >= 0;
+
+  // Has unsaved link changes
+  const hasUnsavedLinkChanges = useMemo(() => {
+    const current = [...selectedLinkedIds].sort().join(',');
+    const initial = [...initialLinkedIds].sort().join(',');
+    return current !== initial;
+  }, [selectedLinkedIds, initialLinkedIds]);
+
+  // Toggle Single Wallet Link
+  const toggleWalletLink = (id) => {
+    setSelectedLinkedIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  // Select / Clear All
+  const handleSelectAllEWallets = () => {
+    setSelectedLinkedIds(otherWallets.map((w) => w.id));
+  };
+
+  const handleClearAllEWallets = () => {
+    setSelectedLinkedIds([]);
+  };
+
+  // Save Linked Wallets to Database
+  const handleSaveLinkedWallets = () => {
+    setIsSavingLinks(true);
+    router.post(`/wallets/${walletId}/link-wallets`, {
+      linked_wallet_ids: selectedLinkedIds,
+    }, {
+      preserveScroll: true,
+      onFinish: () => setIsSavingLinks(false),
+    });
+  };
+
   // Filter & Search States
   const [activeFilter, setActiveFilter] = useState('Semua'); // 'Semua', 'Masuk', 'Keluar'
   const [searchQuery, setSearchQuery] = useState('');
@@ -359,25 +429,93 @@ export default function Show({
 
       {/* Bento Grid Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8 w-full">
-        {/* Balance Card */}
-        <div className="lg:col-span-8 bg-[#3B4CCA] text-white neo-border neo-shadow p-6 md:p-8 transform rotate-[0.5deg] relative overflow-hidden group">
+        {/* Main Combined Balance Card */}
+        <div className={`lg:col-span-8 ${isCombinedSafe ? 'bg-[#3B4CCA]' : 'bg-[#991B1B]'} text-white neo-border neo-shadow p-6 md:p-8 transform rotate-[0.5deg] relative overflow-hidden group transition-colors`}>
           <div className="absolute -right-10 -top-10 opacity-10 group-hover:opacity-20 transition-opacity">
             <span className="material-symbols-outlined text-[200px]" style={{ fontVariationSettings: "'FILL' 1" }}>
               account_balance_wallet
             </span>
           </div>
-          <p className="font-label-mono text-xs uppercase mb-2 opacity-80 font-bold">Total Saldo Wallet Ini</p>
-          <h2 className="text-4xl md:text-6xl font-number-xl font-bold tracking-tight mb-8">
-            {totalBalance}
-          </h2>
-          <div className="flex flex-col sm:flex-row gap-3">
-            <div className="bg-[#FDF8FF] text-[#1C1A27] p-4 neo-border neo-shadow flex-1">
-              <p className="font-label-mono text-xs text-[#454654] uppercase mb-1 font-bold">Pemasukan (Bulan ini)</p>
-              <p className="font-headline-md text-lg font-bold text-[#3B4CCA]">{monthlyIncome}</p>
+
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              <p className="font-label-mono text-xs uppercase opacity-90 font-black tracking-wider">
+                TOTAL SALDO TERSEDIA (GABUNGAN)
+              </p>
+              {wallet?.isDanaSynced && (
+                <span className="font-label-mono text-[10px] uppercase bg-[#118EEA] text-white px-2 py-0.5 border border-white font-black flex items-center gap-1 shadow-[2px_2px_0px_0px_#000]">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#4ADE80] animate-ping" />
+                  DANA LIVE SYNCED 🟢
+                </span>
+              )}
             </div>
-            <div className="bg-[#FDF8FF] text-[#1C1A27] p-4 neo-border neo-shadow flex-1">
-              <p className="font-label-mono text-xs text-[#454654] uppercase mb-1 font-bold">Pengeluaran (Bulan ini)</p>
-              <p className="font-headline-md text-lg font-bold text-[#BA1A1A]">{monthlyExpense}</p>
+
+            <div className="flex items-center gap-2 flex-wrap">
+              {wallet?.isDanaSynced && (
+                <button
+                  type="button"
+                  onClick={() => setShowDanaSyncModal(true)}
+                  className="bg-white text-[#118EEA] px-2.5 py-1 font-label-mono text-[11px] font-black uppercase border-2 border-black hover:bg-gray-100 cursor-pointer shadow-[2px_2px_0px_0px_#000] flex items-center gap-1"
+                >
+                  <MaterialIcon name="sync" className="text-xs" />
+                  SINKRONKAN 🔄
+                </button>
+              )}
+
+              {/* Status Anti-Minus Chip */}
+              {isPureNegative && isCombinedSafe ? (
+                <span className="font-label-mono text-[11px] uppercase bg-[#4ADE80] text-[#14532D] px-2.5 py-1 border-2 border-black font-black shadow-[2px_2px_0px_0px_#000] flex items-center gap-1">
+                  <MaterialIcon name="verified" className="text-sm font-bold" />
+                  🟢 AMAN DITOPANG E-WALLET (HASIL TIDAK MINUS)
+                </span>
+              ) : selectedLinkedIds.length > 0 ? (
+                <span className="font-label-mono text-[11px] uppercase bg-[#FEF08A] text-[#854D0E] px-2.5 py-1 border-2 border-black font-black shadow-[2px_2px_0px_0px_#000] flex items-center gap-1">
+                  <MaterialIcon name="hub" className="text-sm font-bold" />
+                  ⚡ SALDO GABUNGAN ({selectedLinkedIds.length + 1} WALLET)
+                </span>
+              ) : isPureNegative ? (
+                <span className="font-label-mono text-[11px] uppercase bg-[#FCA5A5] text-[#7F1D1D] px-2.5 py-1 border-2 border-black font-black shadow-[2px_2px_0px_0px_#000] flex items-center gap-1">
+                  <MaterialIcon name="warning" className="text-sm font-bold" />
+                  ⚠️ SALDO MINUS: GABUNGKAN E-WALLET DI BAWAH
+                </span>
+              ) : null}
+            </div>
+          </div>
+
+          <h2 className="text-4xl md:text-6xl font-number-xl font-bold tracking-tight mb-6">
+            {liveTotalCombinedBalanceFormatted}
+          </h2>
+
+          {/* Sub-Balance Breakdown Row */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {/* Saldo Asli */}
+            <div className={`p-3 neo-border neo-shadow ${isPureNegative ? 'bg-[#FFDAD6] text-[#93000A]' : 'bg-[#FDF8FF] text-[#1C1A27]'}`}>
+              <p className="font-label-mono text-[10px] uppercase font-bold opacity-80 mb-0.5">Saldo Murni Wallet</p>
+              <p className="font-number-xl text-sm md:text-base font-bold">
+                {wallet?.ownBalance || 'Rp 0'}
+              </p>
+            </div>
+
+            {/* Topangan E-Wallet */}
+            <div className="bg-[#FEF08A] text-[#854D0E] p-3 neo-border neo-shadow">
+              <p className="font-label-mono text-[10px] uppercase font-bold opacity-80 mb-0.5">
+                Topangan ({selectedLinkedIds.length} E-Wallet)
+              </p>
+              <p className="font-number-xl text-sm md:text-base font-black">
+                +{liveLinkedBalanceFormatted}
+              </p>
+            </div>
+
+            {/* Pemasukan */}
+            <div className="bg-[#FDF8FF] text-[#1C1A27] p-3 neo-border neo-shadow">
+              <p className="font-label-mono text-[10px] text-[#454654] uppercase font-bold mb-0.5">Pemasukan (Bulan Ini)</p>
+              <p className="font-headline-md text-sm md:text-base font-bold text-[#16A34A]">{monthlyIncome}</p>
+            </div>
+
+            {/* Pengeluaran */}
+            <div className="bg-[#FDF8FF] text-[#1C1A27] p-3 neo-border neo-shadow">
+              <p className="font-label-mono text-[10px] text-[#454654] uppercase font-bold mb-0.5">Pengeluaran (Bulan Ini)</p>
+              <p className="font-headline-md text-sm md:text-base font-bold text-[#BA1A1A]">{monthlyExpense}</p>
             </div>
           </div>
         </div>
@@ -426,6 +564,124 @@ export default function Show({
           </Link>
         </div>
       </div>
+
+      {/* =========================================================================
+          ⚡ PANEL INTERAKTIF: GABUNGKAN SALDO DENGAN E-WALLET LAIN (ANTI-MINUS)
+          ========================================================================= */}
+      {otherWallets.length > 0 && (
+        <section className="mb-8 bg-[#FEF08A] border-4 border-[#1C1A27] neo-shadow p-6 md:p-8">
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 border-b-4 border-[#1C1A27] pb-4 mb-6">
+            <div className="flex items-center gap-3.5 flex-1 min-w-0">
+              <div className="w-12 h-12 bg-[#1C1A27] text-white flex items-center justify-center border-2 border-black shrink-0">
+                <MaterialIcon name="hub" className="text-2xl font-bold" />
+              </div>
+              <div>
+                <h3 className="text-xl md:text-2xl font-headline-md font-black text-[#1C1A27] uppercase">
+                  GABUNGKAN DENGAN E-WALLET LAIN (ANTI-MINUS)
+                </h3>
+                <p className="font-body-md text-xs text-[#454654] font-bold">
+                  Centang e-wallet di bawah ini agar saldonya otomatis digabungkan ke <strong>{walletName}</strong> sehingga hasil akhirnya tidak minus dan dana total langsung siap pakai.
+                </p>
+              </div>
+            </div>
+
+            {/* Action Buttons di Ujung Kanan */}
+            <div className="flex flex-wrap items-center justify-start lg:justify-end gap-2 shrink-0 lg:ml-auto w-full lg:w-auto">
+              <button
+                type="button"
+                onClick={handleSelectAllEWallets}
+                className="bg-white text-[#1C1A27] px-3 py-1.5 font-label-mono text-xs font-black uppercase border-2 border-[#1C1A27] hover:bg-gray-100 cursor-pointer shadow-[2px_2px_0px_0px_#1C1A27] transition-transform active:translate-y-0.5"
+              >
+                PILIH SEMUA
+              </button>
+              <button
+                type="button"
+                onClick={handleClearAllEWallets}
+                className="bg-white text-[#1C1A27] px-3 py-1.5 font-label-mono text-xs font-black uppercase border-2 border-[#1C1A27] hover:bg-gray-100 cursor-pointer shadow-[2px_2px_0px_0px_#1C1A27] transition-transform active:translate-y-0.5"
+              >
+                LEPASKAN SEMUA
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveLinkedWallets}
+                disabled={isSavingLinks}
+                className={`px-4 py-2 font-label-mono text-xs font-black uppercase border-2 border-[#1C1A27] shadow-[2px_2px_0px_0px_#1C1A27] flex items-center gap-1.5 cursor-pointer transition-all active:translate-y-0.5 ${
+                  hasUnsavedLinkChanges
+                    ? 'bg-[#4ADE80] text-[#14532D] hover:bg-[#22C55E] animate-pulse'
+                    : 'bg-[#1C1A27] text-white hover:bg-[#3B4CCA]'
+                }`}
+              >
+                <MaterialIcon name="save" className="text-base font-bold" />
+                {isSavingLinks ? 'MENYIMPAN...' : hasUnsavedLinkChanges ? 'SIMPAN PERUBAHAN GABUNGAN 💾' : 'PENGGABUNGAN TERSIMPAN ✓'}
+              </button>
+            </div>
+          </div>
+
+          {/* List of Other E-Wallets Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {otherWallets.map((ow) => {
+              const isChecked = selectedLinkedIds.includes(ow.id);
+              return (
+                <div
+                  key={ow.id}
+                  onClick={() => toggleWalletLink(ow.id)}
+                  className={`border-4 border-[#1C1A27] p-4 cursor-pointer transition-all neo-shadow select-none ${
+                    isChecked
+                      ? 'bg-[#DCFCE7] shadow-[4px_4px_0px_0px_#1C1A27] transform -translate-y-1'
+                      : 'bg-white hover:bg-gray-50 opacity-90'
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-8 h-8 border-2 border-[#1C1A27] flex items-center justify-center text-sm font-bold shrink-0"
+                        style={{ backgroundColor: ow.color_hex || '#C4B5FD' }}
+                      >
+                        <MaterialIcon name={ow.icon} className="text-base text-[#1C1A27]" />
+                      </div>
+                      <div>
+                        <span className="font-headline-md font-bold text-sm text-[#1C1A27] uppercase truncate max-w-[130px] block" title={ow.name}>
+                          {ow.name}
+                        </span>
+                        {ow.isDanaSynced && (
+                          <span className="text-[9px] font-label-mono text-[#0369A1] font-black uppercase flex items-center gap-1 mt-0.5">
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#16A34A] animate-ping" />
+                            DANA LIVE
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Checkbox Icon */}
+                    <div
+                      className={`w-6 h-6 border-2 border-[#1C1A27] flex items-center justify-center font-bold text-xs ${
+                        isChecked ? 'bg-[#16A34A] text-white' : 'bg-white'
+                      }`}
+                    >
+                      {isChecked && '✓'}
+                    </div>
+                  </div>
+
+                  <div className="mt-2 pt-2 border-t-2 border-[#1C1A27]/20 flex justify-between items-center">
+                    <span className="font-label-mono text-[10px] text-[#454654] uppercase font-bold">Saldo:</span>
+                    <strong className="font-number-xl text-sm font-bold text-[#1C1A27]">{ow.balance}</strong>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Summary Footer */}
+          <div className="mt-4 pt-4 border-t-2 border-[#1C1A27]/20 flex flex-wrap justify-between items-center text-xs font-label-mono font-bold text-[#454654]">
+            <span>
+              Terpilih: <strong>{selectedLinkedIds.length} E-Wallet</strong> • Total Dana Tambahan: <strong>+{liveLinkedBalanceFormatted}</strong>
+            </span>
+            <span className="text-[#1C1A27]">
+              Total Saldo Bersih Gabungan: <strong>{liveTotalCombinedBalanceFormatted}</strong>
+            </span>
+          </div>
+        </section>
+      )}
 
       {/* ADVANCED SEARCH, FILTER & SORT CONTROLS BAR */}
       <div className="bg-white neo-border neo-shadow p-5 mb-6 space-y-4">
@@ -615,7 +871,7 @@ export default function Show({
         <div className="fixed inset-0 z-50 bg-[#1C1A27]/60 backdrop-blur-sm flex items-center justify-center p-4">
           <NeoCard
             bg={quickTrxType === 'income' ? 'bg-[#A7F3D0]' : 'bg-[#FFDAD6]'}
-            className="w-full max-w-lg p-6 md:p-8 space-y-6 max-h-[90vh] overflow-y-auto"
+            className="w-full max-w-2xl p-6 md:p-8 space-y-6 max-h-[90vh] overflow-y-auto"
           >
             <div className="flex justify-between items-center border-b-4 border-[#1C1A27] pb-4">
               <div>
@@ -778,7 +1034,7 @@ export default function Show({
         <div className="fixed inset-0 z-50 bg-[#1C1A27]/60 backdrop-blur-sm flex items-center justify-center p-4">
           <NeoCard
             bg={editForm.data.type === 'income' ? 'bg-[#A7F3D0]' : 'bg-[#FFDAD6]'}
-            className="w-full max-w-lg p-6 md:p-8 space-y-6 max-h-[90vh] overflow-y-auto"
+            className="w-full max-w-2xl p-6 md:p-8 space-y-6 max-h-[90vh] overflow-y-auto"
           >
             <div className="flex justify-between items-center border-b-4 border-[#1C1A27] pb-4">
               <div>
@@ -947,7 +1203,7 @@ export default function Show({
       {/* DELETE CONFIRMATION MODAL */}
       {deletingTransaction && (
         <div className="fixed inset-0 z-50 bg-[#1C1A27]/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <NeoCard bg="bg-[#FFDAD6]" className="w-full max-w-md p-6 md:p-8 space-y-6">
+          <NeoCard bg="bg-[#FFDAD6]" className="w-full max-w-lg p-6 md:p-8 space-y-6">
             <div className="flex items-center gap-3 border-b-4 border-[#1C1A27] pb-4">
               <div className="w-12 h-12 bg-[#BA1A1A] text-white neo-border flex items-center justify-center shrink-0">
                 <MaterialIcon name="warning" className="text-2xl font-bold" />
@@ -1010,7 +1266,7 @@ export default function Show({
       {/* EDIT BUDGET LIMIT MODAL */}
       {showBudgetModal && (
         <div className="fixed inset-0 z-50 bg-[#1C1A27]/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <NeoCard bg="bg-[#F1EBFE]" className="w-full max-w-md p-8 space-y-6">
+          <NeoCard bg="bg-[#F1EBFE]" className="w-full max-w-lg p-8 space-y-6">
             <div className="flex justify-between items-center border-b-4 border-[#1C1A27] pb-4">
               <div>
                 <span className="font-label-mono text-xs uppercase text-[#454654] font-bold">
@@ -1068,6 +1324,13 @@ export default function Show({
           </NeoCard>
         </div>
       )}
+
+      {/* DANA Sync Modal */}
+      <DanaSyncModal
+        isOpen={showDanaSyncModal}
+        onClose={() => setShowDanaSyncModal(false)}
+        wallet={wallet}
+      />
     </AuthenticatedLayout>
   );
 }

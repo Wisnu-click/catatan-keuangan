@@ -3,7 +3,7 @@ import { Link, usePage, router } from '@inertiajs/react';
 import axios from 'axios';
 import MaterialIcon from './MaterialIcon';
 
-export default function TopNav({ pageTitle = '' }) {
+export default function TopNav({ pageTitle = '', onMenuToggle = () => {} }) {
   const { auth, notifications: initialNotifications } = usePage().props;
   const user = auth?.user || {};
   
@@ -142,12 +142,10 @@ export default function TopNav({ pageTitle = '' }) {
   const filteredGoals = activeTab === 'ALL' || activeTab === 'GOALS' ? searchResults.goals : [];
 
   return (
-    <header className="w-full bg-[#FDF8FF] border-b-4 border-[#1C1A27] neo-shadow sticky top-0 z-40 px-4 md:px-8 py-3.5 flex justify-between items-center relative">
+    <header className="w-full bg-[#FDF8FF] border-b-4 border-[#1C1A27] neo-shadow sticky top-0 z-40 px-3 sm:px-4 md:px-8 py-3.5 flex justify-between items-center gap-2 relative">
       {/* Mobile Brand */}
-      <div className="flex items-center gap-3 md:hidden">
-        <h1 className="text-xl font-headline-md font-black text-[#1C1A27] uppercase tracking-tighter">
-          RAW LOGIC
-        </h1>
+      <div className="flex items-center gap-2 md:hidden shrink-0">
+        <button type="button" onClick={onMenuToggle} className="w-11 h-11 neo-border bg-[#3B4CCA] text-white flex items-center justify-center neo-shadow cursor-pointer" aria-label="Buka menu navigasi"><MaterialIcon name="menu" className="text-2xl" /></button>
       </div>
 
       {/* DESKTOP SEARCH CONTAINER */}
@@ -374,7 +372,7 @@ export default function TopNav({ pageTitle = '' }) {
       </div>
 
       {/* Right Navigation & Profile Area */}
-      <div className="flex items-center gap-2 md:gap-4 ml-auto relative" ref={profileDropdownRef}>
+      <div className="flex items-center gap-2 md:gap-4 ml-auto relative shrink-0" ref={profileDropdownRef}>
         
         {/* Mobile Search Toggle Icon Button */}
         <button
@@ -387,7 +385,7 @@ export default function TopNav({ pageTitle = '' }) {
         </button>
 
         {/* AI Chat Shortcut Button */}
-        <Link href="/chat">
+        <Link href="/chat" className="max-[380px]:hidden">
           <button
             className="h-11 px-3 bg-[#E7DEFF] text-[#1C1A27] neo-border flex items-center gap-2 neo-shadow hover:bg-[#8B5CF6] hover:text-white transition-all cursor-pointer font-bold font-label-mono text-xs uppercase"
             title="Tanya AI Assistant"
@@ -418,7 +416,7 @@ export default function TopNav({ pageTitle = '' }) {
 
           {/* Notifications Dropdown */}
           {showNotifications && (
-            <div className="absolute right-0 top-14 w-80 md:w-96 bg-white border-4 border-[#1C1A27] neo-shadow z-50 transform -rotate-[0.5deg]">
+            <div className="absolute right-0 top-14 w-[calc(100vw-1.5rem)] max-w-80 md:w-96 md:max-w-none bg-white border-4 border-[#1C1A27] neo-shadow z-50 transform -rotate-[0.5deg]">
               <div className="flex items-center justify-between p-3 border-b-4 border-[#1C1A27] bg-[#E7DEFF]">
                 <h3 className="font-headline-md font-black text-sm uppercase">NOTIFIKASI</h3>
                 {unreadCount > 0 && (
@@ -504,7 +502,7 @@ export default function TopNav({ pageTitle = '' }) {
 
         {/* PROFILE DROPDOWN MENU (Neo-Brutalism Style) */}
         {showProfileDropdown && (
-          <div className="absolute right-0 top-16 w-72 md:w-80 bg-white border-4 border-[#1C1A27] neo-shadow z-50 p-4 space-y-3 transform rotate-[0.5deg]">
+          <div className="absolute right-0 top-16 w-[calc(100vw-1.5rem)] max-w-72 md:w-80 md:max-w-none bg-white border-4 border-[#1C1A27] neo-shadow z-50 p-4 space-y-3 transform rotate-[0.5deg]">
             {/* Header User Info Card */}
             <div className="bg-[#F1EBFE] neo-border p-3 flex items-center gap-3">
               <div className="w-12 h-12 rounded-full border-2 border-[#1C1A27] bg-[#3B4CCA] flex items-center justify-center overflow-hidden shrink-0 shadow-[2px_2px_0px_0px_#1C1A27]">

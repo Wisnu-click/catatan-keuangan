@@ -13,6 +13,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\SavingReminderController;
+use App\Http\Controllers\GoldController;
 
 // Auth Routes
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -38,7 +39,15 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/wallets/detail/{id?}', [WalletController::class, 'show'])->name('wallets.show');
     Route::put('/wallets/{wallet}', [WalletController::class, 'update'])->name('wallets.update');
     Route::post('/wallets/{wallet}/budget', [WalletController::class, 'updateBudget'])->name('wallets.budget');
+    Route::post('/wallets/{wallet}/link-wallets', [WalletController::class, 'linkWallets'])->name('wallets.link');
     Route::delete('/wallets/{wallet}', [WalletController::class, 'destroy'])->name('wallets.destroy');
+    Route::post('/wallets/quick-dana', [WalletController::class, 'quickCreateDana'])->name('wallets.quick-dana');
+    Route::post('/wallets/{wallet}/dana/connect', [WalletController::class, 'connectDana'])->name('wallets.dana.connect');
+    Route::post('/wallets/{wallet}/dana/sync', [WalletController::class, 'syncDana'])->name('wallets.dana.sync');
+    Route::post('/wallets/{wallet}/dana/disconnect', [WalletController::class, 'disconnectDana'])->name('wallets.dana.disconnect');
+    Route::post('/wallet-groups', [WalletController::class, 'storeGroup'])->name('wallet-groups.store');
+    Route::put('/wallet-groups/{walletGroup}', [WalletController::class, 'updateGroup'])->name('wallet-groups.update');
+    Route::delete('/wallet-groups/{walletGroup}', [WalletController::class, 'destroyGroup'])->name('wallet-groups.destroy');
 
     // Goals CRUD Routes
     Route::get('/goals', [GoalController::class, 'index'])->name('goals.index');
@@ -87,4 +96,12 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/saving-reminders/{id}', [SavingReminderController::class, 'destroy'])->name('saving-reminders.destroy');
     Route::post('/saving-reminders/{id}/deposit', [SavingReminderController::class, 'executeDeposit'])->name('saving-reminders.deposit');
     Route::post('/saving-reminders/{id}/transaction', [SavingReminderController::class, 'executeTransaction'])->name('saving-reminders.transaction');
+
+    // Nabung di Emas & Live Tracker Routes
+    Route::get('/gold', [GoldController::class, 'index'])->name('gold.index');
+    Route::post('/gold/transactions', [GoldController::class, 'store'])->name('gold.transactions.store');
+    Route::put('/gold/transactions/{gold}', [GoldController::class, 'update'])->name('gold.transactions.update');
+    Route::delete('/gold/transactions/{gold}', [GoldController::class, 'destroy'])->name('gold.transactions.destroy');
+    Route::post('/gold/target', [GoldController::class, 'updateTarget'])->name('gold.target.update');
+    Route::get('/gold/price/refresh', [GoldController::class, 'refreshPrice'])->name('gold.price.refresh');
 });

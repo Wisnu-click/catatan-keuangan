@@ -1,19 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import SideNav from '../Components/SideNav';
 import TopNav from '../Components/TopNav';
 import MaterialIcon from '../Components/MaterialIcon';
 import { Link } from '@inertiajs/react';
 
 export default function AuthenticatedLayout({ children }) {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   return (
     <div className="bg-[#FDF8FF] text-[#1C1A27] min-h-screen flex font-body-md">
       {/* Desktop SideNav */}
-      <SideNav />
+      <SideNav mobileOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
 
       {/* Main Content Area */}
       <main className="flex-1 md:ml-80 w-full min-h-screen flex flex-col">
-        <TopNav />
-        <div className="p-6 md:p-10 w-full space-y-6 flex-1">
+        <TopNav onMenuToggle={() => setMobileMenuOpen((open) => !open)} />
+        <div className="p-4 sm:p-6 md:p-10 w-full space-y-6 flex-1">
           {children}
         </div>
       </main>

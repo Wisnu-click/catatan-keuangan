@@ -5,12 +5,14 @@ import WalletCard from '../Components/WalletCard';
 import StatCard from '../Components/StatCard';
 import TransactionItem from '../Components/TransactionItem';
 import MaterialIcon from '../Components/MaterialIcon';
+import FinancialOverviewChart from '../Components/FinancialOverviewChart';
 
 export default function Dashboard({
   totalBalance = 'Rp 0',
   monthlyIncrease = 'REAL TIME BALANCE',
   wallets = [],
   stats = { income: '+Rp 0', expense: '-Rp 0' },
+  financialOverview = [],
   recentTransactions = [],
 }) {
   return (
@@ -40,7 +42,7 @@ export default function Dashboard({
             href="/wallets"
             className="font-label-mono text-xs uppercase text-[#3B4CCA] hover:underline font-bold"
           >
-            Lihat Semua →
+            Lihat Semua â†’
           </Link>
         </div>
 
@@ -76,6 +78,10 @@ export default function Dashboard({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
         <StatCard label="Pemasukan" amount={stats.income} isIncome={true} bg="bg-[#A7F3D0]" />
         <StatCard label="Pengeluaran" amount={stats.expense} isIncome={false} bg="bg-[#FECACA]" />
+      </div>
+
+      <div className="w-full mt-6">
+        <FinancialOverviewChart items={financialOverview} />
       </div>
 
       {/* Recent Transactions List */}
@@ -116,3 +122,4 @@ export default function Dashboard({
     </AuthenticatedLayout>
   );
 }
+

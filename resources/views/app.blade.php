@@ -16,10 +16,33 @@
     <!-- Scripts & Styles -->
     @viteReactRefresh
     @vite(['resources/css/app.css', 'resources/js/app.jsx'])
+    @pwaHead('logo.png', '#3B4CCA')
     @inertiaHead
 </head>
 <body class="bg-[#FDF8FF] text-[#1C1A27] font-body-md min-h-screen selection:bg-[#3B4CCA] selection:text-white antialiased">
     @inertia
+
+    @if(app()->isLocal() && file_exists(public_path('hot')))
+        {{-- Mode Development (Vite HMR): Bersihkan Service Worker lama dan CacheStorage agar setiap perubahan kode langsung ter-update secara instan --}}
+        <script>
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                    for (var i = 0; i < registrations.length; i++) {
+                        registrations[i].unregister();
+                        console.log('[PWA Dev] Unregistered stale service worker for live HMR updates.');
+                    }
+                });
+                if ('caches' in window) {
+                    caches.keys().then(function(keys) {
+                        keys.forEach(function(k) { caches.delete(k); });
+                    });
+                }
+            }
+        </script>
+    @else
+        @laravelPwa
+        @pwaUpdateNotifier
+        @pwaInstallButton
+    @endif
 </body>
 </html>
-

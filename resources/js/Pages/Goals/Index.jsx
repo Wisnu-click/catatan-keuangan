@@ -40,7 +40,7 @@ const ROTATIONS = ['rotate-[-0.5deg]', 'rotate-[0.5deg]', 'rotate-[0deg]', 'rota
 /* ============================
    MODAL OVERLAY
    ============================ */
-function Modal({ isOpen, onClose, title, children, maxWidth = 'max-w-lg' }) {
+function Modal({ isOpen, onClose, title, children, maxWidth = 'max-w-2xl' }) {
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
@@ -1044,7 +1044,7 @@ export default function Index({ goals = [], wallets = [], reminders = [] }) {
       </Modal>
 
       {/* Delete Confirmation Modal */}
-      <Modal isOpen={modal === 'delete'} onClose={closeModal} title="Hapus Target" maxWidth="max-w-md">
+      <Modal isOpen={modal === 'delete'} onClose={closeModal} title="Hapus Target" maxWidth="max-w-lg">
         {activeGoal && <DeleteConfirm goal={activeGoal} onClose={closeModal} />}
       </Modal>
 
@@ -1059,7 +1059,7 @@ export default function Index({ goals = [], wallets = [], reminders = [] }) {
       </Modal>
 
       {/* Delete Reminder Modal */}
-      <Modal isOpen={modal === 'reminder_delete'} onClose={closeModal} title="Hapus Jadwal Menabung" maxWidth="max-w-md">
+      <Modal isOpen={modal === 'reminder_delete'} onClose={closeModal} title="Hapus Jadwal Menabung" maxWidth="max-w-lg">
         {activeReminder && <DeleteReminderConfirm reminder={activeReminder} onClose={closeModal} />}
       </Modal>
     </AuthenticatedLayout>

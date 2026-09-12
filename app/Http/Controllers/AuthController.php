@@ -145,25 +145,34 @@ class AuthController extends Controller
     /**
      * Handle Google OAuth Callback
      */
-    public function handleGoogleCallback()
+    public function handleGoogleCallback(Request $request)
     {
         try {
-            $googleUser = Socialite::driver('google')->user();
+            // Coba ambil user Google secara reguler, fallback ke stateless() jika session state hilang
+            try {
+                $googleUser = Socialite::driver('google')->user();
+            } catch (\Exception $stateException) {
+                $googleUser = Socialite::driver('google')->stateless()->user();
+            }
+
+            if (!$googleUser || !$googleUser->getEmail()) {
+                return redirect('/login')->with('error', 'Tidak dapat mengambil data email dari Google.');
+            }
 
             $user = User::where('email', $googleUser->getEmail())->first();
 
             if (!$user) {
-                // Register new user from Google account
+                // Register user baru dari akun Google
                 $user = User::create([
-                    'name' => $googleUser->getName() ?? $googleUser->getNickname() ?? 'Google User',
+                    'name' => $googleUser->getName() ?: ($googleUser->getNickname() ?: 'Google User'),
                     'email' => $googleUser->getEmail(),
                     'phone_number' => '08' . rand(100000000, 999999999),
                     'avatar_url' => $googleUser->getAvatar(),
-                    'password' => Hash::make(Str::random(16)),
+                    'password' => Hash::make(Str::random(24)),
                     'is_active' => true,
                 ]);
 
-                // Create initial default wallet
+                // Buat dompet awal
                 Wallet::create([
                     'user_id' => $user->id,
                     'name' => 'Dompet Utama',
@@ -179,9 +188,12 @@ class AuthController extends Controller
             }
 
             Auth::login($user, true);
+            $request->session()->regenerate();
+            $request->session()->forget('url.intended');
 
-            return redirect()->intended('/dashboard');
+            return redirect('/dashboard')->with('success', 'Berhasil masuk dengan Google!');
         } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Google OAuth Error: ' . $e->getMessage());
             return redirect('/login')->with('error', 'Gagal login via Google: ' . $e->getMessage());
         }
     }
