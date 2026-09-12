@@ -5,6 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title inertia>{{ config('app.name', 'VIRA') }}</title>
 
+    <!-- PWA Manifest & Meta Tags -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#3B4CCA">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="VIRA">
+    <link rel="apple-touch-icon" href="/logo.png">
+    <link rel="icon" type="image/png" href="/logo.png">
+
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,7 +26,6 @@
     <!-- Scripts & Styles -->
     @viteReactRefresh
     @vite(['resources/css/app.css', 'resources/js/app.jsx'])
-    @pwaHead('logo.png', '#3B4CCA')
     @inertiaHead
 </head>
 <body class="bg-[#FDF8FF] text-[#1C1A27] font-body-md min-h-screen selection:bg-[#3B4CCA] selection:text-white antialiased">
@@ -29,7 +38,6 @@
                 navigator.serviceWorker.getRegistrations().then(function(registrations) {
                     for (var i = 0; i < registrations.length; i++) {
                         registrations[i].unregister();
-                        console.log('[PWA Dev] Unregistered stale service worker for live HMR updates.');
                     }
                 });
                 if ('caches' in window) {
@@ -40,9 +48,18 @@
             }
         </script>
     @else
-        @laravelPwa
-        @pwaUpdateNotifier
-        @pwaInstallButton
+        {{-- Mode Production: Daftarkan Service Worker PWA murni --}}
+        <script>
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                    navigator.serviceWorker.register('/sw.js').then(function(reg) {
+                        console.log('[PWA] Service Worker registered with scope:', reg.scope);
+                    }).catch(function(err) {
+                        console.log('[PWA] Service Worker registration failed:', err);
+                    });
+                });
+            }
+        </script>
     @endif
 </body>
 </html>
