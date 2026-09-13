@@ -1,23 +1,17 @@
 import React, { useState } from 'react';
 import { Link, usePage } from '@inertiajs/react';
 import MaterialIcon from './MaterialIcon';
+import TestNotificationModal from './TestNotificationModal';
 
 export default function BottomNav() {
   const { url } = usePage();
   const [showMoreDrawer, setShowMoreDrawer] = useState(false);
+  const [showTestModal, setShowTestModal] = useState(false);
 
   const isActive = (path) => {
     if (path === '/dashboard') return url === '/' || url === '/dashboard';
     return url.startsWith(path);
   };
-
-  const primaryNavItems = [
-    { name: 'Home', href: '/dashboard', icon: 'grid_view' },
-    { name: 'Wallets', href: '/wallets', icon: 'account_balance_wallet' },
-    // Center is the (+) Action Button
-    { name: 'Emas', href: '/gold', icon: 'monetization_on' },
-    { name: 'Menu', href: '#menu', icon: 'apps', isAction: true },
-  ];
 
   const moreMenuItems = [
     { name: 'AI Chat Assistant', href: '/chat', icon: 'smart_toy', bg: 'bg-[#E7DEFF]', color: 'text-[#8B5CF6]' },
@@ -169,6 +163,35 @@ export default function BottomNav() {
               </button>
             </div>
 
+            {/* Test Notification Button in Drawer */}
+            <div className="mb-4">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowMoreDrawer(false);
+                  setShowTestModal(true);
+                }}
+                className="w-full p-3.5 bg-[#FEF08A] text-[#854D0E] border-4 border-[#1C1A27] shadow-[3px_3px_0px_0px_#1C1A27] flex items-center justify-between cursor-pointer hover:bg-yellow-300 transition-transform active:translate-y-0.5"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-[#854D0E] text-white border-2 border-[#1C1A27] flex items-center justify-center shrink-0">
+                    <MaterialIcon name="notifications_active" className="text-xl font-bold" />
+                  </div>
+                  <div className="text-left">
+                    <p className="font-headline-md text-sm font-black uppercase text-[#854D0E]">
+                      Test Notifikasi HP (PWA)
+                    </p>
+                    <p className="font-label-mono text-[10px] opacity-80 font-bold">
+                      Uji Notifikasi Layar & Status Bar HP
+                    </p>
+                  </div>
+                </div>
+                <span className="font-label-mono text-xs font-black bg-white text-[#1C1A27] px-2.5 py-1 border border-[#1C1A27] shadow-[1px_1px_0px_0px_#000]">
+                  TEST 🔔
+                </span>
+              </button>
+            </div>
+
             {/* Menu Items Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
               {moreMenuItems.map((item) => {
@@ -215,7 +238,12 @@ export default function BottomNav() {
           </div>
         </div>
       )}
+
+      {/* Test Notification Modal */}
+      <TestNotificationModal
+        isOpen={showTestModal}
+        onClose={() => setShowTestModal(false)}
+      />
     </>
   );
 }
-

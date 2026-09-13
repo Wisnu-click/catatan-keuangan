@@ -234,8 +234,13 @@ export default function Show({
     const allItems = [];
     transactionsGrouped.forEach((group) => {
       group.items.forEach((item) => {
+        const itemTitle = item.title || item.description || item.name || (item.isIncome ? 'Pemasukan' : 'Pengeluaran');
+        const itemCategory = item.category || item.category_name || '';
+
         allItems.push({
           ...item,
+          title: itemTitle,
+          category: itemCategory,
           rawDate: item.transaction_date || '',
           groupDate: group.date,
         });
@@ -253,10 +258,10 @@ export default function Show({
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim();
       filtered = filtered.filter((tx) => {
-        const titleMatch = (tx.title || '').toLowerCase().includes(q);
+        const titleMatch = (tx.title || tx.description || tx.name || '').toLowerCase().includes(q);
         const descMatch = (tx.description || '').toLowerCase().includes(q);
-        const catMatch = (tx.category || '').toLowerCase().includes(q);
-        const amountMatch = String(tx.amount_raw || '').includes(q) || (tx.amount || '').toLowerCase().includes(q);
+        const catMatch = (tx.category || tx.category_name || '').toLowerCase().includes(q);
+        const amountMatch = String(tx.amount_raw || tx.amountNum || '').includes(q) || (tx.amount || '').toLowerCase().includes(q);
         return titleMatch || descMatch || catMatch || amountMatch;
       });
     }
@@ -831,8 +836,8 @@ export default function Show({
                 {group.items.map((tx) => (
                   <TransactionItem
                     key={tx.id}
-                    title={tx.title}
-                    category={tx.category}
+                    title={tx.title || tx.description || tx.name || (tx.isIncome ? 'Pemasukan' : 'Pengeluaran')}
+                    category={tx.category || tx.category_name}
                     subtitle={tx.subtitle || tx.transaction_date}
                     amount={tx.amount}
                     isIncome={tx.isIncome}

@@ -289,16 +289,23 @@ class WalletController extends Controller
             return [
                 'date' => $dateStr,
                 'items' => $items->map(function ($tx) {
+                    $title = $tx->description ?: ($tx->category?->name ?: ($tx->type === 'income' ? 'Pemasukan' : 'Pengeluaran'));
+                    $categoryName = $tx->category?->name ?: 'Umum';
+
                     return [
                         'id' => $tx->id,
-                        'name' => $tx->category?->name ?: ($tx->description ?: ($tx->type === 'income' ? 'Pemasukan' : 'Pengeluaran')),
+                        'title' => $title,
+                        'name' => $title,
                         'description' => $tx->description,
-                        'amount' => ($tx->type === 'income' ? '+' : '-') . 'Rp ' . number_format($tx->amount, 0, ',', '.'),
+                        'category' => $categoryName,
+                        'category_name' => $categoryName,
+                        'amount' => 'Rp ' . number_format($tx->amount, 0, ',', '.'),
+                        'amount_formatted' => ($tx->type === 'income' ? '+' : '-') . 'Rp ' . number_format($tx->amount, 0, ',', '.'),
                         'amountNum' => (float) $tx->amount,
+                        'amount_raw' => (float) $tx->amount,
                         'type' => $tx->type,
                         'category_id' => $tx->category_id,
-                        'category_name' => $tx->category?->name ?: 'Umum',
-                        'category_icon' => $tx->category?->icon ?: 'category',
+                        'category_icon' => $tx->category?->icon ?: ($tx->type === 'income' ? 'arrow_downward' : 'shopping_cart'),
                         'category_color' => $tx->category?->color_hex ?: '#3B4CCA',
                         'transaction_date' => $tx->transaction_date ? \Carbon\Carbon::parse($tx->transaction_date)->format('Y-m-d') : '',
                         'subtitle' => $tx->created_at ? $tx->created_at->format('H:i') . ' WIB' : '',

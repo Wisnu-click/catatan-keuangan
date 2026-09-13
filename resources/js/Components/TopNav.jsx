@@ -2,11 +2,15 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link, usePage, router } from '@inertiajs/react';
 import axios from 'axios';
 import MaterialIcon from './MaterialIcon';
+import TestNotificationModal from './TestNotificationModal';
 
 export default function TopNav({ pageTitle = '', onMenuToggle = () => {} }) {
   const { auth, notifications: initialNotifications } = usePage().props;
   const user = auth?.user || {};
   
+  // Test Notification Modal state
+  const [showTestModal, setShowTestModal] = useState(false);
+
   // Profile Dropdown state
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const profileDropdownRef = useRef(null);
@@ -475,6 +479,24 @@ export default function TopNav({ pageTitle = '', onMenuToggle = () => {} }) {
                   </div>
                 )}
               </div>
+
+              {/* Test Notification Button in Dropdown Footer */}
+              <div className="p-3 bg-[#FEF08A] border-t-4 border-[#1C1A27] flex items-center justify-between gap-2">
+                <span className="font-label-mono text-[11px] font-black uppercase text-[#854D0E] flex items-center gap-1">
+                  <MaterialIcon name="notifications_active" className="text-base" />
+                  UJI NOTIF HP
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowNotifications(false);
+                    setShowTestModal(true);
+                  }}
+                  className="bg-[#3B4CCA] text-white px-3 py-1 font-label-mono text-xs font-black uppercase border-2 border-[#1C1A27] shadow-[2px_2px_0px_0px_#1C1A27] hover:bg-[#2A379D] cursor-pointer flex items-center gap-1"
+                >
+                  TEST NOTIFIKASI 🔔
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -562,6 +584,18 @@ export default function TopNav({ pageTitle = '', onMenuToggle = () => {} }) {
                 Daftar Wallets
               </Link>
 
+              <button
+                type="button"
+                onClick={() => {
+                  setShowProfileDropdown(false);
+                  setShowTestModal(true);
+                }}
+                className="w-full px-3 py-2.5 flex items-center gap-3 bg-[#FEF08A] text-[#854D0E] neo-border hover:bg-yellow-300 transition-all shadow-[2px_2px_0px_0px_#1C1A27] cursor-pointer text-left font-bold"
+              >
+                <MaterialIcon name="notifications_active" className="text-lg" />
+                Test Notifikasi HP (PWA)
+              </button>
+
               <Link
                 href="/settings/whatsapp"
                 onClick={() => setShowProfileDropdown(false)}
@@ -587,6 +621,12 @@ export default function TopNav({ pageTitle = '', onMenuToggle = () => {} }) {
           </div>
         )}
       </div>
+
+      {/* Test Notification Modal */}
+      <TestNotificationModal
+        isOpen={showTestModal}
+        onClose={() => setShowTestModal(false)}
+      />
 
       {/* MOBILE SEARCH EXPANDABLE BAR */}
       {showMobileSearch && (

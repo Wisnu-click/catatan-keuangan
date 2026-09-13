@@ -12,6 +12,9 @@ export default function TransactionItem({
   onEdit,
   onDelete,
 }) {
+  const displayTitle = title || category || (isIncome ? 'Pemasukan' : 'Pengeluaran');
+  const cleanAmount = typeof amount === 'string' ? amount.replace(/^[+-]/, '') : (typeof amount === 'number' ? 'Rp ' + Number(amount).toLocaleString('id-ID') : (amount || 'Rp 0'));
+
   return (
     <div
       onClick={onClick}
@@ -22,7 +25,7 @@ export default function TransactionItem({
           <span className="material-symbols-outlined text-xl">{icon}</span>
         </div>
         <div className="overflow-hidden">
-          <p className="font-bold text-base md:text-lg text-[#1C1A27] truncate">{title}</p>
+          <p className="font-bold text-base md:text-lg text-[#1C1A27] truncate">{displayTitle}</p>
           <div className="flex flex-wrap items-center gap-2 mt-1">
             {category && (
               <span className="text-[11px] md:text-[12px] font-label-mono bg-[#F1EBFE] border-2 border-[#1C1A27] px-2 py-0.5 uppercase font-bold">
@@ -42,7 +45,7 @@ export default function TransactionItem({
             isIncome ? 'text-green-700' : 'text-[#BA1A1A]'
           }`}
         >
-          {isIncome ? `+${amount}` : `-${amount}`}
+          {isIncome ? `+${cleanAmount}` : `-${cleanAmount}`}
         </span>
 
         {/* Optional Action Buttons (Edit / Delete) */}

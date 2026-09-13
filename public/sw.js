@@ -190,3 +190,73 @@ function getAllRequests(store) {
         request.onerror = () => reject(request.error);
     });
 }
+
+// =========================================================================
+// 🔔 REAL SYSTEM PUSH & LOCAL NOTIFICATIONS FOR MOBILE / PWA
+// =========================================================================
+self.addEventListener('push', (event) => {
+    console.log('[VIRA SW] Push event received');
+    let data = {
+        title: 'VIRA - Notifikasi Keuangan',
+        body: 'Ada pengingat keuangan baru untuk Anda.',
+        icon: '/logo.png',
+        badge: '/icon-96x96.png',
+        url: '/dashboard',
+        tag: 'vira-notification-' + Date.now(),
+    };
+
+    if (event.data) {
+        try {
+            const payload = event.data.json();
+            data = Object.assign(data, payload);
+        } catch (e) {
+            data.body = event.data.text();
+        }
+    }
+
+    const options = {
+        body: data.body,
+        icon: data.icon || '/logo.png',
+        badge: data.badge || '/icon-96x96.png',
+        vibrate: [200, 100, 200, 100, 200],
+        tag: data.tag || 'vira-pwa-notification',
+        renotify: true,
+        data: {
+            url: data.url || '/dashboard',
+        },
+        actions: [
+            { action: 'open', title: 'Buka VIRA' },
+            { action: 'close', title: 'Tutup' }
+        ]
+    };
+
+    event.waitUntil(
+        self.registration.showNotification(data.title, options)
+    );
+});
+
+// Notification Click Handler (Buka / Fokus ke aplikasi saat notifikasi di tap)
+self.addEventListener('notificationclick', (event) => {
+    event.notification.close();
+
+    if (event.action === 'close') {
+        return;
+    }
+
+    const targetUrl = event.notification.data?.url || '/dashboard';
+
+    event.waitUntil(
+        clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+            for (const client of clientList) {
+                if (client.url.includes(self.location.origin) && 'focus' in client) {
+                    client.navigate(targetUrl);
+                    return client.focus();
+                }
+            }
+            if (clients.openWindow) {
+                return clients.openWindow(targetUrl);
+            }
+        })
+    );
+});
+
