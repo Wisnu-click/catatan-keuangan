@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\ChatMessage;
+use App\Models\SavingReminder;
+use App\Models\SavingsGoal;
 use App\Models\Transaction;
 use App\Models\Wallet;
 use App\Services\AiService;
@@ -31,67 +33,80 @@ class ChatController extends Controller
                 'current_balance' => (float) $w->current_balance,
             ]);
 
-        // Cek API Key yang terpasang di .env / config
-        $openaiKey = env('OPENAI_API_KEY') ?: config('services.openai.api_key');
-        $geminiKey = env('GEMINI_API_KEY') ?: config('services.gemini.api_key');
-        $anthropicKey = env('ANTHROPIC_API_KEY') ?: config('services.anthropic.api_key');
-        $deepseekKey = env('DEEPSEEK_API_KEY') ?: config('services.deepseek.api_key');
-        $defaultModel = env('DEFAULT_AI_MODEL', 'gpt-4o');
+        // Cek OpenRouter API Key (1 key untuk semua model)
+        $openrouterKey = config('services.openrouter.api_key') ?: env('OPENROUTER_API_KEY');
+        $hasOrKey      = !empty($openrouterKey);
+        $defaultModel  = env('DEFAULT_AI_MODEL', 'openai/gpt-4o');
 
-        // Generasi daftar AI Models secara dinamis berdasarkan status .env
+        $liveBadge = $hasOrKey ? 'VIA OPENROUTER' : 'ENGINE LOKAL';
+        $liveDesc  = fn(string $desc) => $hasOrKey
+            ? $desc . ' (via OpenRouter — 1 key untuk semua model)'
+            : 'OPENROUTER_API_KEY belum diisi di .env. Menggunakan parser lokal.';
+
+        // Semua model menggunakan OpenRouter model ID
         $allModels = [
             [
-                'id' => 'gpt-4o',
-                'name' => 'GPT-4o (OpenAI)',
-                'provider' => 'OpenAI',
-                'has_key' => !empty($openaiKey),
-                'badge' => !empty($openaiKey) ? 'LIVE API (.ENV)' : 'ENGINE LOKAL',
-                'icon' => 'smart_toy',
-                'description' => !empty($openaiKey)
-                    ? 'Terhubung live ke OpenAI API (.env). Multimodal parser tercepat.'
-                    : 'API Key OPENAI_API_KEY di .env belum diisi. Menggunakan parser lokal.',
+                'id'          => 'openai/gpt-4o',
+                'name'        => 'GPT-4o',
+                'provider'    => 'OpenAI via OpenRouter',
+                'has_key'     => $hasOrKey,
+                'badge'       => $liveBadge,
+                'icon'        => 'smart_toy',
+                'description' => $liveDesc('Model terkuat OpenAI. Multimodal, mendukung foto struk.'),
             ],
             [
-                'id' => 'gemini-1.5-pro',
-                'name' => 'Gemini 1.5 Pro',
-                'provider' => 'Google AI',
-                'has_key' => !empty($geminiKey),
-                'badge' => !empty($geminiKey) ? 'LIVE API (.ENV)' : 'ENGINE LOKAL',
-                'icon' => 'auto_awesome',
-                'description' => !empty($geminiKey)
-                    ? 'Terhubung live ke Google Gemini API (.env). Visual OCR struk presisi.'
-                    : 'API Key GEMINI_API_KEY di .env belum diisi. Menggunakan parser lokal.',
+                'id'          => 'openai/gpt-4o-mini',
+                'name'        => 'GPT-4o Mini',
+                'provider'    => 'OpenAI via OpenRouter',
+                'has_key'     => $hasOrKey,
+                'badge'       => $hasOrKey ? 'HEMAT & CEPAT' : 'ENGINE LOKAL',
+                'icon'        => 'flash_on',
+                'description' => $liveDesc('Versi ringan GPT-4o. Lebih hemat kredit, tetap akurat.'),
             ],
             [
-                'id' => 'claude-3.5-sonnet',
-                'name' => 'Claude 3.5 Sonnet',
-                'provider' => 'Anthropic',
-                'has_key' => !empty($anthropicKey),
-                'badge' => !empty($anthropicKey) ? 'LIVE API (.ENV)' : 'ENGINE LOKAL',
-                'icon' => 'psychology',
-                'description' => !empty($anthropicKey)
-                    ? 'Terhubung live ke Anthropic Claude API (.env). Penalaran finansial mendalam.'
-                    : 'API Key ANTHROPIC_API_KEY di .env belum diisi. Menggunakan parser lokal.',
+                'id'          => 'google/gemini-pro-1.5',
+                'name'        => 'Gemini 1.5 Pro',
+                'provider'    => 'Google via OpenRouter',
+                'has_key'     => $hasOrKey,
+                'badge'       => $liveBadge,
+                'icon'        => 'auto_awesome',
+                'description' => $liveDesc('Google Gemini 1.5 Pro. Konteks panjang, analisis mendalam.'),
             ],
             [
-                'id' => 'deepseek-v3',
-                'name' => 'DeepSeek V3',
-                'provider' => 'DeepSeek',
-                'has_key' => !empty($deepseekKey),
-                'badge' => !empty($deepseekKey) ? 'LIVE API (.ENV)' : 'ENGINE LOKAL',
-                'icon' => 'bolt',
-                'description' => !empty($deepseekKey)
-                    ? 'Terhubung live ke DeepSeek API (.env). Penalaran logika efisien.'
-                    : 'API Key DEEPSEEK_API_KEY di .env belum diisi. Menggunakan parser lokal.',
+                'id'          => 'google/gemini-flash-1.5',
+                'name'        => 'Gemini 1.5 Flash',
+                'provider'    => 'Google via OpenRouter',
+                'has_key'     => $hasOrKey,
+                'badge'       => $hasOrKey ? 'GRATIS & CEPAT' : 'ENGINE LOKAL',
+                'icon'        => 'bolt',
+                'description' => $liveDesc('Gemini Flash — paling cepat dari Google, cocok untuk scanning struk.'),
             ],
             [
-                'id' => 'raw-logic-core',
-                'name' => 'VIRA Core AI',
-                'provider' => 'Local Database Engine',
-                'has_key' => true,
-                'badge' => 'LOKAL NATIVE',
-                'icon' => 'memory',
-                'description' => 'Engine parser internal terintegrasi langsung dengan database lokal MySQL.',
+                'id'          => 'anthropic/claude-3.5-sonnet',
+                'name'        => 'Claude 3.5 Sonnet',
+                'provider'    => 'Anthropic via OpenRouter',
+                'has_key'     => $hasOrKey,
+                'badge'       => $liveBadge,
+                'icon'        => 'psychology',
+                'description' => $liveDesc('Anthropic Claude 3.5 Sonnet. Terbaik untuk penalaran logika finansial.'),
+            ],
+            [
+                'id'          => 'deepseek/deepseek-chat',
+                'name'        => 'DeepSeek V3',
+                'provider'    => 'DeepSeek via OpenRouter',
+                'has_key'     => $hasOrKey,
+                'badge'       => $liveBadge,
+                'icon'        => 'memory',
+                'description' => $liveDesc('DeepSeek V3. Model open-source terkuat, efisien dan murah.'),
+            ],
+            [
+                'id'          => 'raw-logic-core',
+                'name'        => 'VIRA Core AI',
+                'provider'    => 'Local Database Engine',
+                'has_key'     => true,
+                'badge'       => 'LOKAL NATIVE',
+                'icon'        => 'dns',
+                'description' => 'Engine parser internal tanpa API. Terintegrasi langsung ke database MySQL.',
             ],
         ];
 
@@ -106,7 +121,7 @@ class ChatController extends Controller
                 'user_id' => $user->id,
                 'sender' => 'ai',
                 'type' => 'text',
-                'content' => "Halo {$user->name}! Saya RAW AI Assistant 🤖.\nKetik transaksi seperti 'Beli kuota 50rb pake Usaha E-Wallet' atau upload foto struk untuk dicatat otomatis.",
+                'content' => "Halo {$user->name}! Saya VIRA AI Assistant 🤖.\nSaya siap membantu mengelola dan mencatat keuangan Anda.\n\n💡 Pilihan Perintah Cepat:\n• !help : Daftar semua perintah shortcut\n• !saldo : Cek saldo seluruh dompet dan total dana\n• !target : Cek progres target tabungan\n• !rekap : Rekap arus kas bulan ini\n• !transaksi : 10 mutasi transaksi terakhir\n\nAtau langsung ketik transaksi seperti: Makan siang 35rb dari Dompet Utama, atau kirim foto struk belanja.",
                 'ai_model' => $defaultModel,
                 'is_confirmed' => false,
             ]);
@@ -177,16 +192,8 @@ class ChatController extends Controller
             'ai_model' => $aiModel,
         ]);
 
-        // 2. Memanggil Real AI Service Engine (OpenAI / Gemini / Claude / DeepSeek / Local)
-        $userWalletsArray = Wallet::where('user_id', $user->id)
-            ->where('is_active', true)
-            ->get()
-            ->map(fn ($w) => [
-                'id' => $w->id,
-                'name' => $w->name,
-                'balance' => 'Rp ' . number_format($w->current_balance, 0, ',', '.'),
-            ])
-            ->toArray();
+        // 2. Kumpulkan Dataset Lengkap Pengguna dari Database untuk AI
+        $userContext = $this->buildUserFinancialContext($user);
 
         $imageAbsPath = null;
         if ($imagePath && file_exists(public_path($imagePath))) {
@@ -194,7 +201,7 @@ class ChatController extends Controller
         }
 
         $aiService = new AiService();
-        $aiResult = $aiService->askAi($aiModel, $content, $imageAbsPath, $userWalletsArray);
+        $aiResult = $aiService->askAi($aiModel, $content, $imageAbsPath, $userContext);
 
         // 3. Simpan Pesan Respon AI ke DB
         ChatMessage::create([
@@ -208,6 +215,122 @@ class ChatController extends Controller
         ]);
 
         return redirect()->route('chat.index')->with('success', 'Pesan terproses oleh ' . $aiModel);
+    }
+
+    /**
+     * Kumpulkan Dataset Lengkap Pengguna dari Database untuk AI
+     */
+    private function buildUserFinancialContext($user): array
+    {
+        // 1. Wallets
+        $wallets = Wallet::where('user_id', $user->id)
+            ->where('is_active', true)
+            ->get();
+        $totalBalance = $wallets->sum('current_balance');
+        $walletsData = $wallets->map(fn ($w) => [
+            'id' => $w->id,
+            'name' => $w->name,
+            'type' => $w->type ?? 'general',
+            'current_balance' => (float) $w->current_balance,
+            'balance_formatted' => 'Rp ' . number_format($w->current_balance, 0, ',', '.'),
+        ])->toArray();
+
+        // 2. Savings Goals (Target Tabungan)
+        $goals = SavingsGoal::where('user_id', $user->id)
+            ->with('contributions')
+            ->get()
+            ->map(function ($g) {
+                $current = (float) $g->contributions->sum('amount');
+                $target = (float) $g->target_amount;
+                $pct = $target > 0 ? round(($current / $target) * 100, 1) : 0;
+                $remaining = max(0, $target - $current);
+                return [
+                    'id' => $g->id,
+                    'name' => $g->name,
+                    'target_amount' => $target,
+                    'target_formatted' => 'Rp ' . number_format($target, 0, ',', '.'),
+                    'current_amount' => $current,
+                    'current_formatted' => 'Rp ' . number_format($current, 0, ',', '.'),
+                    'remaining_formatted' => 'Rp ' . number_format($remaining, 0, ',', '.'),
+                    'progress_percent' => $pct,
+                    'target_date' => $g->target_date ? $g->target_date->format('d M Y') : null,
+                    'status' => $g->status ?? 'active',
+                ];
+            })->toArray();
+
+        // 3. Transaksi Terakhir (10 transaksi terbaru)
+        $recentTransactions = Transaction::where('user_id', $user->id)
+            ->with(['wallet', 'category'])
+            ->orderBy('transaction_date', 'desc')
+            ->orderBy('id', 'desc')
+            ->take(10)
+            ->get()
+            ->map(fn ($t) => [
+                'id' => $t->id,
+                'date' => $t->transaction_date ? $t->transaction_date->format('d M Y') : $t->created_at->format('d M Y'),
+                'type' => $t->type,
+                'amount' => (float) $t->amount,
+                'amount_formatted' => 'Rp ' . number_format($t->amount, 0, ',', '.'),
+                'category' => $t->category->name ?? 'Umum',
+                'wallet' => $t->wallet->name ?? 'Dompet Utama',
+                'description' => $t->description ?? '-',
+            ])->toArray();
+
+        // 4. Rekap Keuangan Bulan Berjalan
+        $startOfMonth = now()->startOfMonth()->toDateString();
+        $endOfMonth = now()->endOfMonth()->toDateString();
+        $monthlyIncome = (float) Transaction::where('user_id', $user->id)
+            ->where('type', 'income')
+            ->whereBetween('transaction_date', [$startOfMonth, $endOfMonth])
+            ->sum('amount');
+        $monthlyExpense = (float) Transaction::where('user_id', $user->id)
+            ->where('type', 'expense')
+            ->whereBetween('transaction_date', [$startOfMonth, $endOfMonth])
+            ->sum('amount');
+        $monthlyNet = $monthlyIncome - $monthlyExpense;
+
+        // 5. Kategori
+        $categories = Category::where('user_id', $user->id)
+            ->get()
+            ->groupBy('type')
+            ->map(fn ($group) => $group->pluck('name')->toArray())
+            ->toArray();
+
+        // 6. Saving Reminders (Program Nabung Konsisten)
+        $reminders = SavingReminder::where('user_id', $user->id)
+            ->where('is_active', true)
+            ->with('wallet')
+            ->get()
+            ->map(fn ($r) => [
+                'title' => $r->title,
+                'amount' => 'Rp ' . number_format($r->amount, 0, ',', '.'),
+                'frequency' => $r->frequency,
+                'wallet' => $r->wallet->name ?? '-',
+            ])->toArray();
+
+        return [
+            'user' => [
+                'name' => $user->name,
+                'email' => $user->email,
+                'joined_at' => $user->created_at ? $user->created_at->format('d M Y') : '-',
+                'is_google_linked' => !empty($user->google_id),
+            ],
+            'summary' => [
+                'total_balance' => (float) $totalBalance,
+                'total_balance_formatted' => 'Rp ' . number_format($totalBalance, 0, ',', '.'),
+                'wallet_count' => count($walletsData),
+                'month_name' => now()->translatedFormat('F Y'),
+                'monthly_income_formatted' => 'Rp ' . number_format($monthlyIncome, 0, ',', '.'),
+                'monthly_expense_formatted' => 'Rp ' . number_format($monthlyExpense, 0, ',', '.'),
+                'monthly_net_formatted' => 'Rp ' . number_format($monthlyNet, 0, ',', '.'),
+                'monthly_status' => $monthlyNet >= 0 ? 'Surplus (+)' : 'Defisit (-)',
+            ],
+            'wallets' => $walletsData,
+            'goals' => $goals,
+            'recent_transactions' => $recentTransactions,
+            'categories' => $categories,
+            'saving_reminders' => $reminders,
+        ];
     }
 
     /**
@@ -316,6 +439,84 @@ class ChatController extends Controller
     }
 
     /**
+     * Test konektivitas OpenRouter API — 1 key untuk semua model
+     */
+    public function testAiApi(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $apiKey   = config('services.openrouter.api_key') ?: env('OPENROUTER_API_KEY');
+        $siteUrl  = config('services.openrouter.site_url', 'http://localhost');
+        $siteName = config('services.openrouter.site_name', 'VIRA Financial AI');
+
+        // Jika key belum diisi
+        if (!$apiKey) {
+            return response()->json([
+                'results'   => [
+                    'openrouter' => [
+                        'ok'      => false,
+                        'label'   => 'OpenRouter API',
+                        'message' => '⚠️ OPENROUTER_API_KEY belum diisi di file .env Anda.',
+                        'env_key' => 'OPENROUTER_API_KEY',
+                        'get_url' => 'https://openrouter.ai/keys',
+                    ],
+                ],
+                'tested_at' => now()->format('H:i:s d/m/Y'),
+                'is_openrouter' => true,
+            ]);
+        }
+
+        $results   = [];
+        // Model yang diuji (pilih model ringan/gratis untuk test ping)
+        $testModels = [
+            ['id' => 'openai/gpt-4o-mini',         'label' => 'GPT-4o Mini (OpenAI)'],
+            ['id' => 'google/gemini-flash-1.5',     'label' => 'Gemini 1.5 Flash (Google)'],
+            ['id' => 'anthropic/claude-3-haiku',    'label' => 'Claude 3 Haiku (Anthropic)'],
+            ['id' => 'deepseek/deepseek-chat',      'label' => 'DeepSeek V3'],
+        ];
+
+        foreach ($testModels as $tm) {
+            $start = microtime(true);
+            try {
+                $resp = \Illuminate\Support\Facades\Http::withHeaders([
+                    'Authorization' => 'Bearer ' . $apiKey,
+                    'HTTP-Referer'  => $siteUrl,
+                    'X-Title'       => $siteName,
+                    'Content-Type'  => 'application/json',
+                ])->timeout(15)->post('https://openrouter.ai/api/v1/chat/completions', [
+                    'model'      => $tm['id'],
+                    'messages'   => [['role' => 'user', 'content' => 'Halo, balas hanya dengan kata: OK']],
+                    'max_tokens' => 5,
+                ]);
+
+                $latency = round((microtime(true) - $start) * 1000);
+
+                $results[$tm['id']] = [
+                    'ok'      => $resp->successful(),
+                    'label'   => $tm['label'],
+                    'message' => $resp->successful()
+                        ? "✅ Model tersedia dan merespons! ({$latency}ms)"
+                        : '❌ Error ' . $resp->status() . ': ' . substr($resp->body(), 0, 150),
+                    'latency_ms' => $latency,
+                ];
+            } catch (\Exception $e) {
+                $results[$tm['id']] = [
+                    'ok'      => false,
+                    'label'   => $tm['label'],
+                    'message' => '❌ Exception: ' . $e->getMessage(),
+                ];
+            }
+        }
+
+        return response()->json([
+            'results'       => $results,
+            'tested_at'     => now()->format('H:i:s d/m/Y'),
+            'is_openrouter' => true,
+            'key_preview'   => 'sk-or-v1-' . substr($apiKey, 9, 4) . '****',
+            'env_note'      => 'Semua model di atas diakses via 1 key OPENROUTER_API_KEY di .env',
+        ]);
+    }
+
+
+    /**
      * Bersihkan Riwayat Chat
      */
     public function clearHistory()
@@ -326,3 +527,4 @@ class ChatController extends Controller
         return redirect()->route('chat.index')->with('success', 'Riwayat chat telah dibersihkan.');
     }
 }
+

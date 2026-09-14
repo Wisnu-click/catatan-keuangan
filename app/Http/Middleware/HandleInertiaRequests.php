@@ -44,6 +44,8 @@ class HandleInertiaRequests extends Middleware
                     'id' => $user->id,
                     'name' => $user->name,
                     'email' => $user->email,
+                    'role' => $user->role ?? 'pengguna',
+                    'is_admin' => ($user->role ?? 'pengguna') === 'admin',
                     'phone_number' => $user->phone_number,
                     'avatar_url' => $user->avatar_url ?: 'https://api.dicebear.com/7.x/bottts/svg?seed=' . urlencode($user->name),
                     'is_active' => $user->is_active,

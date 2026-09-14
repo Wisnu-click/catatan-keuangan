@@ -39,6 +39,19 @@ export default function Index({
     note: '',
   });
 
+  // API Test Modal State
+  const [showApiTestModal, setShowApiTestModal] = useState(false);
+  const [apiTestResults, setApiTestResults] = useState(null);
+  const [apiTestLoading, setApiTestLoading] = useState(false);
+  const [apiTestTestedAt, setApiTestTestedAt] = useState(null);
+  const [apiTestKeyPreview, setApiTestKeyPreview] = useState(null);
+
+  // Command Palette & Shortcut State
+  const [showCommandPalette, setShowCommandPalette] = useState(false);
+
+
+
+
   const galleryInputRef = useRef(null);
   const cameraInputRef = useRef(null);
   const chatScrollContainerRef = useRef(null);
@@ -276,19 +289,142 @@ export default function Index({
   };
 
   const handleCopyMessage = (text, id) => {
+    const cleaned = cleanMessageDisplay(text);
     if (navigator.clipboard) {
-      navigator.clipboard.writeText(text);
+      navigator.clipboard.writeText(cleaned);
       setCopiedId(id);
       setTimeout(() => setCopiedId(null), 2000);
     }
   };
 
+  // Helper untuk membersihkan simbol markdown kaku (** * ` " _) agar tampilan chat nyaman & alami
+  const cleanMessageDisplay = (text) => {
+    if (!text) return '';
+    return text
+      .replace(/\*\*(.*?)\*\*/g, '$1')
+      .replace(/\*([^*\n]+)\*/g, '$1')
+      .replace(/_([^_\n]+)_/g, '$1')
+      .replace(/`/g, '')
+      .replace(/[═=\-]{4,}/g, '')
+      .trim();
+  };
+
+  const handleTestApi = async () => {
+    setApiTestLoading(true);
+    setApiTestResults(null);
+    setApiTestKeyPreview(null);
+    setShowApiTestModal(true);
+    try {
+      const res = await fetch('/chat/test-api', {
+        headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+        credentials: 'same-origin',
+      });
+      const data = await res.json();
+      setApiTestResults(data.results);
+      setApiTestTestedAt(data.tested_at);
+      setApiTestKeyPreview(data.key_preview || null);
+    } catch (e) {
+      setApiTestResults({ error: { ok: false, label: 'Error', message: '❌ Gagal terhubung ke server: ' + e.message } });
+    } finally {
+      setApiTestLoading(false);
+    }
+  };
+
+  const shortcutCommands = [
+    {
+      cmd: '!help',
+      icon: 'help_outline',
+      color: '#FEF08A',
+      title: '!help',
+      desc: 'Panduan lengkap seluruh perintah AI shortcut',
+      category: 'Bantuan',
+    },
+    {
+      cmd: '!saldo',
+      icon: 'account_balance_wallet',
+      color: '#DCFCE7',
+      title: '!saldo',
+      desc: 'Cek saldo seluruh dompet & total dana terkini',
+      category: 'Finansial',
+    },
+    {
+      cmd: '!target',
+      icon: 'savings',
+      color: '#E7DEFF',
+      title: '!target',
+      desc: 'Cek progres dan status semua target tabungan',
+      category: 'Finansial',
+    },
+    {
+      cmd: '!rekap',
+      icon: 'analytics',
+      color: '#FEF08A',
+      title: '!rekap',
+      desc: 'Rekap pemasukan, pengeluaran & cashflow bulan ini',
+      category: 'Laporan',
+    },
+    {
+      cmd: '!transaksi',
+      icon: 'receipt_long',
+      color: '#FFDAD6',
+      title: '!transaksi',
+      desc: 'Cek 10 riwayat transaksi/mutasi terbaru',
+      category: 'Laporan',
+    },
+    {
+      cmd: '!wallet',
+      icon: 'credit_card',
+      color: '#DCFCE7',
+      title: '!wallet',
+      desc: 'Daftar semua dompet dan e-wallet aktif',
+      category: 'Data',
+    },
+    {
+      cmd: '!kategori',
+      icon: 'category',
+      color: '#E7DEFF',
+      title: '!kategori',
+      desc: 'Daftar kategori pengeluaran & pemasukan',
+      category: 'Data',
+    },
+    {
+      cmd: '!profil',
+      icon: 'person',
+      color: '#F1EEFF',
+      title: '!profil',
+      desc: 'Informasi akun & status sistem autentikasi',
+      category: 'Akun',
+    },
+    {
+      cmd: '!input',
+      icon: 'edit_note',
+      color: '#FEF08A',
+      title: '!input',
+      desc: 'Panduan format cepat mencatat transaksi',
+      category: 'Bantuan',
+    },
+  ];
+
+  // Filter commands for inline autocomplete when typing '!' or '/'
+  const isTypingCommand = input.startsWith('!') || input.startsWith('/');
+  const matchingCommands = isTypingCommand
+    ? shortcutCommands.filter(
+        (c) =>
+          c.cmd.toLowerCase().startsWith(input.toLowerCase()) ||
+          input === '!' ||
+          input === '/'
+      )
+    : [];
+
   const suggestionChips = [
-    { label: 'Cek saldo akun', icon: 'account_balance_wallet', text: 'Cek saldo seluruh wallet saya' },
-    { label: 'Gaji 5jt ke Rekening Utama', icon: 'arrow_downward', text: 'Catat pemasukan gaji Rp 5.000.000 ke Rekening Utama' },
-    { label: 'Makan siang 35rb', icon: 'restaurant', text: 'Catat pengeluaran Makan Siang Rp 35.000' },
-    { label: 'Beli bensin 50rb', icon: 'local_gas_station', text: 'Catat pengeluaran Bensin Rp 50.000' },
-    { label: 'Nabung target 100rb', icon: 'savings', text: 'Saya mau nabung Rp 100.000' },
+    { label: '!help', icon: 'help_outline', text: '!help' },
+    { label: '!saldo', icon: 'account_balance_wallet', text: '!saldo' },
+    { label: '!target', icon: 'savings', text: '!target' },
+    { label: '!rekap', icon: 'analytics', text: '!rekap' },
+    { label: '!transaksi', icon: 'receipt_long', text: '!transaksi' },
+    { label: 'Makan 35rb', icon: 'restaurant', text: 'Catat pengeluaran Makan Siang Rp 35.000' },
+    { label: 'Gaji 5jt', icon: 'arrow_downward', text: 'Catat pemasukan gaji Rp 5.000.000 ke Rekening Utama' },
+    { label: 'Nabung 100rb', icon: 'savings', text: 'Saya mau nabung Rp 100.000' },
   ];
 
   return (
@@ -388,6 +524,16 @@ export default function Index({
 
           {/* Header Action Buttons */}
           <div className="flex items-center gap-2 shrink-0">
+            {/* Test API Button */}
+            <button
+              type="button"
+              onClick={handleTestApi}
+              className="bg-[#FEF08A] text-[#1C1A27] border-2 sm:border-3 border-[#1C1A27] px-2.5 py-1.5 sm:px-3 sm:py-1.5 font-label-mono text-[11px] sm:text-xs uppercase font-black shadow-[2px_2px_0px_0px_#1C1A27] hover:bg-[#EAB308] transition-colors cursor-pointer flex items-center gap-1"
+              title="Test koneksi API AI"
+            >
+              <MaterialIcon name="wifi_tethering" className="text-base" />
+              <span className="hidden sm:inline">TEST API</span>
+            </button>
             {/* Clear History Button */}
             <button
               type="button"
@@ -449,6 +595,162 @@ export default function Index({
                   </p>
                 </button>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* ========== API TEST MODAL ========== */}
+        {showApiTestModal && (
+          <div className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-[#1C1A27]/70 backdrop-blur-sm">
+            <div className="bg-white border-4 border-[#1C1A27] shadow-[6px_6px_0px_0px_#1C1A27] w-full sm:max-w-lg max-h-[90dvh] flex flex-col overflow-hidden">
+              {/* Modal Header */}
+              <div className="bg-[#FEF08A] border-b-4 border-[#1C1A27] px-4 py-3 flex items-center justify-between shrink-0">
+                <div className="flex items-center gap-2">
+                  <MaterialIcon name="wifi_tethering" className="text-xl font-black" />
+                  <span className="font-headline-md text-sm font-black uppercase tracking-tight">
+                    TEST KONEKSI AI API
+                  </span>
+                </div>
+                <button
+                  onClick={() => setShowApiTestModal(false)}
+                  className="w-8 h-8 bg-white border-2 border-[#1C1A27] text-[#93000A] font-black flex items-center justify-center cursor-pointer hover:bg-[#FFDAD6] shadow-[2px_2px_0px_0px_#1C1A27]"
+                >
+                  <MaterialIcon name="close" className="text-base" />
+                </button>
+              </div>
+
+              {/* Modal Body */}
+              <div className="flex-1 overflow-y-auto p-4 space-y-4">
+
+                {/* Loading State */}
+                {apiTestLoading && (
+                  <div className="flex flex-col items-center justify-center py-10 gap-3">
+                    <div className="w-12 h-12 border-4 border-[#1C1A27] border-t-[#8B5CF6] rounded-full animate-spin" />
+                    <p className="font-label-mono text-xs font-black text-[#454654] uppercase animate-pulse">
+                      Menghubungi semua API endpoint...
+                    </p>
+                  </div>
+                )}
+
+                {/* Results */}
+                {!apiTestLoading && apiTestResults && (
+                  <>
+                    {apiTestTestedAt && (
+                      <p className="font-label-mono text-[10px] text-[#454654] font-bold">
+                        Diuji pada: {apiTestTestedAt}
+                      </p>
+                    )}
+                    {/* Key Preview Banner */}
+                    {apiTestKeyPreview && (
+                      <div className="flex items-center gap-2 bg-[#1C1A27] text-[#FEF08A] px-3 py-2 font-label-mono text-[10px] font-black">
+                        <MaterialIcon name="key" className="text-sm" />
+                        <span>Key aktif: <code className="text-white">{apiTestKeyPreview}</code></span>
+                        <span className="ml-auto text-[8px] text-white/50 uppercase">via OpenRouter</span>
+                      </div>
+                    )}
+                    <div className="space-y-2.5">
+                      {Object.entries(apiTestResults).map(([modelKey, result]) => (
+                        <div
+                          key={modelKey}
+                          className={`border-3 border-[#1C1A27] p-3 flex flex-col gap-1.5 shadow-[3px_3px_0px_0px_#1C1A27] ${
+                            result.ok ? 'bg-[#DCFCE7]' : 'bg-[#FEF2F2]'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="font-headline-md text-xs font-black text-[#1C1A27] flex items-center gap-1.5">
+                              <MaterialIcon
+                                name={result.ok ? 'check_circle' : 'cancel'}
+                                className={`text-base ${result.ok ? 'text-[#16A34A]' : 'text-[#DC2626]'}`}
+                              />
+                              {result.label}
+                            </span>
+                            <div className="flex items-center gap-1 shrink-0">
+                              {result.ok && result.latency_ms && (
+                                <span className="text-[9px] font-label-mono bg-[#1C1A27] text-[#FEF08A] px-1.5 py-0.5 font-black">
+                                  {result.latency_ms}ms
+                                </span>
+                              )}
+                              <span
+                                className={`text-[9px] font-label-mono uppercase px-1.5 py-0.5 border border-[#1C1A27] font-black ${
+                                  result.ok ? 'bg-[#16A34A] text-white' : 'bg-[#DC2626] text-white'
+                                }`}
+                              >
+                                {result.ok ? 'AKTIF' : 'ERROR'}
+                              </span>
+                            </div>
+                          </div>
+                          <p className="text-[11px] font-body-md text-[#1C1A27] leading-snug">
+                            {result.message}
+                          </p>
+                          {!result.ok && result.env_key && (
+                            <div className="bg-[#1C1A27] text-[#FEF08A] px-2.5 py-2 font-label-mono text-[10px] leading-relaxed mt-1 flex flex-col gap-1">
+                              <span className="font-black uppercase text-[9px] text-white/70">Setup di file .env :</span>
+                              <code className="font-black">{result.env_key}=<span className="opacity-60">your_api_key_here</span></code>
+                              {result.get_url && (
+                                <a
+                                  href={result.get_url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-[#8B5CF6] hover:text-white underline text-[10px] font-black mt-0.5 flex items-center gap-1"
+                                >
+                                  <MaterialIcon name="open_in_new" className="text-xs" />
+                                  Dapatkan API Key →
+                                </a>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* ENV Setup Guide — OpenRouter */}
+                    <div className="border-3 border-[#1C1A27] bg-[#E7DEFF] p-3 mt-3 shadow-[3px_3px_0px_0px_#1C1A27]">
+                      <p className="font-label-mono text-[10px] font-black uppercase text-[#1C1A27] mb-2 flex items-center gap-1">
+                        <MaterialIcon name="settings" className="text-xs" />
+                        SETUP — OPENROUTER (1 KEY UNTUK SEMUA MODEL)
+                      </p>
+                      <div className="bg-[#1C1A27] text-[#FEF08A] p-2.5 font-label-mono text-[10px] leading-relaxed space-y-1">
+                        <p className="text-white/60 text-[9px]"># Edit file: <span className="text-white font-black">.env</span> (root project)</p>
+                        <p>OPENROUTER_API_KEY=<span className="opacity-50">sk-or-v1-...</span></p>
+                        <p>DEFAULT_AI_MODEL=<span className="text-[#86EFAC]">openai/gpt-4o</span></p>
+                        <p className="text-white/40 text-[9px] mt-1"># Model lain yang tersedia via OpenRouter:</p>
+                        <p className="text-white/60 text-[9px]">openai/gpt-4o-mini  |  google/gemini-flash-1.5</p>
+                        <p className="text-white/60 text-[9px]">anthropic/claude-3.5-sonnet  |  deepseek/deepseek-chat</p>
+                      </div>
+                      <p className="font-label-mono text-[9px] font-bold text-[#454654] mt-2">
+                        Setelah edit .env → jalankan: <code className="bg-white border border-[#1C1A27] px-1 text-[#8B5CF6]">php artisan config:clear</code>
+                      </p>
+                      <a
+                        href="https://openrouter.ai/keys"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-2 flex items-center gap-1 text-[#8B5CF6] font-label-mono text-[10px] font-black hover:underline"
+                      >
+                        <MaterialIcon name="open_in_new" className="text-xs" />
+                        Daftar &amp; dapatkan API Key di openrouter.ai →
+                      </a>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Modal Footer */}
+              <div className="border-t-4 border-[#1C1A27] px-4 py-3 flex gap-2 shrink-0 bg-white">
+                <button
+                  onClick={handleTestApi}
+                  disabled={apiTestLoading}
+                  className="flex-1 bg-[#3B4CCA] text-white border-2 border-[#1C1A27] px-3 py-2 font-label-mono text-xs uppercase font-black shadow-[3px_3px_0px_0px_#1C1A27] hover:bg-[#2B3CB0] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-1.5 transition-colors"
+                >
+                  <MaterialIcon name={apiTestLoading ? 'hourglass_top' : 'refresh'} className={`text-sm ${apiTestLoading ? 'animate-spin' : ''}`} />
+                  {apiTestLoading ? 'MENGUJI...' : 'UJI ULANG'}
+                </button>
+                <button
+                  onClick={() => setShowApiTestModal(false)}
+                  className="bg-white text-[#1C1A27] border-2 border-[#1C1A27] px-3 py-2 font-label-mono text-xs uppercase font-black shadow-[3px_3px_0px_0px_#1C1A27] hover:bg-[#F3F4F6] cursor-pointer"
+                >
+                  TUTUP
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -537,7 +839,9 @@ export default function Index({
                   {/* AI TEXT BUBBLE */}
                   {msg.sender === 'ai' && msg.type === 'text' && (
                     <div className="max-w-[88%] sm:max-w-lg md:max-w-xl bg-white text-[#1C1A27] border-3 sm:border-4 border-[#1C1A27] shadow-[3px_3px_0px_0px_#1C1A27] p-3 sm:p-4 font-body-md font-bold break-words">
-                      <p className="whitespace-pre-wrap text-xs sm:text-sm leading-relaxed">{msg.text}</p>
+                      <p className="whitespace-pre-wrap text-xs sm:text-sm leading-relaxed text-[#1C1A27]">
+                        {cleanMessageDisplay(msg.text)}
+                      </p>
                       <div className="flex justify-between items-center mt-2.5 pt-2 border-t border-[#1C1A27]/20 text-[9px] sm:text-[10px] font-label-mono font-bold">
                         <span className="text-[#8B5CF6] uppercase truncate max-w-[160px]">
                           Model: {msg.ai_model || selectedModelId}
@@ -834,31 +1138,90 @@ export default function Index({
           ))}
         </div>
 
-        {/* ========== 4. FULL-WIDTH STICKY BOTTOM INPUT BAR ========== */}
-        <div className="bg-white border-t-4 border-[#1C1A27] p-2.5 sm:p-3.5 pb-3 sm:pb-3.5 shrink-0 shadow-[0_-3px_0_0_#1C1A27] z-20">
-          <div className="max-w-4xl mx-auto w-full flex items-center gap-2 sm:gap-3">
+        {/* ========== 4. FULL-WIDTH STICKY BOTTOM INPUT BAR WITH COMMAND AUTOCOMPLETE ========== */}
+        <div className="bg-white border-t-4 border-[#1C1A27] p-2.5 sm:p-3.5 pb-3 sm:pb-3.5 shrink-0 shadow-[0_-3px_0_0_#1C1A27] z-20 relative">
+          
+          {/* ⚡ Inline Command Autocomplete Popover (Appears when typing '!' or '/') */}
+          {isTypingCommand && matchingCommands.length > 0 && (
+            <div className="absolute left-2.5 right-2.5 sm:left-6 sm:right-6 bottom-full mb-2 bg-white border-3 sm:border-4 border-[#1C1A27] shadow-[4px_4px_0px_0px_#1C1A27] p-2 z-40 max-w-lg mx-auto animate-in fade-in slide-in-from-bottom-2 duration-150 max-h-64 overflow-y-auto">
+              <div className="flex items-center justify-between pb-1.5 mb-1.5 border-b-2 border-[#1C1A27]">
+                <div className="flex items-center gap-1.5 text-[11px] font-label-mono font-black text-[#1C1A27] uppercase">
+                  <span className="w-2 h-2 rounded-full bg-[#8B5CF6] animate-pulse" />
+                  <span>PILIH SHORTCUT COMMAND:</span>
+                </div>
+                <span className="text-[10px] font-label-mono text-[#454654] font-bold">
+                  {matchingCommands.length} perintah
+                </span>
+              </div>
+              <div className="space-y-1">
+                {matchingCommands.map((cmdItem) => (
+                  <button
+                    key={cmdItem.cmd}
+                    type="button"
+                    onClick={() => {
+                      setInput('');
+                      handleSend(cmdItem.cmd);
+                    }}
+                    className="w-full text-left p-2 border-2 border-[#1C1A27] bg-[#FDF8FF] hover:bg-[#FEF08A] transition-all flex items-center justify-between gap-2 cursor-pointer shadow-[1px_1px_0px_0px_#1C1A27] active:translate-y-0.5"
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div
+                        className="w-7 h-7 border border-[#1C1A27] flex items-center justify-center shrink-0"
+                        style={{ backgroundColor: cmdItem.color }}
+                      >
+                        <MaterialIcon name={cmdItem.icon} className="text-base text-[#1C1A27]" />
+                      </div>
+                      <div className="min-w-0">
+                        <span className="font-label-mono text-xs font-black text-[#1C1A27] block">
+                          {cmdItem.title}
+                        </span>
+                        <span className="text-[11px] font-body-md text-[#454654] font-bold truncate block">
+                          {cmdItem.desc}
+                        </span>
+                      </div>
+                    </div>
+                    <span className="text-[9px] font-label-mono font-black uppercase bg-white px-1.5 py-0.5 border border-[#1C1A27] shrink-0">
+                      Kirim ↵
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="max-w-4xl mx-auto w-full flex items-center gap-1.5 sm:gap-3">
+            {/* Quick Command Menu Button (!) */}
+            <button
+              type="button"
+              onClick={() => setShowCommandPalette(true)}
+              className="w-10 h-10 sm:w-12 sm:h-12 bg-[#FEF08A] hover:bg-[#FACC15] text-[#1C1A27] border-3 border-[#1C1A27] shadow-[2px_2px_0px_0px_#1C1A27] flex items-center justify-center transition-all cursor-pointer font-black font-label-mono text-base sm:text-lg shrink-0 active:translate-y-0.5"
+              title="Daftar Perintah Cepat / Shortcut (!)"
+            >
+              !
+            </button>
+
             {/* Upload Camera / Gallery Button */}
             <button
               type="button"
               onClick={() => setShowCameraModal(true)}
-              className="w-11 h-11 sm:w-12 sm:h-12 bg-[#E7DEFF] text-[#1C1A27] border-3 border-[#1C1A27] shadow-[2px_2px_0px_0px_#1C1A27] flex items-center justify-center hover:bg-[#8B5CF6] hover:text-white transition-all cursor-pointer font-bold shrink-0 active:translate-y-0.5"
+              className="w-10 h-10 sm:w-12 sm:h-12 bg-[#E7DEFF] text-[#1C1A27] border-3 border-[#1C1A27] shadow-[2px_2px_0px_0px_#1C1A27] flex items-center justify-center hover:bg-[#8B5CF6] hover:text-white transition-all cursor-pointer font-bold shrink-0 active:translate-y-0.5"
               title="Kirim Foto Struk"
             >
-              <MaterialIcon name="photo_camera" className="text-xl sm:text-2xl font-bold" />
+              <MaterialIcon name="photo_camera" className="text-lg sm:text-2xl font-bold" />
             </button>
 
             {/* Voice Mic Button */}
             <button
               type="button"
               onClick={toggleSpeechRecognition}
-              className={`w-11 h-11 sm:w-12 sm:h-12 border-3 border-[#1C1A27] shadow-[2px_2px_0px_0px_#1C1A27] flex items-center justify-center transition-all cursor-pointer font-bold shrink-0 active:translate-y-0.5 ${
+              className={`w-10 h-10 sm:w-12 sm:h-12 border-3 border-[#1C1A27] shadow-[2px_2px_0px_0px_#1C1A27] flex items-center justify-center transition-all cursor-pointer font-bold shrink-0 active:translate-y-0.5 ${
                 isListening
                   ? 'bg-[#EF4444] text-white animate-pulse'
                   : 'bg-white text-[#1C1A27] hover:bg-[#FEF08A]'
               }`}
               title={isListening ? 'Sedang Mendengarkan Suara...' : 'Bicara untuk Mengetik (Voice Input)'}
             >
-              <MaterialIcon name={isListening ? 'mic' : 'mic_none'} className="text-xl sm:text-2xl font-bold" />
+              <MaterialIcon name={isListening ? 'mic' : 'mic_none'} className="text-lg sm:text-2xl font-bold" />
             </button>
 
             {/* Input Field */}
@@ -872,8 +1235,8 @@ export default function Index({
                   handleSend();
                 }
               }}
-              placeholder={isListening ? '🎙️ Mendengarkan suara Anda...' : `Tulis pesan / catat transaksi...`}
-              className="flex-1 h-11 sm:h-12 px-3 sm:px-4 bg-white border-3 border-[#1C1A27] font-body-md font-bold text-sm sm:text-base text-[#1C1A27] focus:outline-none focus:ring-0 shadow-[2px_2px_0px_0px_#1C1A27] rounded-none"
+              placeholder={isListening ? '🎙️ Mendengarkan suara Anda...' : `Ketik pesan atau ketik ! untuk shortcut...`}
+              className="flex-1 h-10 sm:h-12 px-2.5 sm:px-4 bg-white border-3 border-[#1C1A27] font-body-md font-bold text-xs sm:text-base text-[#1C1A27] focus:outline-none focus:ring-0 shadow-[2px_2px_0px_0px_#1C1A27] rounded-none min-w-0"
             />
 
             {/* Send Button */}
@@ -881,10 +1244,10 @@ export default function Index({
               type="button"
               onClick={() => handleSend()}
               disabled={isSending || (!input.trim() && !previewImage)}
-              className="w-11 h-11 sm:w-12 sm:h-12 bg-[#3B4CCA] text-white border-3 border-[#1C1A27] shadow-[2px_2px_0px_0px_#1C1A27] flex items-center justify-center hover:bg-[#2A379D] transition-all cursor-pointer font-bold shrink-0 disabled:opacity-50 disabled:cursor-not-allowed active:translate-y-0.5"
+              className="w-10 h-10 sm:w-12 sm:h-12 bg-[#3B4CCA] text-white border-3 border-[#1C1A27] shadow-[2px_2px_0px_0px_#1C1A27] flex items-center justify-center hover:bg-[#2A379D] transition-all cursor-pointer font-bold shrink-0 disabled:opacity-50 disabled:cursor-not-allowed active:translate-y-0.5"
               title="Kirim Pesan"
             >
-              <MaterialIcon name="send" className="text-xl sm:text-2xl font-bold" />
+              <MaterialIcon name="send" className="text-lg sm:text-2xl font-bold" />
             </button>
           </div>
         </div>
@@ -1089,6 +1452,92 @@ export default function Index({
                 <MaterialIcon name="bolt" className="text-base font-bold text-[#D97706]" />
                 GUNAKAN STRUK DEMO (SPBU)
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========== 7. COMMAND PALETTE MODAL (SHORTCUT EXPLORER) ========== */}
+      {showCommandPalette && (
+        <div
+          className="fixed inset-0 z-50 bg-[#1C1A27]/65 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 select-none animate-in fade-in duration-150"
+          onClick={() => setShowCommandPalette(false)}
+        >
+          <div
+            className="bg-[#FDF8FF] border-4 border-[#1C1A27] shadow-[6px_6px_0px_0px_#1C1A27] p-4 sm:p-6 w-full max-w-lg max-h-[85vh] flex flex-col my-auto animate-in zoom-in-95 duration-150"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="flex justify-between items-center border-b-4 border-[#1C1A27] pb-3 mb-3 shrink-0">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-[#FEF08A] border-2 border-[#1C1A27] flex items-center justify-center shadow-[2px_2px_0px_0px_#1C1A27]">
+                  <span className="font-label-mono font-black text-base">!</span>
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-headline-md font-black text-[#1C1A27] uppercase tracking-tight">
+                    SHORTCUT COMMANDS
+                  </h3>
+                  <p className="text-[10px] sm:text-[11px] font-body-md text-[#454654] font-bold">
+                    Pilih perintah di bawah ini untuk dijalankan langsung oleh AI.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowCommandPalette(false)}
+                className="w-8 h-8 bg-white border-2 border-[#1C1A27] flex items-center justify-center cursor-pointer hover:bg-[#FFDAD6] font-bold shadow-[2px_2px_0px_0px_#000]"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Modal Command List */}
+            <div className="flex-1 overflow-y-auto space-y-2 pr-1">
+              {shortcutCommands.map((cmdItem) => (
+                <button
+                  key={cmdItem.cmd}
+                  type="button"
+                  onClick={() => {
+                    setShowCommandPalette(false);
+                    setInput('');
+                    handleSend(cmdItem.cmd);
+                  }}
+                  className="w-full text-left p-3 border-3 border-[#1C1A27] bg-white hover:bg-[#FEF08A] transition-all flex items-center justify-between gap-3 cursor-pointer shadow-[2px_2px_0px_0px_#1C1A27] active:translate-y-0.5 group"
+                >
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div
+                      className="w-9 h-9 border-2 border-[#1C1A27] flex items-center justify-center shrink-0 shadow-[1px_1px_0px_0px_#1C1A27]"
+                      style={{ backgroundColor: cmdItem.color }}
+                    >
+                      <MaterialIcon name={cmdItem.icon} className="text-lg text-[#1C1A27]" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-label-mono text-xs sm:text-sm font-black text-[#1C1A27]">
+                          {cmdItem.title}
+                        </span>
+                        <span className="text-[8px] font-label-mono uppercase px-1 py-0.2 bg-[#E7DEFF] border border-[#1C1A27] font-bold">
+                          {cmdItem.category}
+                        </span>
+                      </div>
+                      <span className="text-[11px] sm:text-xs font-body-md text-[#454654] font-bold truncate block mt-0.5">
+                        {cmdItem.desc}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="shrink-0 flex items-center gap-1 bg-[#3B4CCA] group-hover:bg-[#1C1A27] text-white px-2 py-1 border border-[#1C1A27] shadow-[1px_1px_0px_0px_#1C1A27] text-[10px] font-label-mono font-black uppercase transition-colors">
+                    <span>Jalankan</span>
+                    <MaterialIcon name="arrow_forward" className="text-xs" />
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            {/* Modal Footer Note */}
+            <div className="border-t-3 border-[#1C1A27] pt-2.5 mt-3 text-center shrink-0">
+              <p className="text-[10px] font-label-mono font-bold text-[#454654]">
+                💡 Anda juga dapat mengetik langsung <code className="bg-white px-1 border border-[#1C1A27] text-[#8B5CF6]">!</code> di kolom pesan untuk menampilkan pilihan ini.
+              </p>
             </div>
           </div>
         </div>

@@ -173,7 +173,7 @@ export default function Login() {
         </form>
 
         {/* Demo Account Quick Access */}
-        <div className="bg-[#E7DEFF] border-4 border-[#1C1A27] p-3 text-center space-y-2">
+        {/* <div className="bg-[#E7DEFF] border-4 border-[#1C1A27] p-3 text-center space-y-2">
           <p className="font-label-mono text-xs uppercase font-bold text-[#1C1A27]">
             AKUN DEMO CEPAT (1-CLICK)
           </p>
@@ -184,7 +184,7 @@ export default function Login() {
           >
             Isi Demo: wisnu@click
           </button>
-        </div>
+        </div> */}
 
         {/* Register Footer */}
         <div className="pt-4 border-t-4 border-[#1C1A27] text-center">

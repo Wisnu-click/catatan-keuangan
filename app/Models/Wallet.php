@@ -16,6 +16,7 @@ class Wallet extends Model
         'name',
         'type',
         'initial_balance',
+        'current_balance',
         'icon',
         'color_hex',
         'is_active',
@@ -31,6 +32,7 @@ class Wallet extends Model
 
     protected $casts = [
         'initial_balance' => 'decimal:2',
+        'current_balance' => 'decimal:2',
         'is_active' => 'boolean',
         'is_dana_synced' => 'boolean',
         'dana_last_synced_at' => 'datetime',

@@ -60,4 +60,12 @@ return [
         'api_key' => env('DEEPSEEK_API_KEY'),
         'model' => env('DEEPSEEK_MODEL', 'deepseek-chat'),
     ],
+
+    'openrouter' => [
+        'api_key'   => env('OPENROUTER_API_KEY'),
+        'base_url'  => 'https://openrouter.ai/api/v1',
+        'site_url'  => env('OPENROUTER_SITE_URL', 'http://localhost'),
+        'site_name' => env('OPENROUTER_SITE_NAME', 'VIRA Financial AI'),
+    ],
 ];
+

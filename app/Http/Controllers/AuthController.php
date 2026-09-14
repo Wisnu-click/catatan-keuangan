@@ -21,7 +21,9 @@ class AuthController extends Controller
     public function showLogin(): Response|\Illuminate\Http\RedirectResponse
     {
         if (Auth::check()) {
-            return redirect()->intended('/dashboard');
+            return Auth::user()->isAdmin() 
+                ? redirect()->intended('/admin/dashboard') 
+                : redirect()->intended('/dashboard');
         }
 
         return Inertia::render('Auth/Login');
@@ -33,7 +35,9 @@ class AuthController extends Controller
     public function showRegister(): Response|\Illuminate\Http\RedirectResponse
     {
         if (Auth::check()) {
-            return redirect()->intended('/dashboard');
+            return Auth::user()->isAdmin() 
+                ? redirect()->intended('/admin/dashboard') 
+                : redirect()->intended('/dashboard');
         }
 
         return Inertia::render('Auth/Register');
@@ -64,7 +68,10 @@ class AuthController extends Controller
         ];
         if (Auth::attempt($emailCredentials, $remember)) {
             $request->session()->regenerate();
-            return redirect()->intended('/dashboard');
+            $user = Auth::user();
+            return $user->isAdmin() 
+                ? redirect()->intended('/admin/dashboard') 
+                : redirect()->intended('/dashboard');
         }
 
         // Then try phone number
@@ -75,7 +82,10 @@ class AuthController extends Controller
         ];
         if (Auth::attempt($phoneCredentials, $remember)) {
             $request->session()->regenerate();
-            return redirect()->intended('/dashboard');
+            $user = Auth::user();
+            return $user->isAdmin() 
+                ? redirect()->intended('/admin/dashboard') 
+                : redirect()->intended('/dashboard');
         }
 
         // If both attempts fail, return validation error

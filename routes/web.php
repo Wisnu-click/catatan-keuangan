@@ -14,6 +14,13 @@ use App\Http\Controllers\SearchController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\SavingReminderController;
 use App\Http\Controllers\GoldController;
+use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\Admin\AdminTransactionController;
+use App\Http\Controllers\Admin\AdminWalletController;
+use App\Http\Controllers\Admin\AdminGoalController;
+use App\Http\Controllers\Admin\AdminAiLogController;
+use App\Http\Controllers\Admin\AdminSettingController;
 
 // Auth Routes
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -28,9 +35,19 @@ Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallbac
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+// Public Landing Page
+Route::get('/', function () {
+    return \Inertia\Inertia::render('Welcome', [
+        'canLogin' => true,
+        'canRegister' => true,
+        'auth' => [
+            'user' => \Illuminate\Support\Facades\Auth::user(),
+        ],
+    ]);
+})->name('landing');
+
 // Protected Routes
 Route::middleware(['auth'])->group(function () {
-    Route::get('/', [DashboardController::class, 'index']);
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Wallets CRUD Routes
@@ -71,6 +88,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/chat/send', [ChatController::class, 'sendMessage'])->name('chat.send');
     Route::post('/chat/confirm/{message}', [ChatController::class, 'confirmReceipt'])->name('chat.confirm');
     Route::delete('/chat/clear', [ChatController::class, 'clearHistory'])->name('chat.clear');
+    Route::get('/chat/test-api', [ChatController::class, 'testAiApi'])->name('chat.test-api');
 
     // Settings Routes
     Route::get('/settings/whatsapp', [SettingController::class, 'whatsapp'])->name('settings.whatsapp');
@@ -105,4 +123,38 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/gold/transactions/{gold}', [GoldController::class, 'destroy'])->name('gold.transactions.destroy');
     Route::post('/gold/target', [GoldController::class, 'updateTarget'])->name('gold.target.update');
     Route::get('/gold/price/refresh', [GoldController::class, 'refreshPrice'])->name('gold.price.refresh');
+
+    // ==========================================
+    // 👑 SUPER ADMIN MANAGEMENT PANEL ROUTES
+    // ==========================================
+    Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function () {
+        // Admin Dashboard
+        Route::get('/', [AdminDashboardController::class, 'index'])->name('index');
+        Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+
+        // User Management (CRUD)
+        Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
+        Route::post('/users', [AdminUserController::class, 'store'])->name('users.store');
+        Route::put('/users/{user}', [AdminUserController::class, 'update'])->name('users.update');
+        Route::patch('/users/{user}/toggle', [AdminUserController::class, 'toggleActive'])->name('users.toggle');
+        Route::post('/users/{user}/reset-password', [AdminUserController::class, 'resetPassword'])->name('users.resetPassword');
+        Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
+
+        // Transaction Management
+        Route::get('/transactions', [AdminTransactionController::class, 'index'])->name('transactions.index');
+        Route::delete('/transactions/{transaction}', [AdminTransactionController::class, 'destroy'])->name('transactions.destroy');
+
+        // Global Wallets Management
+        Route::get('/wallets', [AdminWalletController::class, 'index'])->name('wallets.index');
+
+        // Global Goals Management
+        Route::get('/goals', [AdminGoalController::class, 'index'])->name('goals.index');
+
+        // AI Interactions & Logs
+        Route::get('/ai-logs', [AdminAiLogController::class, 'index'])->name('ai-logs.index');
+
+        // System Settings & Cache Management
+        Route::get('/settings', [AdminSettingController::class, 'index'])->name('settings.index');
+        Route::post('/settings/clear-cache', [AdminSettingController::class, 'clearCache'])->name('settings.clearCache');
+    });
 });

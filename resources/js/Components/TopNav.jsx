@@ -400,6 +400,19 @@ export default function TopNav({ pageTitle = '', onMenuToggle = () => {} }) {
           <MaterialIcon name="search" className="text-xl" />
         </button>
 
+        {/* Admin Shortcut Button if Admin */}
+        {user.is_admin && (
+          <Link href="/admin/dashboard" className="hidden lg:block">
+            <button
+              className="h-11 px-3 bg-[#FFE4E6] text-[#9F1239] neo-border flex items-center gap-1.5 neo-shadow hover:bg-[#E11D48] hover:text-white transition-all cursor-pointer font-black font-label-mono text-xs uppercase transform hover:-translate-y-0.5"
+              title="Panel Manajemen Admin"
+            >
+              <MaterialIcon name="admin_panel_settings" className="text-xl" />
+              <span>ADMIN PANEL</span>
+            </button>
+          </Link>
+        )}
+
         {/* AI Chat Shortcut Button */}
         <Link href="/chat" className="max-[380px]:hidden">
           <button
@@ -522,9 +535,15 @@ export default function TopNav({ pageTitle = '', onMenuToggle = () => {} }) {
             <span className="font-headline-md font-black text-xs uppercase text-[#1C1A27] truncate max-w-[120px]">
               {user.name || 'Pengguna'}
             </span>
-            <span className="font-label-mono text-[9px] font-bold text-[#8B5CF6]">
-              PRO ACCOUNT
-            </span>
+            {user.is_admin ? (
+              <span className="font-label-mono text-[9px] font-black text-[#E11D48] bg-[#FFE4E6] px-1 py-0.5 border border-[#E11D48] rounded-sm">
+                👑 ADMIN
+              </span>
+            ) : (
+              <span className="font-label-mono text-[9px] font-bold text-[#8B5CF6]">
+                PRO ACCOUNT
+              </span>
+            )}
           </div>
 
           {/* Dropdown Chevron Icon */}
@@ -549,14 +568,31 @@ export default function TopNav({ pageTitle = '', onMenuToggle = () => {} }) {
                 <p className="font-label-mono text-[11px] text-[#454654] truncate font-bold">
                   {user.email || user.phone_number || 'Sistem Aktif'}
                 </p>
-                <span className="inline-block text-[9px] font-label-mono bg-[#DCFCE7] text-[#166534] border border-[#1C1A27] px-1.5 py-0.2 mt-1 font-bold">
-                  ● AKUN VERIFIKASI
-                </span>
+                {user.is_admin ? (
+                  <span className="inline-block text-[9px] font-label-mono bg-[#FFE4E6] text-[#9F1239] border border-[#1C1A27] px-1.5 py-0.5 mt-1 font-black uppercase">
+                    👑 SUPER ADMIN PANEL
+                  </span>
+                ) : (
+                  <span className="inline-block text-[9px] font-label-mono bg-[#DCFCE7] text-[#166534] border border-[#1C1A27] px-1.5 py-0.2 mt-1 font-bold">
+                    ● AKUN VERIFIKASI
+                  </span>
+                )}
               </div>
             </div>
 
             {/* Menu Links */}
             <div className="space-y-1.5 font-label-mono text-xs uppercase font-bold">
+              {user.is_admin && (
+                <Link
+                  href="/admin/dashboard"
+                  onClick={() => setShowProfileDropdown(false)}
+                  className="w-full px-3 py-2.5 flex items-center gap-3 bg-[#FFE4E6] text-[#9F1239] border-2 border-[#1C1A27] hover:bg-[#E11D48] hover:text-white transition-all shadow-[2px_2px_0px_0px_#1C1A27] font-black"
+                >
+                  <MaterialIcon name="admin_panel_settings" className="text-lg" />
+                  KONTROL ADMIN PANEL
+                </Link>
+              )}
+
               <Link
                 href="/profile"
                 onClick={() => setShowProfileDropdown(false)}
