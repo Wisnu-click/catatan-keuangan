@@ -35,6 +35,8 @@ class ProfileController extends Controller
                 'phone_number' => $user->phone_number,
                 'avatar_url' => $user->avatar_url ?: 'https://api.dicebear.com/7.x/bottts/svg?seed=' . urlencode($user->name),
                 'is_active' => $user->is_active,
+                'is_google_linked' => !empty($user->google_id),
+                'google_id' => $user->google_id,
                 'created_at_formatted' => $user->created_at ? $user->created_at->translatedFormat('d F Y') : 'Baru Bergabung',
             ],
             'stats' => [
@@ -42,6 +44,24 @@ class ProfileController extends Controller
                 'total_transactions_count' => $totalTransactionsCount,
             ],
         ]);
+    }
+
+    /**
+     * Putuskan Hubungan Akun Google dari Profil
+     */
+    public function disconnectGoogle(Request $request)
+    {
+        $user = Auth::user();
+
+        if (empty($user->google_id)) {
+            return redirect()->back()->with('error', 'Akun Anda memang belum terhubung ke Google.');
+        }
+
+        $user->update([
+            'google_id' => null,
+        ]);
+
+        return redirect()->back()->with('success', 'Koneksi akun Google berhasil diputuskan.');
     }
 
     /**

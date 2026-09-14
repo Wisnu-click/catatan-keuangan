@@ -79,6 +79,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
+    Route::post('/profile/google/disconnect', [ProfileController::class, 'disconnectGoogle'])->name('profile.google.disconnect');
 
     // Live Search Route
     Route::get('/search/query', [SearchController::class, 'search'])->name('search.query');

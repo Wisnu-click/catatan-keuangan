@@ -13,6 +13,14 @@ export default function BottomNav() {
     return url.startsWith(path);
   };
 
+  const primaryNavItems = [
+    { name: 'Home', href: '/dashboard', icon: 'grid_view' },
+    { name: 'Wallets', href: '/wallets', icon: 'account_balance_wallet' },
+    // Center is the (+) Action Button
+    { name: 'Emas', href: '/gold', icon: 'monetization_on' },
+    { name: 'Menu', href: '#menu', icon: 'apps', isAction: true },
+  ];
+
   const moreMenuItems = [
     { name: 'AI Chat Assistant', href: '/chat', icon: 'smart_toy', bg: 'bg-[#E7DEFF]', color: 'text-[#8B5CF6]' },
     { name: 'Laporan Keuangan', href: '/reports', icon: 'bar_chart', bg: 'bg-[#DCFCE7]', color: 'text-[#16A34A]' },
@@ -247,3 +255,4 @@ export default function BottomNav() {
     </>
   );
 }
+

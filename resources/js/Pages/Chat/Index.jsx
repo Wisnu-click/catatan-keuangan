@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Head, Link, router } from '@inertiajs/react';
-import AuthenticatedLayout from '../../Layouts/AuthenticatedLayout';
+import { Head, router } from '@inertiajs/react';
 import MaterialIcon from '../../Components/MaterialIcon';
 import CurrencyInput from '../../Components/CurrencyInput';
 
@@ -14,12 +13,17 @@ export default function Index({
   const [messages, setMessages] = useState(initialMessages);
   const [selectedModelId, setSelectedModelId] = useState(defaultModel || aiModels[0]?.id || 'gpt-4o');
   const [showModelDropdown, setShowModelDropdown] = useState(false);
+  const [showIdeasDropdown, setShowIdeasDropdown] = useState(false);
   const [input, setInput] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [showCameraModal, setShowCameraModal] = useState(false);
   const [imageFile, setImageFile] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
-  
+  const [isDragging, setIsDragging] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [copiedId, setCopiedId] = useState(null);
+  const [showScrollBottom, setShowScrollBottom] = useState(false);
+
   // Wallet Selection per Receipt Message Card
   const [selectedWallets, setSelectedWallets] = useState({});
   // Transaction Type Selection per Receipt Message Card ('income' vs 'expense')
@@ -37,7 +41,9 @@ export default function Index({
 
   const galleryInputRef = useRef(null);
   const cameraInputRef = useRef(null);
+  const chatScrollContainerRef = useRef(null);
   const chatBottomRef = useRef(null);
+  const recognitionRef = useRef(null);
 
   // Sync messages whenever props change
   useEffect(() => {
@@ -55,9 +61,23 @@ export default function Index({
     setSelectedTypes(typeMap);
   }, [initialMessages, wallets]);
 
+  // Auto-scroll to bottom on message change or typing
   useEffect(() => {
     chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isSending]);
+
+  // Handle scroll detection for "Scroll to bottom" button
+  const handleScroll = () => {
+    if (!chatScrollContainerRef.current) return;
+    const { scrollTop, scrollHeight, clientHeight } = chatScrollContainerRef.current;
+    const isFarFromBottom = scrollHeight - scrollTop - clientHeight > 150;
+    setShowScrollBottom(isFarFromBottom);
+  };
+
+  const scrollToBottom = () => {
+    setShowIdeasDropdown(false);
+    chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   const activeModel = aiModels.find((m) => m.id === selectedModelId) || aiModels[0] || {
     name: 'GPT-4o (OpenAI)',
@@ -80,6 +100,54 @@ export default function Index({
     }));
   };
 
+  // Voice Speech Recognition (STT)
+  const toggleSpeechRecognition = () => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert('Browser Anda belum mendukung input suara Web Speech API. Silakan gunakan Google Chrome di HP / Laptop.');
+      return;
+    }
+
+    if (isListening) {
+      recognitionRef.current?.stop();
+      setIsListening(false);
+      return;
+    }
+
+    try {
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'id-ID';
+      recognition.continuous = false;
+      recognition.interimResults = false;
+
+      recognition.onstart = () => {
+        setIsListening(true);
+      };
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        if (transcript) {
+          setInput((prev) => (prev ? prev + ' ' + transcript : transcript));
+        }
+      };
+
+      recognition.onerror = (event) => {
+        console.warn('Speech recognition error:', event.error);
+        setIsListening(false);
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+
+      recognitionRef.current = recognition;
+      recognition.start();
+    } catch (e) {
+      console.error(e);
+      setIsListening(false);
+    }
+  };
+
   const handleSend = (presetText = null) => {
     const textToSend = presetText || input;
     if (!textToSend.trim() && !imageFile && !previewImage) return;
@@ -99,7 +167,7 @@ export default function Index({
     const tempUserMsg = {
       id: 'temp-' + Date.now(),
       sender: 'user',
-      type: (imageFile || previewImage) ? 'image' : 'text',
+      type: imageFile || previewImage ? 'image' : 'text',
       text: textToSend || 'Mengirim foto struk belanja...',
       image: previewImage,
       isScanning: !!(imageFile || previewImage),
@@ -113,6 +181,7 @@ export default function Index({
 
     router.post('/chat/send', formData, {
       forceFormData: true,
+      preserveScroll: true,
       onFinish: () => {
         setIsSending(false);
       },
@@ -120,15 +189,37 @@ export default function Index({
   };
 
   const handleFileSelect = (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files?.[0];
     if (file) {
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviewImage(reader.result);
-      };
-      reader.readAsDataURL(file);
+      processFile(file);
       setShowCameraModal(false);
+    }
+  };
+
+  const processFile = (file) => {
+    setImageFile(file);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPreviewImage(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Drag and drop handlers for desktop/laptop
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      processFile(e.dataTransfer.files[0]);
     }
   };
 
@@ -143,10 +234,16 @@ export default function Index({
     const chosenWalletId = selectedWallets[msgId] || (wallets[0]?.id ? String(wallets[0].id) : null);
     const chosenType = selectedTypes[msgId] || 'expense';
 
-    router.post(`/chat/confirm/${msgId}`, {
-      wallet_id: chosenWalletId,
-      type: chosenType,
-    });
+    router.post(
+      `/chat/confirm/${msgId}`,
+      {
+        wallet_id: chosenWalletId,
+        type: chosenType,
+      },
+      {
+        preserveScroll: true,
+      }
+    );
   };
 
   const handleStartEditReceipt = (msg) => {
@@ -165,6 +262,7 @@ export default function Index({
     if (!editingMessage) return;
 
     router.post(`/chat/confirm/${editingMessage.id}`, editForm, {
+      preserveScroll: true,
       onSuccess: () => {
         setEditingMessage(null);
       },
@@ -172,23 +270,32 @@ export default function Index({
   };
 
   const handleClearHistory = () => {
-    if (confirm('Bersihkan seluruh riwayat percakapan dengan AI?')) {
+    if (confirm('Bersihkan seluruh riwayat percakapan dengan AI Assistant?')) {
       router.delete('/chat/clear');
     }
   };
 
+  const handleCopyMessage = (text, id) => {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text);
+      setCopiedId(id);
+      setTimeout(() => setCopiedId(null), 2000);
+    }
+  };
+
   const suggestionChips = [
-    'Cek saldo',
-    'Gaji 5jt ke Rekening Utama',
-    'Catat pengeluaran 50rb',
-    'Beli kuota 100rb dari Usaha E-Wallet',
+    { label: 'Cek saldo akun', icon: 'account_balance_wallet', text: 'Cek saldo seluruh wallet saya' },
+    { label: 'Gaji 5jt ke Rekening Utama', icon: 'arrow_downward', text: 'Catat pemasukan gaji Rp 5.000.000 ke Rekening Utama' },
+    { label: 'Makan siang 35rb', icon: 'restaurant', text: 'Catat pengeluaran Makan Siang Rp 35.000' },
+    { label: 'Beli bensin 50rb', icon: 'local_gas_station', text: 'Catat pengeluaran Bensin Rp 50.000' },
+    { label: 'Nabung target 100rb', icon: 'savings', text: 'Saya mau nabung Rp 100.000' },
   ];
 
   return (
-    <AuthenticatedLayout>
+    <>
       <Head title="AI Assistant - VIRA" />
 
-      {/* Hidden File Input for Gallery / File Picker */}
+      {/* Hidden File Inputs */}
       <input
         type="file"
         ref={galleryInputRef}
@@ -196,8 +303,6 @@ export default function Index({
         accept="image/*"
         className="hidden"
       />
-
-      {/* Hidden File Input for Camera (Direct Capture) */}
       <input
         type="file"
         ref={cameraInputRef}
@@ -207,339 +312,446 @@ export default function Index({
         className="hidden"
       />
 
-      {/* Main Chat Container (Full Width) */}
-      <div className="w-full flex flex-col h-[calc(100vh-140px)] neo-border border-4 border-[#1C1A27] bg-[#F1EEFF] neo-shadow overflow-hidden transform rotate-[-0.3deg]">
-        
-        {/* HEADER */}
-        <header className="bg-white border-b-4 border-[#1C1A27] px-6 py-3 flex items-center justify-between z-20 shrink-0 relative">
-          <div className="flex items-center gap-4">
-            <Link href="/dashboard">
-              <button className="w-10 h-10 bg-[#F1EBFE] border-4 border-[#1C1A27] neo-shadow-sm flex items-center justify-center hover:bg-[#8B5CF6] hover:text-white transition-colors cursor-pointer font-bold">
-                <MaterialIcon name="arrow_back" className="text-xl" />
-              </button>
-            </Link>
+      {/* =========================================================================
+          🌟 STANDALONE FULL-SCREEN CHAT INTERFACE (FULL WIDTH, NO SIDEBAR / TOPNAV)
+          ========================================================================= */}
+      <div
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        className="fixed inset-0 w-full h-[100dvh] flex flex-col bg-[#FDF8FF] text-[#1C1A27] font-body-md overflow-hidden select-none z-10"
+      >
+        {/* Drag Overlay Banner */}
+        {isDragging && (
+          <div className="absolute inset-0 z-40 bg-[#3B4CCA]/90 text-white flex flex-col items-center justify-center pointer-events-none p-4 text-center backdrop-blur-xs">
+            <MaterialIcon name="file_upload" className="text-6xl animate-bounce mb-2" />
+            <h3 className="font-headline-md text-2xl font-black uppercase">
+              LEPASKAN FOTO STRUK DI SINI
+            </h3>
+            <p className="font-label-mono text-xs mt-1 font-bold">
+              AI akan otomatis memindai dan membaca nominal transaksi.
+            </p>
+          </div>
+        )}
 
-            <div className="flex items-center gap-3">
-              <div className="w-11 h-11 bg-[#3B4CCA] border-4 border-[#1C1A27] rounded-full flex items-center justify-center text-white neo-shadow-sm shrink-0">
-                <MaterialIcon name={activeModel?.icon || 'smart_toy'} className="text-2xl" />
+        {/* ========== 1. FULL-WIDTH CHAT HEADER WITH BACK BUTTON ========== */}
+        <header className="w-full bg-white border-b-4 border-[#1C1A27] px-3 sm:px-6 py-2 sm:py-2.5 flex items-center justify-between z-20 shrink-0 shadow-[0_2px_0_0_#1C1A27]">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            {/* Back Button */}
+            <button
+              type="button"
+              onClick={() => {
+                if (window.history.length > 1) {
+                  window.history.back();
+                } else {
+                  router.visit('/dashboard');
+                }
+              }}
+              className="w-9 h-9 sm:w-10 sm:h-10 bg-white hover:bg-[#FFDAD6] text-[#1C1A27] border-2 sm:border-3 border-[#1C1A27] shadow-[2px_2px_0px_0px_#1C1A27] flex items-center justify-center font-bold shrink-0 transition-transform active:scale-95 cursor-pointer"
+              title="Kembali ke Halaman Sebelumnya"
+            >
+              <MaterialIcon name="arrow_back" className="text-xl sm:text-2xl font-black" />
+            </button>
+
+            {/* Model Avatar */}
+            <div className="w-9 h-9 sm:w-10 sm:h-10 bg-[#3B4CCA] border-2 sm:border-3 border-[#1C1A27] shadow-[2px_2px_0px_0px_#1C1A27] flex items-center justify-center text-white shrink-0">
+              <MaterialIcon name={activeModel?.icon || 'smart_toy'} className="text-xl sm:text-2xl" />
+            </div>
+
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <h1 className="font-headline-md text-sm sm:text-base font-black text-[#1C1A27] tracking-tight uppercase truncate">
+                  AI ASSISTANT
+                </h1>
+                <span className="flex items-center gap-1 text-[9px] sm:text-[10px] font-label-mono bg-[#DCFCE7] text-[#166534] border border-[#1C1A27] px-1.5 py-0.2 font-black">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#22C55E] animate-ping" />
+                  ONLINE
+                </span>
               </div>
 
-              <div>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h1 className="font-headline-md text-lg md:text-xl font-black text-[#1C1A27] tracking-tight uppercase">
-                    RAW AI ASSISTANT
-                  </h1>
-                  <span className="flex items-center gap-1.5 text-xs font-label-mono bg-[#DCFCE7] text-[#166534] border-2 border-[#1C1A27] px-2 py-0.5 rounded-full font-bold shadow-[2px_2px_0px_0px_#1C1A27]">
-                    <span className="w-2 h-2 rounded-full bg-[#22C55E] animate-pulse" />
-                    ONLINE
-                  </span>
-                </div>
-
-                {/* AI Model Selector */}
-                <div className="flex items-center gap-2 mt-0.5">
-                  <span className="text-xs font-label-mono text-[#454654] font-bold">
-                    Model:
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setShowModelDropdown(!showModelDropdown)}
-                    className="font-label-mono text-xs uppercase bg-[#E7DEFF] text-[#1C1A27] border-2 border-[#1C1A27] px-2.5 py-0.5 font-black hover:bg-[#8B5CF6] hover:text-white transition-all cursor-pointer flex items-center gap-1 shadow-[2px_2px_0px_0px_#1C1A27]"
-                  >
-                    <span>{activeModel?.name}</span>
-                    <MaterialIcon name="expand_more" className="text-sm" />
-                  </button>
-                </div>
+              {/* Model Selector Dropdown Button */}
+              <div className="flex items-center gap-1 mt-0.5">
+                <span className="text-[10px] font-label-mono text-[#454654] font-bold hidden xs:inline">
+                  Engine:
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setShowModelDropdown(!showModelDropdown)}
+                  className="font-label-mono text-[10px] sm:text-xs uppercase bg-[#E7DEFF] text-[#1C1A27] border border-[#1C1A27] px-2 py-0.2 font-black hover:bg-[#8B5CF6] hover:text-white transition-all cursor-pointer flex items-center gap-1 shadow-[1px_1px_0px_0px_#1C1A27] active:translate-y-0.5"
+                >
+                  <span className="truncate max-w-[120px] sm:max-w-[200px]">{activeModel?.name}</span>
+                  <MaterialIcon name="expand_more" className="text-xs font-bold shrink-0" />
+                </button>
               </div>
             </div>
           </div>
 
-          {/* Model Selection Dropdown Popup */}
-          {showModelDropdown && (
-            <div className="absolute left-6 md:left-64 top-16 z-50 w-80 bg-white border-4 border-[#1C1A27] neo-shadow p-3 space-y-2">
-              <div className="border-b-2 border-[#1C1A27] pb-2 flex justify-between items-center">
-                <span className="font-label-mono text-xs font-bold uppercase text-[#1C1A27]">
-                  PILIH AI MODEL ENGINE
-                </span>
-                <button
-                  onClick={() => setShowModelDropdown(false)}
-                  className="text-xs font-bold font-label-mono text-[#454654] hover:text-[#BA1A1A]"
-                >
-                  ✕
-                </button>
-              </div>
-
-              <div className="space-y-1 max-h-64 overflow-y-auto">
-                {aiModels.map((m) => (
-                  <button
-                    key={m.id}
-                    type="button"
-                    onClick={() => {
-                      setSelectedModelId(m.id);
-                      setShowModelDropdown(false);
-                    }}
-                    className={`w-full text-left p-2.5 border-2 border-[#1C1A27] font-body-md transition-all cursor-pointer flex flex-col gap-1 ${
-                      selectedModelId === m.id
-                        ? 'bg-[#3B4CCA] text-white shadow-[3px_3px_0px_0px_#1C1A27]'
-                        : 'bg-[#FDF8FF] text-[#1C1A27] hover:bg-[#E7DEFF]'
-                    }`}
-                  >
-                    <div className="flex justify-between items-center">
-                      <span className="font-bold font-headline-md text-sm flex items-center gap-1.5">
-                        <MaterialIcon name={m.icon} className="text-base" />
-                        {m.name}
-                      </span>
-                      <span
-                        className={`text-[9px] font-label-mono uppercase px-1.5 py-0.5 border border-[#1C1A27] font-bold ${
-                          selectedModelId === m.id ? 'bg-white text-[#1C1A27]' : 'bg-[#C4B5FD] text-[#1C1A27]'
-                        }`}
-                      >
-                        {m.badge}
-                      </span>
-                    </div>
-                    <p className={`text-[11px] leading-tight opacity-90 ${selectedModelId === m.id ? 'text-white/90' : 'text-[#454654]'}`}>
-                      {m.description}
-                    </p>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Right Header Actions */}
-          <div className="flex items-center gap-2">
+          {/* Header Action Buttons */}
+          <div className="flex items-center gap-2 shrink-0">
+            {/* Clear History Button */}
             <button
               type="button"
               onClick={handleClearHistory}
-              className="w-10 h-10 bg-[#FFDAD6] text-[#93000A] border-4 border-[#1C1A27] neo-shadow-sm flex items-center justify-center hover:bg-[#BA1A1A] hover:text-white transition-colors cursor-pointer font-bold"
+              className="bg-[#FFDAD6] text-[#93000A] border-2 sm:border-3 border-[#1C1A27] px-2.5 py-1.5 sm:px-3 sm:py-1.5 font-label-mono text-[11px] sm:text-xs uppercase font-black shadow-[2px_2px_0px_0px_#1C1A27] hover:bg-[#BA1A1A] hover:text-white transition-colors cursor-pointer flex items-center gap-1"
               title="Bersihkan Riwayat Chat"
             >
-              <MaterialIcon name="delete_sweep" className="text-xl" />
+              <MaterialIcon name="delete_sweep" className="text-base" />
+              <span className="hidden sm:inline">BERSIHKAN</span>
             </button>
           </div>
         </header>
 
-        {/* CHAT BODY AREA */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 bg-[#F1EEFF] bg-[radial-gradient(#C5C5D6_1px,transparent_1px)] [background-size:20px_20px]">
-          {messages.map((msg) => {
-            const currentMsgType = selectedTypes[msg.id] || msg.structured_data?.type || 'expense';
-            const isIncome = currentMsgType === 'income';
-
-            return (
-              <div
-                key={msg.id}
-                className={`flex items-end gap-3 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+        {/* Model Selection Dropdown Popup */}
+        {showModelDropdown && (
+          <div className="absolute left-3 sm:left-6 top-14 z-50 w-[calc(100vw-1.5rem)] max-w-sm bg-white border-4 border-[#1C1A27] neo-shadow p-3 space-y-2 animate-in fade-in zoom-in-95 duration-150">
+            <div className="border-b-2 border-[#1C1A27] pb-2 flex justify-between items-center">
+              <span className="font-label-mono text-xs font-black uppercase text-[#1C1A27]">
+                PILIH AI MODEL ENGINE
+              </span>
+              <button
+                onClick={() => setShowModelDropdown(false)}
+                className="w-6 h-6 border border-[#1C1A27] bg-[#FFDAD6] text-[#93000A] text-xs font-bold font-label-mono flex items-center justify-center cursor-pointer"
               >
-                {/* Bot Avatar Beside AI Message */}
-                {msg.sender === 'ai' && (
-                  <div className="w-9 h-9 bg-[#3B4CCA] border-2 border-[#1C1A27] rounded-full flex items-center justify-center text-white shrink-0 shadow-[2px_2px_0px_0px_#1C1A27] mb-1">
-                    <MaterialIcon name={activeModel?.icon || 'smart_toy'} className="text-lg" />
-                  </div>
-                )}
+                ✕
+              </button>
+            </div>
 
-                {/* USER TEXT MESSAGE */}
-                {msg.sender === 'user' && msg.type === 'text' && (
-                  <div className="max-w-md md:max-w-xl bg-[#8B5CF6] text-white border-4 border-[#1C1A27] neo-shadow-sm p-4 rounded-[6px] font-body-md font-bold">
-                    <p className="whitespace-pre-wrap">{msg.text}</p>
-                    <span className="block text-[10px] font-label-mono text-white/80 text-right mt-2 font-bold">
-                      {msg.timestamp}
+            <div className="space-y-1.5 max-h-64 overflow-y-auto pr-1">
+              {aiModels.map((m) => (
+                <button
+                  key={m.id}
+                  type="button"
+                  onClick={() => {
+                    setSelectedModelId(m.id);
+                    setShowModelDropdown(false);
+                  }}
+                  className={`w-full text-left p-2.5 border-2 border-[#1C1A27] font-body-md transition-all cursor-pointer flex flex-col gap-1 ${
+                    selectedModelId === m.id
+                      ? 'bg-[#3B4CCA] text-white shadow-[3px_3px_0px_0px_#1C1A27]'
+                      : 'bg-[#FDF8FF] text-[#1C1A27] hover:bg-[#E7DEFF]'
+                  }`}
+                >
+                  <div className="flex justify-between items-center gap-2">
+                    <span className="font-bold font-headline-md text-xs sm:text-sm flex items-center gap-1.5 truncate">
+                      <MaterialIcon name={m.icon} className="text-base shrink-0" />
+                      {m.name}
+                    </span>
+                    <span
+                      className={`text-[9px] font-label-mono uppercase px-1 py-0.2 border border-[#1C1A27] font-bold shrink-0 ${
+                        selectedModelId === m.id ? 'bg-white text-[#1C1A27]' : 'bg-[#C4B5FD] text-[#1C1A27]'
+                      }`}
+                    >
+                      {m.badge}
                     </span>
                   </div>
-                )}
+                  <p className={`text-[11px] leading-tight opacity-90 truncate ${selectedModelId === m.id ? 'text-white/90' : 'text-[#454654]'}`}>
+                    {m.description}
+                  </p>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
-                {/* USER IMAGE MESSAGE */}
-                {msg.sender === 'user' && msg.type === 'image' && (
-                  <div className="max-w-xs bg-white border-4 border-[#1C1A27] neo-shadow-sm p-3 rounded-[6px] relative">
-                    {msg.text && <p className="text-xs font-body-md font-bold mb-2 text-[#1C1A27]">{msg.text}</p>}
-                    <div className="relative border-2 border-[#1C1A27] overflow-hidden bg-gray-100 min-h-[120px]">
-                      <img src={msg.image} alt="Receipt Thumbnail" className="w-full h-auto object-cover max-h-48" />
-                      
-                      {msg.isScanning && (
-                        <div className="absolute inset-0 bg-[#1C1A27]/60 backdrop-blur-xs flex flex-col items-center justify-center text-white p-2">
-                          <div className="w-8 h-8 border-4 border-white border-t-[#8B5CF6] rounded-full animate-spin mb-2" />
-                          <span className="font-label-mono text-xs uppercase bg-[#8B5CF6] text-white border-2 border-white px-2 py-0.5 font-bold shadow-[2px_2px_0px_0px_white]">
-                            Memindai...
-                          </span>
-                        </div>
-                      )}
+        {/* ========== 2. FULL-PAGE SCROLLABLE CHAT MESSAGES STREAM ========== */}
+        <div
+          ref={chatScrollContainerRef}
+          onScroll={handleScroll}
+          className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-4 sm:space-y-5 bg-[#F8F6FF] bg-[radial-gradient(#D5D4E6_1px,transparent_1px)] [background-size:16px_16px]"
+        >
+          <div className="max-w-4xl mx-auto w-full space-y-4 sm:space-y-5">
+            {/* Welcome Greeting on Empty Chat */}
+            {messages.length === 0 && (
+              <div className="max-w-lg mx-auto text-center py-8 sm:py-12 space-y-3 bg-white border-4 border-[#1C1A27] neo-shadow p-6 sm:p-8 my-4">
+                <div className="w-14 h-14 bg-[#3B4CCA] text-white border-3 border-[#1C1A27] mx-auto flex items-center justify-center shadow-[3px_3px_0px_0px_#1C1A27]">
+                  <MaterialIcon name="smart_toy" className="text-3xl font-bold" />
+                </div>
+                <h3 className="font-headline-md text-xl sm:text-2xl font-black text-[#1C1A27] uppercase">
+                  Halo, {userName}!
+                </h3>
+                <p className="font-body-md text-xs sm:text-sm text-[#454654] font-bold leading-relaxed">
+                  Asisten AI siap membantu Anda mencatat keuangan dengan cepat. Tulis pengeluaran/pemasukan, gunakan suara (mic), atau upload foto struk untuk pencatatan otomatis!
+                </p>
+              </div>
+            )}
+
+            {/* Messages Stream */}
+            {messages.map((msg) => {
+              const currentMsgType = selectedTypes[msg.id] || msg.structured_data?.type || 'expense';
+              const isIncome = currentMsgType === 'income';
+
+              return (
+                <div
+                  key={msg.id}
+                  className={`flex items-end gap-2 sm:gap-3.5 ${
+                    msg.sender === 'user' ? 'justify-end' : 'justify-start'
+                  } animate-in fade-in slide-in-from-bottom-2 duration-150 select-text`}
+                >
+                  {/* AI Bot Avatar */}
+                  {msg.sender === 'ai' && (
+                    <div className="w-8 h-8 sm:w-9 sm:h-9 bg-[#3B4CCA] border-2 border-[#1C1A27] shadow-[2px_2px_0px_0px_#1C1A27] flex items-center justify-center text-white shrink-0 mb-1">
+                      <MaterialIcon name={activeModel?.icon || 'smart_toy'} className="text-lg" />
                     </div>
+                  )}
 
-                    <div className="flex justify-between items-center mt-2 text-xs font-label-mono font-bold text-[#1C1A27]">
-                      <span>📷 Foto Struk Belanja</span>
-                      <span className="text-[#454654]">{msg.timestamp}</span>
-                    </div>
-                  </div>
-                )}
-
-                {/* AI TEXT MESSAGE */}
-                {msg.sender === 'ai' && msg.type === 'text' && (
-                  <div className="max-w-md md:max-w-xl bg-white text-[#1C1A27] border-4 border-[#1C1A27] neo-shadow-sm p-4 rounded-[6px] font-body-md font-bold">
-                    <p className="whitespace-pre-wrap">{msg.text}</p>
-                    <div className="flex justify-between items-center mt-2 pt-2 border-t border-[#1C1A27]/20 text-[10px] font-label-mono font-bold">
-                      <span className="text-[#8B5CF6] uppercase">Model: {msg.ai_model || selectedModelId}</span>
-                      <span className="text-[#454654]">{msg.timestamp}</span>
-                    </div>
-                  </div>
-                )}
-
-                {/* AI STRUCTURED RECEIPT CARD BUBBLE WITH TYPE TOGGLE & WALLET SELECTOR */}
-                {msg.sender === 'ai' && msg.type === 'receipt' && msg.structured_data && (
-                  <div className="max-w-md w-full bg-white border-4 border-[#1C1A27] neo-shadow p-5 rounded-[6px] space-y-4">
-                    {/* Card Header */}
-                    <div className="flex justify-between items-center border-b-4 border-[#1C1A27] pb-3">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xl">📋</span>
-                        <h3 className="font-headline-md text-base uppercase text-[#1C1A27] font-black">
-                          KONFIRMASI TRANSAKSI
-                        </h3>
-                      </div>
-                      <span className="text-[10px] font-label-mono bg-[#E7DEFF] border-2 border-[#1C1A27] px-2 py-0.5 font-bold">
-                        {msg.ai_model || selectedModelId}
+                  {/* USER TEXT BUBBLE */}
+                  {msg.sender === 'user' && msg.type === 'text' && (
+                    <div className="max-w-[85%] sm:max-w-lg md:max-w-xl bg-[#8B5CF6] text-white border-3 sm:border-4 border-[#1C1A27] shadow-[3px_3px_0px_0px_#1C1A27] p-3 sm:p-4 font-body-md font-bold break-words">
+                      <p className="whitespace-pre-wrap text-xs sm:text-sm leading-relaxed">{msg.text}</p>
+                      <span className="block text-[9px] sm:text-[10px] font-label-mono text-white/80 text-right mt-1.5 font-bold">
+                        {msg.timestamp}
                       </span>
                     </div>
+                  )}
 
-                    {/* Rows with Dashed Borders */}
-                    <div className="space-y-2.5 text-sm font-body-md">
-                      {/* DYNAMIC TYPE SELECTOR TOGGLE (INCOME vs EXPENSE) */}
-                      <div className="flex justify-between items-center border-b-2 border-dashed border-[#1C1A27]/40 pb-2">
-                        <span className="text-[#454654] font-bold shrink-0">Tipe Transaksi:</span>
-                        {msg.confirmed ? (
-                          <span className={`font-label-mono text-xs uppercase px-2 py-0.5 border-2 border-[#1C1A27] font-bold ${isIncome ? 'bg-[#DCFCE7] text-[#166534]' : 'bg-[#FFDAD6] text-[#93000A]'}`}>
-                            {isIncome ? 'Pemasukan (+)' : 'Pengeluaran (-)'}
+                  {/* USER IMAGE BUBBLE */}
+                  {msg.sender === 'user' && msg.type === 'image' && (
+                    <div className="max-w-[85%] sm:max-w-xs bg-white border-3 sm:border-4 border-[#1C1A27] shadow-[3px_3px_0px_0px_#1C1A27] p-2.5 sm:p-3 relative">
+                      {msg.text && (
+                        <p className="text-xs font-body-md font-bold mb-2 text-[#1C1A27] break-words">
+                          {msg.text}
+                        </p>
+                      )}
+                      <div className="relative border-2 border-[#1C1A27] overflow-hidden bg-gray-100 min-h-[110px] flex items-center justify-center">
+                        <img
+                          src={msg.image}
+                          alt="Receipt Thumbnail"
+                          className="w-full h-auto object-cover max-h-52"
+                        />
+                        {msg.isScanning && (
+                          <div className="absolute inset-0 bg-[#1C1A27]/70 backdrop-blur-xs flex flex-col items-center justify-center text-white p-2">
+                            <div className="w-7 h-7 border-3 border-white border-t-[#8B5CF6] rounded-full animate-spin mb-1.5" />
+                            <span className="font-label-mono text-[10px] uppercase bg-[#8B5CF6] text-white border border-white px-2 py-0.5 font-bold shadow-[2px_2px_0px_0px_white]">
+                              Memindai OCR...
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex justify-between items-center mt-1.5 text-[10px] font-label-mono font-bold text-[#1C1A27]">
+                        <span>📷 Struk Belanja</span>
+                        <span className="text-[#454654]">{msg.timestamp}</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* AI TEXT BUBBLE */}
+                  {msg.sender === 'ai' && msg.type === 'text' && (
+                    <div className="max-w-[88%] sm:max-w-lg md:max-w-xl bg-white text-[#1C1A27] border-3 sm:border-4 border-[#1C1A27] shadow-[3px_3px_0px_0px_#1C1A27] p-3 sm:p-4 font-body-md font-bold break-words">
+                      <p className="whitespace-pre-wrap text-xs sm:text-sm leading-relaxed">{msg.text}</p>
+                      <div className="flex justify-between items-center mt-2.5 pt-2 border-t border-[#1C1A27]/20 text-[9px] sm:text-[10px] font-label-mono font-bold">
+                        <span className="text-[#8B5CF6] uppercase truncate max-w-[160px]">
+                          Model: {msg.ai_model || selectedModelId}
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleCopyMessage(msg.text, msg.id)}
+                            className="text-[#454654] hover:text-[#1C1A27] cursor-pointer font-bold flex items-center gap-1"
+                            title="Salin Pesan"
+                          >
+                            <MaterialIcon name="content_copy" className="text-xs" />
+                            {copiedId === msg.id ? 'Tersalin' : 'Salin'}
+                          </button>
+                          <span className="text-[#454654]">{msg.timestamp}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* AI RECEIPT CONFIRMATION CARD */}
+                  {msg.sender === 'ai' && msg.type === 'receipt' && msg.structured_data && (
+                    <div className="max-w-[95%] sm:max-w-md w-full bg-white border-3 sm:border-4 border-[#1C1A27] shadow-[4px_4px_0px_0px_#1C1A27] p-4 sm:p-5 space-y-3">
+                      {/* Header */}
+                      <div className="flex justify-between items-center border-b-3 border-[#1C1A27] pb-2.5">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-lg">📋</span>
+                          <h3 className="font-headline-md text-xs sm:text-sm uppercase text-[#1C1A27] font-black">
+                            KONFIRMASI TRANSAKSI
+                          </h3>
+                        </div>
+                        <span className="text-[9px] font-label-mono bg-[#E7DEFF] border border-[#1C1A27] px-1.5 py-0.2 font-bold">
+                          {msg.ai_model || selectedModelId}
+                        </span>
+                      </div>
+
+                      {/* Detail Table */}
+                      <div className="space-y-2 text-xs font-body-md">
+                        {/* Transaction Type Toggle */}
+                        <div className="flex justify-between items-center border-b border-dashed border-[#1C1A27]/40 pb-1.5 gap-2">
+                          <span className="text-[#454654] font-bold shrink-0 text-[11px]">Tipe:</span>
+                          {msg.confirmed ? (
+                            <span
+                              className={`font-label-mono text-[10px] uppercase px-2 py-0.5 border border-[#1C1A27] font-bold ${
+                                isIncome ? 'bg-[#DCFCE7] text-[#166534]' : 'bg-[#FFDAD6] text-[#93000A]'
+                              }`}
+                            >
+                              {isIncome ? 'Pemasukan (+)' : 'Pengeluaran (-)'}
+                            </span>
+                          ) : (
+                            <div className="flex gap-1">
+                              <button
+                                type="button"
+                                onClick={() => handleTypeToggleForMsg(msg.id, 'expense')}
+                                className={`px-2 py-0.5 font-label-mono text-[10px] uppercase font-black border border-[#1C1A27] cursor-pointer transition-all ${
+                                  !isIncome
+                                    ? 'bg-[#FFDAD6] text-[#93000A] shadow-[1px_1px_0px_0px_#1C1A27]'
+                                    : 'bg-white text-[#454654] opacity-60'
+                                }`}
+                              >
+                                - Keluar
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleTypeToggleForMsg(msg.id, 'income')}
+                                className={`px-2 py-0.5 font-label-mono text-[10px] uppercase font-black border border-[#1C1A27] cursor-pointer transition-all ${
+                                  isIncome
+                                    ? 'bg-[#4ADE80] text-[#1C1A27] shadow-[1px_1px_0px_0px_#1C1A27]'
+                                    : 'bg-white text-[#454654] opacity-60'
+                                }`}
+                              >
+                                + Masuk
+                              </button>
+                            </div>
+                          )}
+                        </div>
+
+                        {msg.structured_data.merchant && (
+                          <div className="flex justify-between border-b border-dashed border-[#1C1A27]/40 pb-1.5 text-[11px]">
+                            <span className="text-[#454654] font-bold">Merchant:</span>
+                            <span className="font-bold text-[#1C1A27] truncate max-w-[180px]">
+                              {msg.structured_data.merchant}
+                            </span>
+                          </div>
+                        )}
+
+                        <div className="flex justify-between border-b border-dashed border-[#1C1A27]/40 pb-1.5 text-[11px]">
+                          <span className="text-[#454654] font-bold">Kategori:</span>
+                          <span className="font-bold text-[#8B5CF6] truncate max-w-[180px]">
+                            {msg.structured_data.category}
                           </span>
-                        ) : (
-                          <div className="flex gap-1">
-                            <button
-                              type="button"
-                              onClick={() => handleTypeToggleForMsg(msg.id, 'expense')}
-                              className={`px-2.5 py-1 font-label-mono text-xs uppercase font-black neo-border transition-all cursor-pointer ${
-                                !isIncome
-                                  ? 'bg-[#FFDAD6] text-[#93000A] shadow-[2px_2px_0px_0px_#1C1A27]'
-                                  : 'bg-white text-[#454654] opacity-70'
-                              }`}
+                        </div>
+
+                        <div className="flex justify-between border-b border-dashed border-[#1C1A27]/40 pb-1.5 items-baseline">
+                          <span className="text-[#454654] font-bold text-[11px]">Nominal:</span>
+                          <span
+                            className={`font-number-xl text-sm sm:text-base font-bold ${
+                              isIncome ? 'text-[#166534]' : 'text-[#BA1A1A]'
+                            }`}
+                          >
+                            {msg.structured_data.amount_formatted || `Rp ${Number(msg.structured_data.amount).toLocaleString('id-ID')}`}
+                          </span>
+                        </div>
+
+                        {/* Wallet Selector Dropdown */}
+                        <div className="flex justify-between items-center border-b border-dashed border-[#1C1A27]/40 pb-1.5 gap-2">
+                          <span className="text-[#454654] font-bold shrink-0 text-[11px]">Wallet:</span>
+                          {msg.confirmed ? (
+                            <span className="font-bold text-[#3B4CCA] text-xs truncate max-w-[180px]">
+                              {msg.structured_data.wallet_name || 'Dompet Utama'}
+                            </span>
+                          ) : (
+                            <select
+                              value={
+                                selectedWallets[msg.id] ||
+                                msg.structured_data.wallet_id ||
+                                (wallets[0]?.id ? String(wallets[0].id) : '')
+                              }
+                              onChange={(e) => handleWalletSelectForMsg(msg.id, e.target.value)}
+                              className="border-2 border-[#1C1A27] bg-[#F1EBFE] text-[#3B4CCA] font-bold text-xs px-2 py-0.5 cursor-pointer shadow-[2px_2px_0px_0px_#1C1A27] max-w-[190px] truncate"
                             >
-                              - Pengeluaran
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => handleTypeToggleForMsg(msg.id, 'income')}
-                              className={`px-2.5 py-1 font-label-mono text-xs uppercase font-black neo-border transition-all cursor-pointer ${
-                                isIncome
-                                  ? 'bg-[#4ADE80] text-[#1C1A27] shadow-[2px_2px_0px_0px_#1C1A27]'
-                                  : 'bg-white text-[#454654] opacity-70'
-                              }`}
-                            >
-                              + Pemasukan
-                            </button>
+                              {wallets.map((w) => (
+                                <option key={w.id} value={w.id}>
+                                  {w.name} ({w.balance})
+                                </option>
+                              ))}
+                            </select>
+                          )}
+                        </div>
+
+                        {msg.structured_data.note && (
+                          <div className="flex justify-between border-b border-dashed border-[#1C1A27]/40 pb-1.5 text-[11px]">
+                            <span className="text-[#454654] font-bold">Catatan:</span>
+                            <span className="font-bold text-[#1C1A27] truncate max-w-[180px]">
+                              {msg.structured_data.note}
+                            </span>
                           </div>
                         )}
                       </div>
 
-                      {msg.structured_data.merchant && (
-                        <div className="flex justify-between border-b-2 border-dashed border-[#1C1A27]/40 pb-2">
-                          <span className="text-[#454654] font-bold">Merchant:</span>
-                          <span className="font-bold text-[#1C1A27]">{msg.structured_data.merchant}</span>
-                        </div>
-                      )}
-                      <div className="flex justify-between border-b-2 border-dashed border-[#1C1A27]/40 pb-2">
-                        <span className="text-[#454654] font-bold">Kategori:</span>
-                        <span className="font-bold text-[#8B5CF6]">{msg.structured_data.category}</span>
-                      </div>
-                      <div className="flex justify-between border-b-2 border-dashed border-[#1C1A27]/40 pb-2">
-                        <span className="text-[#454654] font-bold">Nominal:</span>
-                        <span className={`font-bold text-base ${isIncome ? 'text-[#166534]' : 'text-[#1C1A27]'}`}>
-                          {msg.structured_data.amount_formatted || `Rp ${msg.structured_data.amount}`}
-                        </span>
-                      </div>
-
-                      {/* DYNAMIC WALLET SELECTOR DROPDOWN IN CARD */}
-                      <div className="flex justify-between items-center border-b-2 border-dashed border-[#1C1A27]/40 pb-2">
-                        <span className="text-[#454654] font-bold shrink-0">Pilih Wallet:</span>
+                      {/* Card Action Buttons */}
+                      <div className="pt-1.5">
                         {msg.confirmed ? (
-                          <span className="font-bold text-[#3B4CCA]">{msg.structured_data.wallet_name || 'Dompet Utama'}</span>
+                          <div className="w-full bg-[#DCFCE7] text-[#166534] border-2 border-[#1C1A27] py-1.5 px-3 shadow-[2px_2px_0px_0px_#1C1A27] font-label-mono text-[11px] uppercase font-black flex items-center justify-center gap-1.5">
+                            <MaterialIcon name="check_circle" className="text-base text-[#16A34A]" />
+                            TERCATAT {isIncome ? 'PEMASUKAN' : 'PENGELUARAN'}
+                          </div>
                         ) : (
-                          <select
-                            value={selectedWallets[msg.id] || msg.structured_data.wallet_id || (wallets[0]?.id ? String(wallets[0].id) : '')}
-                            onChange={(e) => handleWalletSelectForMsg(msg.id, e.target.value)}
-                            className="neo-border bg-[#F1EBFE] text-[#3B4CCA] font-bold text-xs px-2 py-1 cursor-pointer focus:ring-0 shadow-[2px_2px_0px_0px_#1C1A27] max-w-[210px] truncate"
-                          >
-                            {wallets.map((w) => (
-                              <option key={w.id} value={w.id}>
-                                {w.name} ({w.balance})
-                              </option>
-                            ))}
-                          </select>
+                          <div className="grid grid-cols-2 gap-2">
+                            <button
+                              type="button"
+                              onClick={() => handleConfirmReceipt(msg.id)}
+                              className="bg-[#4ADE80] text-[#14532D] border-2 border-[#1C1A27] py-2 px-2 shadow-[2px_2px_0px_0px_#1C1A27] font-label-mono text-xs uppercase font-black hover:bg-[#22C55E] cursor-pointer flex items-center justify-center gap-1 active:translate-y-0.5"
+                            >
+                              <MaterialIcon name="check" className="text-base font-bold" />
+                              KONFIRMASI
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleStartEditReceipt(msg)}
+                              className="bg-white text-[#1C1A27] border-2 border-[#1C1A27] py-2 px-2 shadow-[2px_2px_0px_0px_#1C1A27] font-label-mono text-xs uppercase font-bold hover:bg-gray-100 cursor-pointer flex items-center justify-center gap-1 active:translate-y-0.5"
+                            >
+                              <MaterialIcon name="edit" className="text-base" />
+                              EDIT
+                            </button>
+                          </div>
                         )}
                       </div>
-
-                      <div className="flex justify-between border-b-2 border-dashed border-[#1C1A27]/40 pb-2">
-                        <span className="text-[#454654] font-bold">Catatan:</span>
-                        <span className="font-bold text-[#1C1A27] truncate max-w-[200px]">
-                          {msg.structured_data.note || 'Transaksi AI Assistant'}
-                        </span>
-                      </div>
                     </div>
+                  )}
+                </div>
+              );
+            })}
 
-                    {/* Buttons Action */}
-                    <div className="pt-2 flex items-center justify-between gap-3">
-                      {msg.confirmed ? (
-                        <div className="w-full bg-[#DCFCE7] text-[#166534] border-3 border-[#1C1A27] py-2 px-4 neo-shadow-sm font-label-mono text-xs uppercase font-bold flex items-center justify-center gap-2">
-                          <MaterialIcon name="check_circle" className="text-lg text-[#22C55E]" />
-                          ✓ TERCATAT {isIncome ? 'PEMASUKAN' : 'PENGELUARAN'} ({msg.structured_data.wallet_name || 'Wallet'})
-                        </div>
-                      ) : (
-                        <>
-                          <button
-                            type="button"
-                            onClick={() => handleConfirmReceipt(msg.id)}
-                            className="flex-1 bg-[#4ADE80] text-[#1C1A27] border-3 border-[#1C1A27] py-2.5 px-3 neo-shadow-sm font-label-mono text-xs uppercase font-bold hover:bg-[#22C55E] hover:text-white transition-colors cursor-pointer flex items-center justify-center gap-1"
-                          >
-                            <MaterialIcon name="check" className="text-base" />
-                            ✓ Konfirmasi
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleStartEditReceipt(msg)}
-                            className="bg-white text-[#1C1A27] border-3 border-[#1C1A27] py-2.5 px-3 neo-shadow-sm font-label-mono text-xs uppercase font-bold hover:bg-[#F1EBFE] transition-colors cursor-pointer flex items-center justify-center gap-1"
-                          >
-                            <MaterialIcon name="edit" className="text-base" />
-                            ✕ Edit
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                )}
+            {/* AI Typing Indicator */}
+            {isSending && (
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 bg-[#3B4CCA] border-2 border-[#1C1A27] shadow-[2px_2px_0px_0px_#1C1A27] flex items-center justify-center text-white shrink-0">
+                  <MaterialIcon name={activeModel?.icon || 'smart_toy'} className="text-lg" />
+                </div>
+                <div className="bg-white border-3 border-[#1C1A27] shadow-[2px_2px_0px_0px_#1C1A27] px-3.5 py-2.5 flex items-center gap-2">
+                  <span className="w-2 h-2 bg-[#8B5CF6] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <span className="w-2 h-2 bg-[#3B4CCA] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <span className="w-2 h-2 bg-[#1C1A27] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                  <span className="font-label-mono text-xs uppercase font-bold text-[#454654] ml-1">
+                    AI sedang berpikir...
+                  </span>
+                </div>
               </div>
-            );
-          })}
+            )}
 
-          {/* TYPING INDICATOR */}
-          {isSending && (
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 bg-[#3B4CCA] border-2 border-[#1C1A27] rounded-full flex items-center justify-center text-white shrink-0 shadow-[2px_2px_0px_0px_#1C1A27]">
-                <MaterialIcon name={activeModel?.icon || 'smart_toy'} className="text-lg" />
-              </div>
-              <div className="bg-white border-4 border-[#1C1A27] neo-shadow-sm px-4 py-3 rounded-[6px] flex items-center gap-2">
-                <span className="w-2.5 h-2.5 bg-[#8B5CF6] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                <span className="w-2.5 h-2.5 bg-[#3B4CCA] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                <span className="w-2.5 h-2.5 bg-[#1C1A27] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                <span className="font-label-mono text-xs uppercase font-bold text-[#454654] ml-2">
-                  {activeModel?.name} berpikir...
-                </span>
-              </div>
-            </div>
-          )}
-
-          <div ref={chatBottomRef} />
+            <div ref={chatBottomRef} />
+          </div>
         </div>
 
-        {/* PREVIEW IMAGE BAR IF ATTACHED */}
+        {/* Scroll To Bottom Floating Button (Floats clearly above input and suggestions) */}
+        {showScrollBottom && (
+          <button
+            type="button"
+            onClick={scrollToBottom}
+            className="absolute right-4 sm:right-6 bottom-36 sm:bottom-28 z-40 bg-[#3B4CCA] text-white border-3 border-[#1C1A27] w-10 h-10 sm:w-11 sm:h-11 shadow-[3px_3px_0px_0px_#1C1A27] flex items-center justify-center cursor-pointer hover:bg-[#2A379D] transition-transform active:scale-95 animate-in fade-in zoom-in-95 duration-150"
+            title="Ke Pesan Terbaru"
+          >
+            <MaterialIcon name="arrow_downward" className="text-xl sm:text-2xl font-black" />
+          </button>
+        )}
+
+        {/* Attached image preview banner */}
         {previewImage && (
-          <div className="bg-[#FEF08A] border-t-4 border-[#1C1A27] p-2.5 flex items-center justify-between px-4 shrink-0">
-            <div className="flex items-center gap-3">
-              <span className="text-lg">📷</span>
-              <span className="font-label-mono text-xs font-bold text-[#1C1A27]">
-                Struk terlampir (Siap di-scan & diparse)
+          <div className="bg-[#FEF08A] border-t-3 border-[#1C1A27] p-2 flex items-center justify-between px-3 sm:px-6 shrink-0 shadow-[0_-2px_0_0_#1C1A27]">
+            <div className="flex items-center gap-2">
+              <span className="text-base">📷</span>
+              <span className="font-label-mono text-xs font-bold text-[#854D0E] truncate max-w-[220px] sm:max-w-md">
+                Struk terlampir (Siap diproses OCR)
               </span>
             </div>
             <button
@@ -547,80 +759,155 @@ export default function Index({
                 setPreviewImage(null);
                 setImageFile(null);
               }}
-              className="text-xs font-label-mono font-bold uppercase bg-white border-2 border-[#1C1A27] px-2 py-0.5 hover:bg-[#FFDAD6]"
+              className="text-[11px] font-label-mono font-bold uppercase bg-white border border-[#1C1A27] px-2.5 py-0.5 hover:bg-[#FFDAD6] cursor-pointer shadow-[1px_1px_0px_0px_#000]"
             >
               Batal ✕
             </button>
           </div>
         )}
 
-        {/* QUICK SUGGESTION CHIPS */}
-        <div className="bg-[#F1EEFF] border-t-4 border-[#1C1A27] px-4 py-2 flex items-center gap-2 overflow-x-auto no-scrollbar shrink-0">
-          <span className="text-[10px] font-label-mono uppercase font-bold text-[#454654] shrink-0">
-            SARAN:
+        {/* ========== 3. QUICK SUGGESTIONS (DROPDOWN ON MOBILE, CHIPS ON DESKTOP) ========== */}
+        {/* Mobile Dropdown View (sm:hidden) */}
+        <div className="sm:hidden relative bg-[#F1EEFF] border-t-3 border-[#1C1A27] px-3 py-1.5 shrink-0 select-none z-30">
+          <button
+            type="button"
+            onClick={() => setShowIdeasDropdown(!showIdeasDropdown)}
+            className="w-full bg-white text-[#1C1A27] border-2 border-[#1C1A27] px-3 py-1.5 font-label-mono text-xs font-black flex items-center justify-between shadow-[2px_2px_0px_0px_#1C1A27] active:translate-y-0.5 cursor-pointer"
+          >
+            <span className="flex items-center gap-1.5 text-[#3B4CCA]">
+              <MaterialIcon name="lightbulb" className="text-base text-[#F59E0B]" />
+              <span>IDE PERTANYAAN & CATAT CEPAT</span>
+            </span>
+            <MaterialIcon
+              name={showIdeasDropdown ? 'expand_less' : 'expand_more'}
+              className="text-base font-bold text-[#1C1A27]"
+            />
+          </button>
+
+          {/* Mobile Popover Menu */}
+          {showIdeasDropdown && (
+            <div className="absolute left-3 right-3 bottom-full mb-1 bg-white border-3 border-[#1C1A27] neo-shadow p-2 space-y-1.5 animate-in fade-in zoom-in-95 duration-150 max-h-60 overflow-y-auto">
+              <div className="text-[10px] font-label-mono uppercase font-black text-[#454654] px-1 py-0.5 border-b border-[#1C1A27]/20 flex justify-between items-center">
+                <span>💡 PILIH PROMPT CEPAT:</span>
+                <button
+                  type="button"
+                  onClick={() => setShowIdeasDropdown(false)}
+                  className="text-[#93000A] font-bold text-xs px-1 cursor-pointer"
+                >
+                  ✕
+                </button>
+              </div>
+              {suggestionChips.map((chip, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => {
+                    setShowIdeasDropdown(false);
+                    handleSend(chip.text);
+                  }}
+                  className="w-full text-left bg-[#FDF8FF] hover:bg-[#E7DEFF] text-[#1C1A27] border-2 border-[#1C1A27] px-2.5 py-2 font-body-md text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shadow-[1px_1px_0px_0px_#1C1A27] active:scale-98"
+                >
+                  <MaterialIcon name={chip.icon} className="text-base text-[#8B5CF6] shrink-0" />
+                  <span className="truncate">{chip.label}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Desktop Chips View (hidden on mobile, flex on sm and up) */}
+        <div className="hidden sm:flex bg-[#F1EEFF] border-t-3 border-[#1C1A27] px-4 sm:px-6 py-2 items-center gap-1.5 overflow-x-auto no-scrollbar shrink-0 select-none">
+          <span className="text-[9px] font-label-mono uppercase font-black text-[#454654] shrink-0 mr-1 flex items-center gap-0.5">
+            <MaterialIcon name="bolt" className="text-xs text-[#F59E0B]" />
+            IDE:
           </span>
           {suggestionChips.map((chip, idx) => (
             <button
               key={idx}
               type="button"
-              onClick={() => handleSend(chip)}
-              className="bg-[#E7DEFF] text-[#1C1A27] border-2 border-[#1C1A27] px-3 py-1 rounded-full font-label-mono text-xs font-bold hover:bg-[#8B5CF6] hover:text-white transition-all shrink-0 cursor-pointer neo-shadow-sm"
+              onClick={() => handleSend(chip.text)}
+              className="bg-white text-[#1C1A27] border-2 border-[#1C1A27] px-2.5 py-1 font-label-mono text-[11px] font-bold hover:bg-[#E7DEFF] transition-transform active:scale-95 shrink-0 cursor-pointer shadow-[2px_2px_0px_0px_#1C1A27] flex items-center gap-1.5"
             >
-              {chip}
+              <MaterialIcon name={chip.icon} className="text-xs text-[#8B5CF6]" />
+              <span>{chip.label}</span>
             </button>
           ))}
         </div>
 
-        {/* STICKY BOTTOM INPUT BAR */}
-        <div className="bg-white border-t-4 border-[#1C1A27] p-3 md:p-4 flex items-center gap-3 shrink-0">
-          <button
-            type="button"
-            onClick={() => setShowCameraModal(true)}
-            className="w-14 h-14 bg-[#E7DEFF] text-[#1C1A27] border-4 border-[#1C1A27] neo-shadow-sm rounded-[6px] flex items-center justify-center hover:bg-[#8B5CF6] hover:text-white transition-colors cursor-pointer font-bold shrink-0"
-            title="Kirim Foto Struk"
-          >
-            <MaterialIcon name="photo_camera" className="text-2xl" />
-          </button>
+        {/* ========== 4. FULL-WIDTH STICKY BOTTOM INPUT BAR ========== */}
+        <div className="bg-white border-t-4 border-[#1C1A27] p-2.5 sm:p-3.5 pb-3 sm:pb-3.5 shrink-0 shadow-[0_-3px_0_0_#1C1A27] z-20">
+          <div className="max-w-4xl mx-auto w-full flex items-center gap-2 sm:gap-3">
+            {/* Upload Camera / Gallery Button */}
+            <button
+              type="button"
+              onClick={() => setShowCameraModal(true)}
+              className="w-11 h-11 sm:w-12 sm:h-12 bg-[#E7DEFF] text-[#1C1A27] border-3 border-[#1C1A27] shadow-[2px_2px_0px_0px_#1C1A27] flex items-center justify-center hover:bg-[#8B5CF6] hover:text-white transition-all cursor-pointer font-bold shrink-0 active:translate-y-0.5"
+              title="Kirim Foto Struk"
+            >
+              <MaterialIcon name="photo_camera" className="text-xl sm:text-2xl font-bold" />
+            </button>
 
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-            placeholder={`Tulis pesan atau catat transaksi (${activeModel?.name})...`}
-            className="flex-1 h-14 px-4 bg-white border-4 border-[#1C1A27] font-body-md font-bold text-[#1C1A27] focus:outline-none focus:ring-0 shadow-[4px_4px_0px_0px_#1C1A27] rounded-[6px]"
-          />
+            {/* Voice Mic Button */}
+            <button
+              type="button"
+              onClick={toggleSpeechRecognition}
+              className={`w-11 h-11 sm:w-12 sm:h-12 border-3 border-[#1C1A27] shadow-[2px_2px_0px_0px_#1C1A27] flex items-center justify-center transition-all cursor-pointer font-bold shrink-0 active:translate-y-0.5 ${
+                isListening
+                  ? 'bg-[#EF4444] text-white animate-pulse'
+                  : 'bg-white text-[#1C1A27] hover:bg-[#FEF08A]'
+              }`}
+              title={isListening ? 'Sedang Mendengarkan Suara...' : 'Bicara untuk Mengetik (Voice Input)'}
+            >
+              <MaterialIcon name={isListening ? 'mic' : 'mic_none'} className="text-xl sm:text-2xl font-bold" />
+            </button>
 
-          <button
-            type="button"
-            onClick={() => handleSend()}
-            disabled={isSending || (!input.trim() && !previewImage)}
-            className="w-14 h-14 bg-[#8B5CF6] text-white border-4 border-[#1C1A27] neo-shadow-sm rounded-[6px] flex items-center justify-center hover:bg-[#3B4CCA] transition-colors cursor-pointer font-bold shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
-            title="Kirim Pesan"
-          >
-            <MaterialIcon name="send" className="text-2xl" />
-          </button>
+            {/* Input Field */}
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleSend();
+                }
+              }}
+              placeholder={isListening ? '🎙️ Mendengarkan suara Anda...' : `Tulis pesan / catat transaksi...`}
+              className="flex-1 h-11 sm:h-12 px-3 sm:px-4 bg-white border-3 border-[#1C1A27] font-body-md font-bold text-sm sm:text-base text-[#1C1A27] focus:outline-none focus:ring-0 shadow-[2px_2px_0px_0px_#1C1A27] rounded-none"
+            />
+
+            {/* Send Button */}
+            <button
+              type="button"
+              onClick={() => handleSend()}
+              disabled={isSending || (!input.trim() && !previewImage)}
+              className="w-11 h-11 sm:w-12 sm:h-12 bg-[#3B4CCA] text-white border-3 border-[#1C1A27] shadow-[2px_2px_0px_0px_#1C1A27] flex items-center justify-center hover:bg-[#2A379D] transition-all cursor-pointer font-bold shrink-0 disabled:opacity-50 disabled:cursor-not-allowed active:translate-y-0.5"
+              title="Kirim Pesan"
+            >
+              <MaterialIcon name="send" className="text-xl sm:text-2xl font-bold" />
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* EDIT RECEIPT CARD MODAL */}
+      {/* ========== 5. EDIT RECEIPT MODAL ========== */}
       {editingMessage && (
         <div
-          className="fixed inset-0 z-50 bg-[#1C1A27]/60 backdrop-blur-sm flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-[#1C1A27]/60 backdrop-blur-xs flex items-center justify-center p-4 select-none"
           onClick={() => setEditingMessage(null)}
         >
           <div
-            className="bg-[#FDF8FF] border-4 border-[#1C1A27] neo-shadow p-6 md:p-8 w-full max-w-md transform rotate-[0.5deg]"
+            className="bg-[#FDF8FF] border-4 border-[#1C1A27] neo-shadow p-5 sm:p-7 w-full max-w-md max-h-[90vh] overflow-y-auto my-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex justify-between items-center border-b-4 border-[#1C1A27] pb-4 mb-6">
-              <h3 className="text-2xl font-headline-md font-black text-[#1C1A27] uppercase">
+            <div className="flex justify-between items-center border-b-4 border-[#1C1A27] pb-3 mb-5">
+              <h3 className="text-xl font-headline-md font-black text-[#1C1A27] uppercase">
                 EDIT DETAIL STRUK
               </h3>
               <button
                 type="button"
                 onClick={() => setEditingMessage(null)}
-                className="w-10 h-10 bg-white border-4 border-[#1C1A27] flex items-center justify-center cursor-pointer hover:bg-[#FFDAD6] font-bold neo-shadow-sm"
+                className="w-8 h-8 bg-white border-2 border-[#1C1A27] flex items-center justify-center cursor-pointer hover:bg-[#FFDAD6] font-bold shadow-[2px_2px_0px_0px_#000]"
               >
                 ✕
               </button>
@@ -629,16 +916,16 @@ export default function Index({
             <form onSubmit={handleSaveEditReceipt} className="space-y-4">
               {/* Type Toggle in Edit Modal */}
               <div>
-                <label className="block font-label-mono text-xs uppercase font-bold text-[#1C1A27] mb-2">
+                <label className="block font-label-mono text-xs uppercase font-bold text-[#1C1A27] mb-1.5">
                   TIPE TRANSAKSI
                 </label>
-                <div className="flex gap-3">
+                <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
                     onClick={() => setEditForm({ ...editForm, type: 'expense' })}
-                    className={`flex-1 py-3 border-4 border-[#1C1A27] font-label-mono text-xs uppercase font-bold neo-shadow-sm cursor-pointer transition-all ${
+                    className={`py-2.5 border-3 border-[#1C1A27] font-label-mono text-xs uppercase font-black cursor-pointer transition-all ${
                       editForm.type === 'expense'
-                        ? 'bg-[#FFDAD6] text-[#93000A]'
+                        ? 'bg-[#FFDAD6] text-[#93000A] shadow-[2px_2px_0px_0px_#1C1A27]'
                         : 'bg-white text-[#454654] opacity-70'
                     }`}
                   >
@@ -647,9 +934,9 @@ export default function Index({
                   <button
                     type="button"
                     onClick={() => setEditForm({ ...editForm, type: 'income' })}
-                    className={`flex-1 py-3 border-4 border-[#1C1A27] font-label-mono text-xs uppercase font-bold neo-shadow-sm cursor-pointer transition-all ${
+                    className={`py-2.5 border-3 border-[#1C1A27] font-label-mono text-xs uppercase font-black cursor-pointer transition-all ${
                       editForm.type === 'income'
-                        ? 'bg-[#4ADE80] text-[#1C1A27]'
+                        ? 'bg-[#4ADE80] text-[#14532D] shadow-[2px_2px_0px_0px_#1C1A27]'
                         : 'bg-white text-[#454654] opacity-70'
                     }`}
                   >
@@ -660,13 +947,13 @@ export default function Index({
 
               {/* Wallet Select */}
               <div>
-                <label className="block font-label-mono text-xs uppercase font-bold text-[#1C1A27] mb-2">
+                <label className="block font-label-mono text-xs uppercase font-bold text-[#1C1A27] mb-1.5">
                   PILIH SUMBER WALLET
                 </label>
                 <select
                   value={editForm.wallet_id}
                   onChange={(e) => setEditForm({ ...editForm, wallet_id: e.target.value })}
-                  className="w-full neo-border p-3 font-body-md bg-white text-[#1C1A27] font-bold cursor-pointer"
+                  className="w-full border-3 border-[#1C1A27] p-2.5 font-body-md bg-white text-[#1C1A27] font-bold cursor-pointer shadow-[2px_2px_0px_0px_#1C1A27]"
                   required
                 >
                   {wallets.map((w) => (
@@ -679,30 +966,30 @@ export default function Index({
 
               {/* Category */}
               <div>
-                <label className="block font-label-mono text-xs uppercase font-bold text-[#1C1A27] mb-2">
+                <label className="block font-label-mono text-xs uppercase font-bold text-[#1C1A27] mb-1.5">
                   KATEGORI
                 </label>
                 <input
                   type="text"
                   value={editForm.category}
                   onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
-                  className="w-full neo-border p-3 font-body-md bg-white text-[#1C1A27] font-bold"
+                  className="w-full border-3 border-[#1C1A27] p-2.5 font-body-md bg-white text-[#1C1A27] font-bold shadow-[2px_2px_0px_0px_#1C1A27]"
                   required
                 />
               </div>
 
               {/* Amount */}
               <div>
-                <label className="block font-label-mono text-xs uppercase font-bold text-[#1C1A27] mb-2">
-                  NOMINAL (IDR)
+                <label className="block font-label-mono text-xs uppercase font-bold text-[#1C1A27] mb-1.5">
+                  NOMINAL (Rp)
                 </label>
                 <div className="relative flex items-center">
-                  <span className="absolute left-4 text-xl font-number-xl font-bold text-[#454654]">Rp</span>
+                  <span className="absolute left-3 text-lg font-number-xl font-bold text-[#454654]">Rp</span>
                   <CurrencyInput
                     value={editForm.amount}
                     onChange={(raw) => setEditForm({ ...editForm, amount: raw })}
-                    size="lg"
-                    className="w-full neo-border py-3 pl-14 pr-4 bg-white font-number-xl text-[#1C1A27] font-bold"
+                    size="md"
+                    className="w-full border-3 border-[#1C1A27] py-2.5 pl-12 pr-3 bg-white font-number-xl text-[#1C1A27] font-bold shadow-[2px_2px_0px_0px_#1C1A27]"
                     required
                   />
                 </div>
@@ -710,30 +997,30 @@ export default function Index({
 
               {/* Note */}
               <div>
-                <label className="block font-label-mono text-xs uppercase font-bold text-[#1C1A27] mb-2">
+                <label className="block font-label-mono text-xs uppercase font-bold text-[#1C1A27] mb-1.5">
                   CATATAN / KETERANGAN
                 </label>
                 <input
                   type="text"
                   value={editForm.note}
                   onChange={(e) => setEditForm({ ...editForm, note: e.target.value })}
-                  className="w-full neo-border p-3 font-body-md bg-[#F1EBFE] text-[#1C1A27] font-bold"
+                  className="w-full border-3 border-[#1C1A27] p-2.5 font-body-md bg-[#F1EBFE] text-[#1C1A27] font-bold shadow-[2px_2px_0px_0px_#1C1A27]"
                 />
               </div>
 
-              <div className="pt-4 flex gap-3">
+              <div className="pt-3 flex gap-2">
                 <button
                   type="button"
                   onClick={() => setEditingMessage(null)}
-                  className="flex-1 bg-white border-4 border-[#1C1A27] py-3 font-label-mono text-xs uppercase font-bold neo-shadow-sm hover:bg-gray-100"
+                  className="flex-1 bg-white border-3 border-[#1C1A27] py-2.5 font-label-mono text-xs uppercase font-bold shadow-[2px_2px_0px_0px_#1C1A27] hover:bg-gray-100 cursor-pointer"
                 >
                   BATAL
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 bg-[#4ADE80] text-[#1C1A27] border-4 border-[#1C1A27] py-3 font-label-mono text-xs uppercase font-bold neo-shadow-sm hover:bg-[#22C55E] hover:text-white"
+                  className="flex-1 bg-[#4ADE80] text-[#14532D] border-3 border-[#1C1A27] py-2.5 font-label-mono text-xs uppercase font-black shadow-[2px_2px_0px_0px_#1C1A27] hover:bg-[#22C55E] cursor-pointer"
                 >
-                  SIMPAN & KONFIRMASI
+                  SIMPAN
                 </button>
               </div>
             </form>
@@ -741,45 +1028,45 @@ export default function Index({
         </div>
       )}
 
-      {/* CAMERA / ATTACHMENT BOTTOM-SHEET MODAL */}
+      {/* ========== 6. CAMERA / ATTACHMENT MODAL (CENTERED & PROMINENT) ========== */}
       {showCameraModal && (
         <div
-          className="fixed inset-0 z-50 bg-[#1C1A27]/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-[#1C1A27]/65 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6 select-none animate-in fade-in duration-150"
           onClick={() => setShowCameraModal(false)}
         >
           <div
-            className="bg-[#FDF8FF] border-4 border-[#1C1A27] neo-shadow p-6 md:p-8 w-full max-w-md transform rotate-[0.5deg]"
+            className="bg-[#FDF8FF] border-4 border-[#1C1A27] neo-shadow p-5 sm:p-7 w-full max-w-md my-auto animate-in zoom-in-95 duration-150 relative shadow-[6px_6px_0px_0px_#1C1A27]"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex justify-between items-center border-b-4 border-[#1C1A27] pb-4 mb-6">
+            <div className="flex justify-between items-center border-b-4 border-[#1C1A27] pb-3 mb-4">
               <div>
-                <h3 className="text-2xl font-headline-md font-black text-[#1C1A27] uppercase">
-                  KIRIM FOTO STRUK
+                <h3 className="text-xl font-headline-md font-black text-[#1C1A27] uppercase">
+                  UNGGAH STRUK BELANJA
                 </h3>
-                <p className="text-xs font-body-md text-[#454654] font-bold mt-1">
-                  Unggah nota belanja untuk pemindaian OCR & auto-input.
+                <p className="text-[11px] font-body-md text-[#454654] font-bold mt-0.5">
+                  OCR AI akan otomatis membaca nama toko & nominal belanja.
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setShowCameraModal(false)}
-                className="w-10 h-10 bg-white border-4 border-[#1C1A27] flex items-center justify-center cursor-pointer hover:bg-[#FFDAD6] font-bold neo-shadow-sm"
+                className="w-8 h-8 bg-white border-2 border-[#1C1A27] flex items-center justify-center cursor-pointer hover:bg-[#FFDAD6] font-bold shadow-[2px_2px_0px_0px_#000]"
               >
                 ✕
               </button>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-3">
               <button
                 type="button"
                 onClick={() => {
                   setShowCameraModal(false);
                   cameraInputRef.current?.click();
                 }}
-                className="w-full bg-[#8B5CF6] text-white border-4 border-[#1C1A27] neo-shadow py-4 px-6 font-headline-md text-lg uppercase font-bold flex items-center justify-center gap-3 hover:bg-[#3B4CCA] transition-all cursor-pointer"
+                className="w-full bg-[#8B5CF6] text-white border-3 border-[#1C1A27] shadow-[3px_3px_0px_0px_#1C1A27] py-3.5 px-4 font-headline-md text-sm uppercase font-black flex items-center justify-center gap-2 hover:bg-[#7C3AED] transition-all cursor-pointer active:translate-y-0.5"
               >
-                <span className="text-2xl">📷</span>
-                AMBIL FOTO LANGSUNG (KAMERA)
+                <MaterialIcon name="photo_camera" className="text-xl font-bold" />
+                AMBIL FOTO (KAMERA HP)
               </button>
 
               <button
@@ -788,24 +1075,24 @@ export default function Index({
                   setShowCameraModal(false);
                   galleryInputRef.current?.click();
                 }}
-                className="w-full bg-white text-[#1C1A27] border-4 border-[#1C1A27] neo-shadow py-4 px-6 font-headline-md text-lg uppercase font-bold flex items-center justify-center gap-3 hover:bg-[#E7DEFF] transition-all cursor-pointer"
+                className="w-full bg-white text-[#1C1A27] border-3 border-[#1C1A27] shadow-[3px_3px_0px_0px_#1C1A27] py-3.5 px-4 font-headline-md text-sm uppercase font-black flex items-center justify-center gap-2 hover:bg-[#F1EBFE] transition-all cursor-pointer active:translate-y-0.5"
               >
-                <span className="text-2xl">🖼️</span>
-                PILIH DARI GALERI HP / FILE
+                <MaterialIcon name="photo_library" className="text-xl text-[#3B4CCA]" />
+                PILIH DARI GALERI / FILE
               </button>
 
               <button
                 type="button"
                 onClick={handleDemoPresetReceipt}
-                className="w-full bg-[#FEF08A] text-[#1C1A27] border-4 border-[#1C1A27] neo-shadow py-3 px-6 font-label-mono text-xs uppercase font-bold flex items-center justify-center gap-2 hover:bg-[#FACC15] transition-all cursor-pointer"
+                className="w-full bg-[#FEF08A] text-[#854D0E] border-3 border-[#1C1A27] shadow-[3px_3px_0px_0px_#1C1A27] py-2.5 px-4 font-label-mono text-xs uppercase font-black flex items-center justify-center gap-1.5 hover:bg-yellow-300 transition-all cursor-pointer active:translate-y-0.5"
               >
-                <span className="text-base">⚡</span>
-                GUNAKAN STRUK CONTOH DEMO
+                <MaterialIcon name="bolt" className="text-base font-bold text-[#D97706]" />
+                GUNAKAN STRUK DEMO (SPBU)
               </button>
             </div>
           </div>
         </div>
       )}
-    </AuthenticatedLayout>
+    </>
   );
 }

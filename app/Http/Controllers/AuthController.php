@@ -156,18 +156,51 @@ class AuthController extends Controller
             }
 
             if (!$googleUser || !$googleUser->getEmail()) {
-                return redirect('/login')->with('error', 'Tidak dapat mengambil data email dari Google.');
+                return redirect(Auth::check() ? '/profile' : '/login')
+                    ->with('error', 'Tidak dapat mengambil data email dari Google.');
             }
 
-            $user = User::where('email', $googleUser->getEmail())->first();
+            $googleId = (string) $googleUser->getId();
+            $googleEmail = $googleUser->getEmail();
+            $googleAvatar = $googleUser->getAvatar();
+            $googleName = $googleUser->getName() ?: ($googleUser->getNickname() ?: 'Google User');
+
+            // KONDISI 1: User sedang login dan ingin menghubungkan akun Google dari halaman Profile
+            if (Auth::check()) {
+                $currentUser = Auth::user();
+
+                // Cek apakah Google ID ini sudah dipakai akun lain
+                $existingWithGoogle = User::where('google_id', $googleId)
+                    ->where('id', '!=', $currentUser->id)
+                    ->first();
+
+                if ($existingWithGoogle) {
+                    return redirect('/profile')->with('error', 'Akun Google ini sudah terhubung dengan akun pengguna lain.');
+                }
+
+                $currentUser->update([
+                    'google_id' => $googleId,
+                    'avatar_url' => $currentUser->avatar_url ?: $googleAvatar,
+                ]);
+
+                return redirect('/profile')->with('success', 'Akun Google (' . $googleEmail . ') berhasil dihubungkan ke profil Anda!');
+            }
+
+            // KONDISI 2: Login / Register dari Halaman Login
+            $user = User::where('google_id', $googleId)->first();
+
+            if (!$user) {
+                $user = User::where('email', $googleEmail)->first();
+            }
 
             if (!$user) {
                 // Register user baru dari akun Google
                 $user = User::create([
-                    'name' => $googleUser->getName() ?: ($googleUser->getNickname() ?: 'Google User'),
-                    'email' => $googleUser->getEmail(),
+                    'name' => $googleName,
+                    'email' => $googleEmail,
+                    'google_id' => $googleId,
                     'phone_number' => '08' . rand(100000000, 999999999),
-                    'avatar_url' => $googleUser->getAvatar(),
+                    'avatar_url' => $googleAvatar,
                     'password' => Hash::make(Str::random(24)),
                     'is_active' => true,
                 ]);
@@ -183,18 +216,28 @@ class AuthController extends Controller
                     'is_active' => true,
                     'display_order' => 1,
                 ]);
-            } else if ($googleUser->getAvatar() && !$user->avatar_url) {
-                $user->update(['avatar_url' => $googleUser->getAvatar()]);
+            } else {
+                $updateData = [];
+                if (!$user->google_id) {
+                    $updateData['google_id'] = $googleId;
+                }
+                if ($googleAvatar && !$user->avatar_url) {
+                    $updateData['avatar_url'] = $googleAvatar;
+                }
+                if (!empty($updateData)) {
+                    $user->update($updateData);
+                }
             }
 
             Auth::login($user, true);
             $request->session()->regenerate();
             $request->session()->forget('url.intended');
 
-            return redirect('/dashboard')->with('success', 'Berhasil masuk dengan Google!');
+            return redirect('/dashboard')->with('success', 'Berhasil masuk dengan akun Google!');
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Google OAuth Error: ' . $e->getMessage());
-            return redirect('/login')->with('error', 'Gagal login via Google: ' . $e->getMessage());
+            return redirect(Auth::check() ? '/profile' : '/login')
+                ->with('error', 'Gagal memproses otentikasi Google: ' . $e->getMessage());
         }
     }
 

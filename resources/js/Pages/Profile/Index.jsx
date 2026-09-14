@@ -1,5 +1,5 @@
-import React from 'react';
-import { Head, useForm, usePage } from '@inertiajs/react';
+import React, { useState } from 'react';
+import { Head, useForm, usePage, router } from '@inertiajs/react';
 import AuthenticatedLayout from '../../Layouts/AuthenticatedLayout';
 import NeoCard from '../../Components/NeoCard';
 import NeoInput from '../../Components/NeoInput';
@@ -8,6 +8,7 @@ import MaterialIcon from '../../Components/MaterialIcon';
 
 export default function Index({ user = {}, stats = {} }) {
   const { flash } = usePage().props;
+  const [disconnecting, setDisconnecting] = useState(false);
 
   // Profile Form State
   const profileForm = useForm({
@@ -39,6 +40,17 @@ export default function Index({ user = {}, stats = {} }) {
     });
   };
 
+  const handleDisconnectGoogle = (e) => {
+    e.preventDefault();
+    if (confirm('Apakah Anda yakin ingin memutuskan hubungan akun Google dari profil ini?')) {
+      setDisconnecting(true);
+      router.post('/profile/google/disconnect', {}, {
+        preserveScroll: true,
+        onFinish: () => setDisconnecting(false),
+      });
+    }
+  };
+
   const presetAvatars = [
     `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(user.name || 'Alpha')}`,
     `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(user.name || 'Beta')}`,
@@ -65,6 +77,14 @@ export default function Index({ user = {}, stats = {} }) {
         <div className="mb-6 bg-[#4ADE80] text-[#1C1A27] border-4 border-[#1C1A27] neo-shadow p-4 flex items-center gap-3 font-label-mono text-sm uppercase font-black transform rotate-[-0.5deg]">
           <MaterialIcon name="check_circle" className="text-2xl text-[#166534]" />
           <span>{flash.success}</span>
+        </div>
+      )}
+
+      {/* Error Notification Alert */}
+      {flash?.error && (
+        <div className="mb-6 bg-[#FFDAD6] text-[#93000A] border-4 border-[#1C1A27] neo-shadow p-4 flex items-center gap-3 font-label-mono text-sm uppercase font-black transform rotate-[-0.5deg]">
+          <MaterialIcon name="error" className="text-2xl text-[#BA1A1A]" />
+          <span>{flash.error}</span>
         </div>
       )}
 
@@ -269,28 +289,80 @@ export default function Index({ user = {}, stats = {} }) {
         {/* RIGHT COLUMN: Account Status & Settings Shortcuts */}
         <div className="space-y-6">
           {/* Account Status Badge Card */}
-          <NeoCard bg="bg-[#F1EBFE]" className="p-6 space-y-4">
-            <h4 className="font-headline-md text-lg font-black uppercase text-[#1C1A27]">
-              STATUS AKUN & SISTEM
-            </h4>
+          <NeoCard bg="bg-[#F1EBFE]" className="p-6 space-y-5">
+            <div className="flex items-center gap-2.5 border-b-3 border-[#1C1A27] pb-3">
+              <div className="w-8 h-8 bg-[#3B4CCA] text-white neo-border flex items-center justify-center font-bold">
+                <MaterialIcon name="verified_user" className="text-lg" />
+              </div>
+              <h4 className="font-headline-md text-lg font-black uppercase text-[#1C1A27]">
+                STATUS AKUN & SISTEM
+              </h4>
+            </div>
 
             <div className="space-y-3 font-label-mono text-xs uppercase font-bold">
-              <div className="flex justify-between items-center bg-white p-3 neo-border">
+              <div className="flex justify-between items-center bg-white p-3 neo-border shadow-[2px_2px_0px_0px_#1C1A27]">
                 <span className="text-[#454654]">STATUS SISTEM</span>
-                <span className="text-[#166534] bg-[#DCFCE7] border border-[#1C1A27] px-2 py-0.5">
-                  AKTIF & TERKONEKSI
+                <span className="text-[#166534] bg-[#DCFCE7] border-2 border-[#1C1A27] px-2 py-0.5">
+                  AKTIF & ONLINE
                 </span>
               </div>
 
-              <div className="flex justify-between items-center bg-white p-3 neo-border">
-                <span className="text-[#454654]">METODE AUTH</span>
-                <span className="text-[#3B4CCA]">EMAIL / WA / GOOGLE</span>
-              </div>
-
-              <div className="flex justify-between items-center bg-white p-3 neo-border">
+              <div className="flex justify-between items-center bg-white p-3 neo-border shadow-[2px_2px_0px_0px_#1C1A27]">
                 <span className="text-[#454654]">DATABASE ENGINE</span>
                 <span className="text-[#8B5CF6]">MYSQL REALTIME</span>
               </div>
+            </div>
+
+            {/* Google Authentication Method Section */}
+            <div className="bg-white border-3 border-[#1C1A27] p-4 space-y-3 shadow-[3px_3px_0px_0px_#1C1A27]">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 bg-[#EA4335] text-white border-2 border-[#1C1A27] flex items-center justify-center font-headline-md font-black text-xs shadow-[1px_1px_0px_0px_#1C1A27] shrink-0">
+                    G
+                  </div>
+                  <span className="font-headline-md text-xs sm:text-sm font-black text-[#1C1A27] uppercase">
+                    METODE AUTH GOOGLE
+                  </span>
+                </div>
+
+                {user.is_google_linked ? (
+                  <span className="bg-[#DCFCE7] text-[#166534] border-2 border-[#1C1A27] px-2 py-0.5 font-label-mono text-[10px] font-black flex items-center gap-1 shadow-[1px_1px_0px_0px_#1C1A27] shrink-0">
+                    <MaterialIcon name="check_circle" className="text-xs" />
+                    TERHUBUNG
+                  </span>
+                ) : (
+                  <span className="bg-[#FEF3C7] text-[#92400E] border-2 border-[#1C1A27] px-2 py-0.5 font-label-mono text-[10px] font-black flex items-center gap-1 shadow-[1px_1px_0px_0px_#1C1A27] shrink-0">
+                    <MaterialIcon name="link_off" className="text-xs" />
+                    BELUM TERHUBUNG
+                  </span>
+                )}
+              </div>
+
+              <p className="font-body-md text-xs text-[#454654] font-bold leading-relaxed">
+                {user.is_google_linked
+                  ? 'Akun Google Anda sudah terhubung dengan sistem. Anda dapat masuk ke aplikasi secara instan dengan One-Click Google Login.'
+                  : 'Akun Anda saat ini didaftarkan secara manual. Hubungkan dengan akun Google Anda untuk login 1-klik yang lebih cepat dan aman.'}
+              </p>
+
+              {user.is_google_linked ? (
+                <button
+                  type="button"
+                  onClick={handleDisconnectGoogle}
+                  disabled={disconnecting}
+                  className="w-full bg-[#FFDAD6] text-[#93000A] hover:bg-[#BA1A1A] hover:text-white border-2 border-[#1C1A27] py-2 px-3 font-label-mono text-xs font-black uppercase transition-all shadow-[2px_2px_0px_0px_#1C1A27] flex items-center justify-center gap-1.5 cursor-pointer active:translate-y-0.5 disabled:opacity-50"
+                >
+                  <MaterialIcon name="link_off" className="text-base" />
+                  {disconnecting ? 'MEMUTUSKAN...' : 'PUTUSKAN SAMBUNGAN GOOGLE'}
+                </button>
+              ) : (
+                <a
+                  href="/auth/google"
+                  className="w-full bg-[#4285F4] hover:bg-[#3367D6] text-white border-2 border-[#1C1A27] py-2.5 px-3 font-headline-md text-xs font-black uppercase transition-all shadow-[2px_2px_0px_0px_#1C1A27] flex items-center justify-center gap-2 cursor-pointer active:translate-y-0.5 text-center"
+                >
+                  <MaterialIcon name="login" className="text-base" />
+                  HUBUNGKAN AKUN GOOGLE SEKARANG
+                </a>
+              )}
             </div>
           </NeoCard>
 

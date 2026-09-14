@@ -871,18 +871,18 @@ export default function Index({ goals = [], wallets = [], reminders = [] }) {
                     <button
                       type="button"
                       onClick={() => handleFastDeposit(reminder)}
-                      className="flex-1 bg-[#4ADE80] text-[#1C1A27] border-2 border-[#1C1A27] py-2 px-3 font-label-mono text-xs uppercase font-black hover:bg-[#22C55E] transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-[2px_2px_0px_0px_#1C1A27]"
+                      className="flex-1 min-w-0 bg-[#4ADE80] text-[#1C1A27] border-2 border-[#1C1A27] py-2 px-2 font-label-mono text-[11px] sm:text-xs uppercase font-black hover:bg-[#22C55E] transition-colors flex items-center justify-center gap-1 cursor-pointer shadow-[2px_2px_0px_0px_#1C1A27]"
                       title="Setor langsung nominal ini ke tabungan sekarang"
                     >
-                      <MaterialIcon name="savings" className="text-base" />
-                      NABUNG SEKARANG
+                      <MaterialIcon name="savings" className="text-base shrink-0" />
+                      <span className="truncate">NABUNG SEKARANG</span>
                     </button>
 
                     {/* Edit */}
                     <button
                       type="button"
                       onClick={() => openModal('reminder_edit', reminder)}
-                      className="w-9 h-9 bg-[#E7DEFF] text-[#1C1A27] border-2 border-[#1C1A27] flex items-center justify-center hover:bg-[#8B5CF6] hover:text-white transition-colors cursor-pointer shadow-[2px_2px_0px_0px_#1C1A27]"
+                      className="w-8 h-8 sm:w-9 sm:h-9 bg-[#E7DEFF] text-[#1C1A27] border-2 border-[#1C1A27] flex items-center justify-center hover:bg-[#8B5CF6] hover:text-white transition-colors cursor-pointer shadow-[2px_2px_0px_0px_#1C1A27] shrink-0"
                       title="Edit Pengingat"
                     >
                       <MaterialIcon name="edit" className="text-sm font-bold" />
@@ -892,7 +892,7 @@ export default function Index({ goals = [], wallets = [], reminders = [] }) {
                     <button
                       type="button"
                       onClick={() => openModal('reminder_delete', reminder)}
-                      className="w-9 h-9 bg-[#FFDAD6] text-[#93000A] border-2 border-[#1C1A27] flex items-center justify-center hover:bg-[#BA1A1A] hover:text-white transition-colors cursor-pointer shadow-[2px_2px_0px_0px_#1C1A27]"
+                      className="w-8 h-8 sm:w-9 sm:h-9 bg-[#FFDAD6] text-[#93000A] border-2 border-[#1C1A27] flex items-center justify-center hover:bg-[#BA1A1A] hover:text-white transition-colors cursor-pointer shadow-[2px_2px_0px_0px_#1C1A27] shrink-0"
                       title="Hapus Pengingat"
                     >
                       <MaterialIcon name="delete" className="text-sm font-bold" />
